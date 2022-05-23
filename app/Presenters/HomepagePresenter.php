@@ -244,7 +244,7 @@ class HomepagePresenter extends BasePresenter
                     ->setRequired()
                     ->addRule(Form::PATTERN, 'Nepovolený typ materiálu (povolené: serum, CSF) / Incorrect sample (allowed: serum, CSF).', '101|2') // allowed sample: serum, CSF
                     ->endCondition()
-                ->addConditionOn($form['assay'], Form::PATTERN, '10|11|12|13|14|15|16|17') // 
+                ->addConditionOn($form['assay'], Form::PATTERN, '10|11|12|13|14|15|16|17|18') // 
                     ->setRequired()
                     ->addRule(Form::PATTERN, 'Nepovolený typ materiálu (povolené: serum) / Incorrect sample (allowed: serum).', '101') // allowed sample: serum
                     ->endCondition();
@@ -294,25 +294,25 @@ class HomepagePresenter extends BasePresenter
         
         $form->addSelect('unit', '* Jednotka / Unit:', $units)
                 ->setDefaultValue(1)
-                ->addConditionOn($form['assay'], Form::PATTERN, '1|2|3|4|5|7|9|15') // BORRG, BORRM, CMVG, HHV6G, HSVG, VCAG, JCVG, SARSNPG
+                ->addConditionOn($form['assay'], Form::PATTERN, '1|2|3|4|5|7|9|15|18') // BORRG, BORRM, CMVG, HHV6G, HSVG, VCAG, JCVG, SARSNPG, EBNAG
                     ->setRequired()
-                    ->addRule(Form::PATTERN, 'Jednotku nezle použít pro zvolenou metodu (povolené jednotky IP, AU/ml) / Selected unit can not be used for selected assay (allowed units IP, AU/ml).', '[1]|[2]') // IP, AU
+                    ->addRule(Form::PATTERN, 'Jednotku nezle použít pro zvolenou metodu (povolené jednotky Index, AU/ml) / Selected unit can not be used for selected assay (allowed units Index, AU/ml).', '[1]|[2]') // IP, AU
                     ->endCondition()
                 ->addConditionOn($form['assay'], Form::EQUAL, '6') // TBEVG
                     ->setRequired()
-                    ->addRule(Form::PATTERN, 'Jednotku nezle použít pro zvolenou metodu (povolené jednotky IP, AU/ml, VIEU/ml) / Selected unit can not be used for selected assay (allowed units IP, AU/ml, VIEU/ml).', '[1]|[2]|[3]') // Povolené metody IP, AU, VIEU
+                    ->addRule(Form::PATTERN, 'Jednotku nezle použít pro zvolenou metodu (povolené jednotky Index, AU/ml, VIEU/ml) / Selected unit can not be used for selected assay (allowed units Index, AU/ml, VIEU/ml).', '[1]|[2]|[3]') // Povolené metody IP, AU, VIEU
                     ->endCondition()
                 ->addConditionOn($form['assay'], Form::EQUAL, '8') // VZVG
                     ->setRequired()
-                    ->addRule(Form::PATTERN, 'Jednotku nezle použít pro zvolenou metodu (povolené jednotky IP, mlU/ml) / Selected unit can not be used for selected assay (allowed units IP, mlU/ml).', '[1]|[4]') // Povolené jednotky IP, mlU/ml
+                    ->addRule(Form::PATTERN, 'Jednotku nezle použít pro zvolenou metodu (povolené jednotky Index, mlU/ml) / Selected unit can not be used for selected assay (allowed units Index, mlU/ml).', '[1]|[4]') // Povolené jednotky IP, mlU/ml
                     ->endCondition()
                 ->addConditionOn($form['assay'], Form::PATTERN, '10|11|12|16') // SARSSA, SARSSM, SARSSG, SARSRBDG
                     ->setRequired()
-                    ->addRule(Form::PATTERN, 'Jednotku nezle použít pro zvolenou metodu (povolené jednotky IP, IU/ml) / Selected unit can not be used for selected assay (allowed units IP, IU/ml).', '[1]|[5]') // IP, IU
+                    ->addRule(Form::PATTERN, 'Jednotku nezle použít pro zvolenou metodu (povolené jednotky Index, IU/ml) / Selected unit can not be used for selected assay (allowed units Index, IU/ml).', '[1]|[5]') // IP, IU
                     ->endCondition()
                 ->addConditionOn($form['assay'], Form::PATTERN, '13|14') // SARSNPA, SARSNPM
                     ->setRequired()
-                    ->addRule(Form::PATTERN, 'Jednotku nezle použít pro zvolenou metodu (povolené jednotky IP) / Selected unit can not be used for selected assay (allowed units IP).', '[1]') // IP
+                    ->addRule(Form::PATTERN, 'Jednotku nezle použít pro zvolenou metodu (povolené jednotky Index) / Selected unit can not be used for selected assay (allowed units Index).', '[1]') // IP
                     ->endCondition()
                 ->addConditionOn($form['assay'], Form::EQUAL, '17') // Pseudomonas aeruginosa IgG
                     ->setRequired()
