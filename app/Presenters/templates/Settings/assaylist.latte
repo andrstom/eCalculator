@@ -1,0 +1,53 @@
+{block content}
+<div class="section-colored text-center">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2 n:block=title>Metody</h2>
+                <hr>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <input type="button" value="Zpět" class="btn btn-primary" onclick="history.back()">
+                {if $user->isInRole('Admin')}
+                    <a n:href=Assay:add class="btn btn-primary">Nový</a>
+                {/if}
+
+                <table id="table-standard" class="display">
+                    <thead>
+                        <th>Upravit</th>
+                        <th>Smazat</th>
+                        <th>Zkratka</th>
+                        <th>Název</th>
+                        <th>Poznámka</th>
+                        <th>Aktivní</th>
+                        <th>Vložil</th>
+                        <th>Datum vložení</th>
+                        <th>Upravil</th>
+                        <th>Datum úpravy</th>
+                    </thead>
+                    <tbody>
+                        <tr n:foreach="$assaylist as $assay" class="assay">
+                            <td><a n:href="Assay:edit $assay->id" class="btn btn-info">Upravit</a></td>
+                            <td><a n:href="Assay:delete $assay->id" onclick="return confirm('Opravdu smazat???');" class="btn btn-danger">Smazat</a></td>
+                            <td>{$assay->assay_short}</td>
+                            <td>{$assay->assay_name}</td>
+                            <td>{$assay->notice}</td>
+                            <td>{$assay->active}</td>
+                            <td>{$assay->creator}</td>
+                            <td>{$assay->created_at|date:'j.n.Y H:i'}</td>
+                            <td>{$assay->editor}</td>
+                            <td>{$assay->edited_at|date:'j.n.Y H:i'}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

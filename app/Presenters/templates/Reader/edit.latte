@@ -1,0 +1,32 @@
+{block content}
+<div class="section-colored text-center">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2 n:block=title>Upravit fotometr / Edit reader</h2>
+                <hr>
+                <input type="button" value="Zpět" class="btn btn-primary" onclick="history.back()">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="col-lg-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <p>* povinné údaje</p>
+                        </div>
+                        <div class="panel-body">
+
+                            {control readerForm}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

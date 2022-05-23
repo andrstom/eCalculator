@@ -1,0 +1,78 @@
+{block content}
+<div class="section-colored text-center">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+
+                <h2 n:block="title">Výpočet intrathekální syntézy dle Reibera</h2>
+                <h3>Calculation of intrathecal synthesis according to Reiber</h3>
+                <hr>
+                <p>
+                    <a class="btn btn-primary" target="_blank" href="{$basePath}/images/eCalculator_syntesa_quickguide.pdf"><img src="{$basePath}/images/pdf_logo.png" width="25px"> Stručný průvodce / Quick guide</a>
+                    <a class="btn btn-info" target="_blank" href="{$basePath}/images/IS_interpretation_table.pdf"><img src="{$basePath}/images/pdf_logo.png" width="25px"> Interpretační tabulka / Table of interpretation</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                {form multiplierForm}
+                    <ul class="errors" n:if="$form->hasErrors()">
+                        <li n:foreach="$form->errors as $error">{$error}</li>
+                    </ul>
+                    <table id="samplesTable" class="table-responsive">
+                        <thead style="font-size: .9em; text-align: center;">
+                            <tr>
+                                <th><center>Vzorek ID</center></th>
+                                <th><center>Metoda</center></th>
+                                <th><center>Protilátka</center></th>
+                                <th><center>Konc. Ig<i>X</i> v séru (AU/ml)</center></th>
+                                <th><center>Konc. Ig<i>X</i> v CSF (AU/ml)</center></th>
+                                <th><center>Celková konc. Ig<i>X</i> v séru (mg/l)</center></th>
+                                <th><center>Celková konc. Ig<i>X</i> v CSF (mg/l)</center></th>
+                                <th><center>Celková konc. albuminu v séru (mg/l)</center></th>
+                                <th><center>Celková konc. albuminu v CSF (mg/l)</center></th>
+                            </tr>
+                            <tr>
+                                <td><small>Sample ID</small></td>
+                                <td><small>Assay</small></td>
+                                <td><small>Antibody</small></td>
+                                <td><small>Serum Ig<i>X</i> conc. </small>(AU/ml)</td>
+                                <td><small>CSF Ig<i>X</i> conc. </small>(AU/ml)</td>
+                                <td><small>Serum Ig<i>X</i> total conc. </small>(mg/l)</td>
+                                <td><small>CSF Ig<i>X</i> total conc. </small>(mg/l)</td>
+                                <td><small>Serum albumin total conc. </small>(mg/l)</td>
+                                <td><small>CSF albumin total conc. </small>(mg/l)</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        
+                            <tr n:multiplier="formValues">
+                                <td>{input sampleId}</td>
+                                <td>{input assay}</td>
+                                <td>{input antibody}</td>
+                                <td>{input serumIgAu}</td>
+                                <td>{input csfIgAu}</td>
+                                <td>{input serumIgTotal}</td>
+                                <td>{input csfIgTotal}</td>
+                                <td>{input serumAlbTotal}</td>
+                                <td>{input csfAlbTotal}</td>
+                                <td>{btnRemove 'class' => 'btn btn-danger'}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <hr>
+                    {btnCreate formValues 'class' => 'btn btn-primary'} | 
+                    {btnCreate $form[formValues]:5 'class' => 'btn btn-primary'}
+                    <br>
+                    <small><i>max. 100 vzorků / samples</i></small><br><br>
+                    <p>{input sendSyntesaPdf} {input sendSyntesaXls} {input sendSyntesaText}</p>
+                {/form}
+            </div>
+        </div>
+    </div>
+</div>

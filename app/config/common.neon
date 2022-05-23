@@ -1,0 +1,30 @@
+parameters:
+
+
+application:
+    errorPresenter: Error
+    mapping:
+        *: App\*Module\Presenters\*Presenter
+
+
+session:
+    expiration: 10 days
+    autoStart: true
+
+
+security:
+
+extensions:
+    - Contributte\FormMultiplier\DI\MultiplierExtension
+
+services:
+    router: App\Router\RouterFactory::createRouter
+    - App\Model\UserManager
+    - App\Model\DbHandler
+    - App\Model\CalculatorElisaManager
+    - App\Model\CalculatorSyntesaManager
+    - App\Model\PdfManager
+    - App\Model\QualityControlManager
+    - App\Model\SpreadsheetManager
+    - App\Model\TextManager
+    - App\Model\VisitorManager

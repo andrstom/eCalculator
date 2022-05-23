@@ -1,0 +1,29 @@
+{block content}
+<div class="section-colored text-center">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 n:block="title">Nastavení</h1>
+                <hr>
+                <input type="button" value="Zpět" class="btn btn-primary" onclick="history.back()">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section text-center">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="btn-list">
+                    <div class="col-md-3"><a n:href="Settings:userlist" class="btn btn-primary"><i class="fa fa-users fa-5x" aria-hidden="false"></i><br>Uživatelé / Users</a></div>
+                    {if $user->isInRole('Admin')}
+                        <div class="col-md-3"><a n:href="Settings:assaylist" class="btn btn-primary"><img src="{$basePath}/images/assays.png" width="70px"><br>Metody / Assays</a></div>
+                        <div class="col-md-3"><a n:href="Settings:unitlist" class="btn btn-primary"><img src="{$basePath}/images/units.png" width="70px"><br>Jednotky / Units</a></div>
+                        <div class="col-md-3"><a n:href="Settings:readerlist" class="btn btn-primary"><img src="{$basePath}/images/photometer-icon.png" width="70px"><br>Fotometry / Readers</a></div>
+                    {/if}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

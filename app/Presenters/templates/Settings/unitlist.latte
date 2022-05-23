@@ -1,0 +1,53 @@
+{block content}
+<div class="section-colored text-center">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2 n:block=title>Jednotky</h2>
+                <hr>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <input type="button" value="Zpět" class="btn btn-primary" onclick="history.back()">
+                {if $user->isInRole('Admin')}
+                    <a n:href=Unit:add class="btn btn-primary">Nový</a>
+                {/if}
+
+                <table id="table-standard" class="display">
+                    <thead>
+                        <th>Upravit</th>
+                        <th>Smazat</th>
+                        <th>Zkratka</th>
+                        <th>Název</th>
+                        <th>Poznámka</th>
+                        <th>Aktivní</th>
+                        <th>Vložil</th>
+                        <th>Datum vložení</th>
+                        <th>Upravil</th>
+                        <th>Datum úpravy</th>
+                    </thead>
+                    <tbody>
+                        <tr n:foreach="$unitlist as $unit" class="unit">
+                            <td><a n:href="Unit:edit $unit->id" class="btn btn-info">Upravit</a></td>
+                            <td><a n:href="Unit:delete $unit->id" onclick="return confirm('Opravdu smazat???');" class="btn btn-danger">Smazat</a></td>
+                            <td>{$unit->unit_short}</td>
+                            <td>{$unit->unit_name}</td>
+                            <td>{$unit->notice}</td>
+                            <td>{$unit->active}</td>
+                            <td>{$unit->creator}</td>
+                            <td>{$unit->created_at|date:'j.n.Y H:i'}</td>
+                            <td>{$unit->editor}</td>
+                            <td>{$unit->edited_at|date:'j.n.Y H:i'}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

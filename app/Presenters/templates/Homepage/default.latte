@@ -1,0 +1,373 @@
+{block content}
+<div class="section-colored text-center">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+
+                <h2 n:block="title">Kalkulačka / Calculator</h2>
+                <hr>
+                <p><a class="btn btn-primary" target="_blank" href="{$basePath}/images/eCalculator_elisa_quickguide.pdf"><img src="{$basePath}/images/pdf_logo.png" width="14px"> Stručný průvodce / Quick guide</a>
+                <a class="btn btn-danger" n:href="Syntesa:default"><i class="fa fa-calculator"></i> Intratekální sytéza protilátek / Intrathecal synthesis of antibodies <sup style='color:white; padding: 1px 1px 1px 1px; background-color: #e50000; border: 1px solid white; border-radius: 5px 0px 5px 0px;'>NEW</sup></a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    {snippetArea wrapper}
+
+                        {form calculatorForm}
+                            <ul n:if="$form->hasErrors()">
+                                <li n:foreach="$form->errors as $error">{$error}</li>
+                            </ul>
+
+                            <div class="panel-heading" style="background-color: #926ea3;" >
+                                <h4>1. Metoda / Assay</h4>
+                                <p>{label assay /} {input assay}</p>
+                            </div>
+                            <div class="panel-body">
+                                <h4>2. Parametry / Parameters <a data-toggle="collapse" data-target="#info-param" class="text-primary"><i class="fa fa-question-circle" aria-hidden="true"></i></a></h4>
+                                <div id="info-param" class="collapse help">
+                                    <p>Vyplňte parametry dle aktuálního certifikátu kvality. Chcete-li výsledky slovně vyhodnotit, po stisknutí tlačítka "Šedá zóna", vyplňte meze pro typ materiálu a příslušnou jednotku (0 = nebude vyhodnoceno).</p>
+                                    <p><small>Fill in the parameters according to the current quality certificat. If you want to interpret the results verbally, fill in the limits for the material type and the unit after pressing "Grey zone" button (0 ​​= will not be evaluated).</small></p>
+                                    <p><img src="{$basePath}/images/QC_vidia.jpg" alt="QC certifikat" title="QC certifikat" class="img-responsive img-rounded center-block"></p>
+                                </div>
+                                <p><small>Pro kvalitativní hodnocení vyplňte tabulku / Fill in the table for qualitative interpretation: <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#limits">Šedá zóna / Grey zone</button></small></p>
+
+                                {snippet paramSnippet}
+
+                                    <div id="limits" class="collapse">
+                                        <table id="table-limits" align="center">
+                                            <tr><td></td><td></td><th colspan=3>Material</th></tr>
+                                            <tr><th>Jednotka<br>Unit</th><th>Limit</th><th>Serum</th><th>CSF</th><th>Synovia</th></tr>
+                                            <tr><th>IP</th><td>Min<br>Max</td><td>{input serum_ip_min}{input serum_ip_max}</td><td>{input csf_ip_min}{input csf_ip_max}</td><td>{input synovia_ip_min}{input synovia_ip_max}</td></tr>
+                                            <tr><th>AU/ml</th><td>Min<br>Max</td><td>{input serum_au_min}{input serum_au_max}</td><td>{input csf_au_min}{input csf_au_max}</td><td>{input synovia_au_min}{input synovia_au_max}</td></tr>
+                                            <tr><th>IU/ml</th><td>Min<br>Max</td><td>{input serum_iu_min}{input serum_iu_max}</td><td>{input csf_iu_min}{input csf_iu_max}</td><td>{input synovia_iu_min}{input synovia_iu_max}</td></tr>
+                                            <tr><th>mlU/ml</th><td>Min<br>Max</td><td>{input serum_mlu_min}{input serum_mlu_max}</td><td>{input csf_mlu_min}{input csf_mlu_max}</td><td>{input synovia_mlu_min}{input synovia_mlu_max}</td></tr>
+                                            <tr><th>VIEU/ml</th><td>Min<br>Max</td><td>{input serum_vieu_min}{input serum_vieu_max}</td><td>{input csf_vieu_min}{input csf_vieu_max}</td><td>{input synovia_vieu_min}{input synovia_vieu_max}</td></tr>
+                                        </table>
+                                        <hr>
+                                    </div>
+
+                                    <p>{label batch /}{input batch}</p>
+                                    <p>{label expiry /}{input expiry}</p>
+                                    <table>
+                                        <tr style="border-bottom: 1px solid #774A8D;"><th>Korekční faktor / Correction factor</th><td>{label kf_serum /} {input kf_serum}</td><td>{label kf_csf /} {input kf_csf}</td><td>{label kf_synovia /} {input kf_synovia}</td></tr>
+                                        <tr style="border-bottom: 1px solid #774A8D;"><th>* Poměr OD / Ratio OD</th><td>{label ratio_min /} {input ratio_min}</td><td>{label ratio_max /} {input ratio_max}</td></tr>
+                                        <tr><td>{label std_bmax /} {input std_bmax}</td><td>{label a1 /} {input a1}</td><td>{label a2 /} {input a2}</td><td>{label c /} {input c}</td></tr>
+                                        <tr><td>{label c_min /} {input c_min}</td><td>{label c_max /} {input c_max}</td></tr>
+                                    </table>
+
+                                    <hr>
+                                    <p>{label unit} {input unit}</p>
+
+                                {/snippet}
+
+                                <hr>
+                                <p>{label dilution} {input dilution}</p>
+                                <hr>
+                                <h4>3. Naměřené hodnoty / Measured values <a data-toggle="collapse" data-target="#info-reader" class="text-primary"><i class="fa fa-question-circle" aria-hidden="true"></i></a></h4>
+                                <div id="info-reader" class="collapse help">
+                                    <ol>
+                                        <li><b>Reader</b> (Kalkulátor zpracuje soubor z fotometru, stisknutím "Procházet..." vyberte soubor.) - POUZE pro registrované uživatele <br><small>(The calculator processes the file from the reader, press "Browse ..." to select the file.) - for registered user ONLY</small></li>
+                                        <li><b>Manual</b> (Ruční vložení naměřených hodnot do tabulky "Optická denzita") <br><small>(Entering the measured values manually to the "Optical Density" table)</small></li>
+                                    </ol>
+                                </div>
+                                <p>{label reader} {input reader}</p>
+
+                                <div id="source-container-reader">
+                                    <p>{label file} {input file}</p>
+                                </div>
+
+                                <div id="source-container-manual">
+                                    <h4>Optická denzita / Optical density:</h4>
+                                    <table id="table-od" width="100%">
+                                        <tr><th></th><th>1.</th><th>2.</th><th>3.</th><th>4.</th><th>5.</th><th>6.</th><th>7.</th><th>8.</th><th>9.</th><th>10.</th><th>11.</th><th>12.</th></tr>
+                                        <tr>
+                                            <th>A</th>
+                                            <td><input tabindex="101" type="text" name="Abs[1]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[1]}{/if}" /></td>
+                                            <td><input tabindex="109" type="text" name="Abs[2]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[2]}{/if}" /></td>
+                                            <td><input tabindex="117" type="text" name="Abs[3]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[3]}{/if}" /></td>
+                                            <td><input tabindex="125" type="text" name="Abs[4]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[4]}{/if}" /></td>
+                                            <td><input tabindex="133" type="text" name="Abs[5]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[5]}{/if}" /></td>
+                                            <td><input tabindex="141" type="text" name="Abs[6]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[6]}{/if}" /></td>
+                                            <td><input tabindex="149" type="text" name="Abs[7]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[7]}{/if}" /></td>
+                                            <td><input tabindex="157" type="text" name="Abs[8]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[8]}{/if}" /></td>
+                                            <td><input tabindex="165" type="text" name="Abs[9]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[9]}{/if}" /></td>
+                                            <td><input tabindex="173" type="text" name="Abs[10]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[10]}{/if}" /></td>
+                                            <td><input tabindex="181" type="text" name="Abs[11]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[11]}{/if}" /></td>
+                                            <td><input tabindex="189" type="text" name="Abs[12]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[12]}{/if}" /></td>
+                                        </tr>
+                                        <tr>
+                                            <th>B</th>
+                                            <td><input tabindex="102" type="text" name="Abs[13]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[13]}{/if}" /></td>
+                                            <td><input tabindex="110" type="text" name="Abs[14]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[14]}{/if}" /></td>
+                                            <td><input tabindex="118" type="text" name="Abs[15]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[15]}{/if}" /></td>
+                                            <td><input tabindex="126" type="text" name="Abs[16]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[16]}{/if}" /></td>
+                                            <td><input tabindex="134" type="text" name="Abs[17]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[17]}{/if}" /></td>
+                                            <td><input tabindex="142" type="text" name="Abs[18]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[18]}{/if}" /></td>
+                                            <td><input tabindex="150" type="text" name="Abs[19]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[19]}{/if}" /></td>
+                                            <td><input tabindex="158" type="text" name="Abs[20]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[20]}{/if}" /></td>
+                                            <td><input tabindex="166" type="text" name="Abs[21]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[21]}{/if}" /></td>
+                                            <td><input tabindex="174" type="text" name="Abs[22]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[22]}{/if}" /></td>
+                                            <td><input tabindex="182" type="text" name="Abs[23]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[23]}{/if}" /></td>
+                                            <td><input tabindex="190" type="text" name="Abs[24]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[24]}{/if}" /></td>
+                                        </tr>
+                                        <tr>
+                                            <th>C</th>
+                                            <td><input tabindex="103" type="text" name="Abs[25]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[25]}{/if}" /></td>
+                                            <td><input tabindex="111" type="text" name="Abs[26]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[26]}{/if}" /></td>
+                                            <td><input tabindex="119" type="text" name="Abs[27]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[27]}{/if}" /></td>
+                                            <td><input tabindex="127" type="text" name="Abs[28]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[28]}{/if}" /></td>
+                                            <td><input tabindex="135" type="text" name="Abs[29]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[29]}{/if}" /></td>
+                                            <td><input tabindex="143" type="text" name="Abs[30]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[30]}{/if}" /></td>
+                                            <td><input tabindex="151" type="text" name="Abs[31]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[31]}{/if}" /></td>
+                                            <td><input tabindex="159" type="text" name="Abs[32]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[32]}{/if}" /></td>
+                                            <td><input tabindex="167" type="text" name="Abs[33]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[33]}{/if}" /></td>
+                                            <td><input tabindex="175" type="text" name="Abs[34]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[34]}{/if}" /></td>
+                                            <td><input tabindex="183" type="text" name="Abs[35]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[35]}{/if}" /></td>
+                                            <td><input tabindex="191" type="text" name="Abs[36]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[36]}{/if}" /></td>
+                                        </tr>
+                                        <tr>
+                                            <th>D</th>
+                                            <td><input tabindex="104" type="text" name="Abs[37]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[37]}{/if}" /></td>
+                                            <td><input tabindex="112" type="text" name="Abs[38]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[38]}{/if}" /></td>
+                                            <td><input tabindex="120" type="text" name="Abs[39]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[39]}{/if}" /></td>
+                                            <td><input tabindex="128" type="text" name="Abs[40]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[40]}{/if}" /></td>
+                                            <td><input tabindex="136" type="text" name="Abs[41]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[41]}{/if}" /></td>
+                                            <td><input tabindex="144" type="text" name="Abs[42]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[42]}{/if}" /></td>
+                                            <td><input tabindex="152" type="text" name="Abs[43]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[43]}{/if}" /></td>
+                                            <td><input tabindex="160" type="text" name="Abs[44]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[44]}{/if}" /></td>
+                                            <td><input tabindex="168" type="text" name="Abs[45]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[45]}{/if}" /></td>
+                                            <td><input tabindex="176" type="text" name="Abs[46]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[46]}{/if}" /></td>
+                                            <td><input tabindex="184" type="text" name="Abs[47]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[47]}{/if}" /></td>
+                                            <td><input tabindex="192" type="text" name="Abs[48]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[48]}{/if}" /></td>
+                                        </tr>
+                                        <tr>
+                                            <th>E</th>
+                                            <td><input tabindex="105" type="text" name="Abs[49]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[49]}{/if}" /></td>
+                                            <td><input tabindex="113" type="text" name="Abs[50]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[50]}{/if}" /></td>
+                                            <td><input tabindex="121" type="text" name="Abs[51]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[51]}{/if}" /></td>
+                                            <td><input tabindex="129" type="text" name="Abs[52]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[52]}{/if}" /></td>
+                                            <td><input tabindex="137" type="text" name="Abs[53]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[53]}{/if}" /></td>
+                                            <td><input tabindex="145" type="text" name="Abs[54]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[54]}{/if}" /></td>
+                                            <td><input tabindex="153" type="text" name="Abs[55]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[55]}{/if}" /></td>
+                                            <td><input tabindex="161" type="text" name="Abs[56]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[56]}{/if}" /></td>
+                                            <td><input tabindex="169" type="text" name="Abs[57]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[57]}{/if}" /></td>
+                                            <td><input tabindex="177" type="text" name="Abs[58]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[58]}{/if}" /></td>
+                                            <td><input tabindex="185" type="text" name="Abs[59]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[59]}{/if}" /></td>
+                                            <td><input tabindex="193" type="text" name="Abs[60]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[60]}{/if}" /></td>
+                                        </tr>
+                                        <tr>
+                                            <th>F</th>
+                                            <td><input tabindex="106" type="text" name="Abs[61]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[61]}{/if}" /></td>
+                                            <td><input tabindex="114" type="text" name="Abs[62]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[62]}{/if}" /></td>
+                                            <td><input tabindex="122" type="text" name="Abs[63]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[63]}{/if}" /></td>
+                                            <td><input tabindex="130" type="text" name="Abs[64]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[64]}{/if}" /></td>
+                                            <td><input tabindex="138" type="text" name="Abs[65]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[65]}{/if}" /></td>
+                                            <td><input tabindex="146" type="text" name="Abs[66]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[66]}{/if}" /></td>
+                                            <td><input tabindex="154" type="text" name="Abs[67]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[67]}{/if}" /></td>
+                                            <td><input tabindex="162" type="text" name="Abs[68]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[68]}{/if}" /></td>
+                                            <td><input tabindex="170" type="text" name="Abs[69]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[69]}{/if}" /></td>
+                                            <td><input tabindex="178" type="text" name="Abs[70]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[70]}{/if}" /></td>
+                                            <td><input tabindex="186" type="text" name="Abs[71]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[71]}{/if}" /></td>
+                                            <td><input tabindex="194" type="text" name="Abs[72]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[72]}{/if}" /></td>
+                                        </tr>
+                                        <tr>
+                                            <th>G</th>
+                                            <td><input tabindex="107" type="text" name="Abs[73]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[73]}{/if}" /></td>
+                                            <td><input tabindex="115" type="text" name="Abs[74]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[74]}{/if}" /></td>
+                                            <td><input tabindex="123" type="text" name="Abs[75]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[75]}{/if}" /></td>
+                                            <td><input tabindex="131" type="text" name="Abs[76]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[76]}{/if}" /></td>
+                                            <td><input tabindex="139" type="text" name="Abs[77]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[77]}{/if}" /></td>
+                                            <td><input tabindex="147" type="text" name="Abs[78]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[78]}{/if}" /></td>
+                                            <td><input tabindex="155" type="text" name="Abs[79]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[79]}{/if}" /></td>
+                                            <td><input tabindex="163" type="text" name="Abs[80]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[80]}{/if}" /></td>
+                                            <td><input tabindex="171" type="text" name="Abs[81]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[81]}{/if}" /></td>
+                                            <td><input tabindex="179" type="text" name="Abs[82]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[82]}{/if}" /></td>
+                                            <td><input tabindex="187" type="text" name="Abs[83]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[83]}{/if}" /></td>
+                                            <td><input tabindex="195" type="text" name="Abs[84]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[84]}{/if}" /></td>
+                                        </tr>
+                                        <tr>
+                                            <th>H</th>
+                                            <td><input tabindex="108" type="text" name="Abs[85]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[85]}{/if}" /></td>
+                                            <td><input tabindex="116" type="text" name="Abs[86]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[86]}{/if}" /></td>
+                                            <td><input tabindex="124" type="text" name="Abs[87]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[87]}{/if}" /></td>
+                                            <td><input tabindex="132" type="text" name="Abs[88]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[88]}{/if}" /></td>
+                                            <td><input tabindex="140" type="text" name="Abs[89]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[89]}{/if}" /></td>
+                                            <td><input tabindex="148" type="text" name="Abs[90]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[90]}{/if}" /></td>
+                                            <td><input tabindex="156" type="text" name="Abs[91]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[91]}{/if}" /></td>
+                                            <td><input tabindex="164" type="text" name="Abs[92]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[92]}{/if}" /></td>
+                                            <td><input tabindex="172" type="text" name="Abs[93]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[93]}{/if}" /></td>
+                                            <td><input tabindex="180" type="text" name="Abs[94]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[94]}{/if}" /></td>
+                                            <td><input tabindex="188" type="text" name="Abs[95]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[95]}{/if}" /></td>
+                                            <td><input tabindex="196" type="text" name="Abs[96]" size="3" class="form-control" value="{if isset($sendAbs)}{$sendAbs[96]}{/if}" /></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <hr>
+
+                                <h4>4. ID vzorku / Sample ID</h4>
+                                <table id="sample-id" width="100%">
+                                    <tr><th></th><th>1.</th><th>2.</th><th>3.</th><th>4.</th><th>5.</th><th>6.</th><th>7.</th><th>8.</th><th>9.</th><th>10.</th><th>11.</th><th>12.</th></tr>
+                                    <tr>
+                                        <th>A</th>
+                                        <td><input tabindex="1" type="text" name="sampleId[1]" id="A1" size="3" class="form-control" value="BLANK" /></td>
+                                        <td><input tabindex="9" type="text" name="sampleId[2]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[2]}{/if}" /></td>
+                                        <td><input tabindex="17" type="text" name="sampleId[3]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[3]}{/if}" /></td>
+                                        <td><input tabindex="25" type="text" name="sampleId[4]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[4]}{/if}" /></td>
+                                        <td><input tabindex="33" type="text" name="sampleId[5]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[5]}{/if}" /></td>
+                                        <td><input tabindex="41" type="text" name="sampleId[6]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[6]}{/if}" /></td>
+                                        <td><input tabindex="49" type="text" name="sampleId[7]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[7]}{/if}" /></td>
+                                        <td><input tabindex="57" type="text" name="sampleId[8]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[8]}{/if}" /></td>
+                                        <td><input tabindex="65" type="text" name="sampleId[9]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[9]}{/if}" /></td>
+                                        <td><input tabindex="73" type="text" name="sampleId[10]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[10]}{/if}" /></td>
+                                        <td><input tabindex="81" type="text" name="sampleId[11]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[11]}{/if}" /></td>
+                                        <td><input tabindex="89" type="text" name="sampleId[12]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[12]}{/if}" /></td>
+                                    </tr>
+                                    <tr>
+                                        <th>B</th>
+                                        <td><input tabindex="2" type="text" name="sampleId[13]" id="B1" size="3" class="form-control" value="ST D/CAL" /></td>
+                                        <td><input tabindex="10" type="text" name="sampleId[14]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[14]}{/if}" /></td>
+                                        <td><input tabindex="18" type="text" name="sampleId[15]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[15]}{/if}" /></td>
+                                        <td><input tabindex="26" type="text" name="sampleId[16]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[16]}{/if}" /></td>
+                                        <td><input tabindex="34" type="text" name="sampleId[17]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[17]}{/if}" /></td>
+                                        <td><input tabindex="42" type="text" name="sampleId[18]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[18]}{/if}" /></td>
+                                        <td><input tabindex="50" type="text" name="sampleId[19]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[19]}{/if}" /></td>
+                                        <td><input tabindex="58" type="text" name="sampleId[20]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[20]}{/if}" /></td>
+                                        <td><input tabindex="66" type="text" name="sampleId[21]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[21]}{/if}" /></td>
+                                        <td><input tabindex="74" type="text" name="sampleId[22]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[22]}{/if}" /></td>
+                                        <td><input tabindex="82" type="text" name="sampleId[23]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[23]}{/if}" /></td>
+                                        <td><input tabindex="90" type="text" name="sampleId[24]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[24]}{/if}" /></td>
+                                    </tr>
+                                    <tr>
+                                        <th>C</th>
+                                        <td><input tabindex="3" type="text" name="sampleId[25]" id="C1" size="3" class="form-control" value="ST D/CAL" /></td>
+                                        <td><input tabindex="11" type="text" name="sampleId[26]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[26]}{/if}" /></td>
+                                        <td><input tabindex="19" type="text" name="sampleId[27]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[27]}{/if}" /></td>
+                                        <td><input tabindex="27" type="text" name="sampleId[28]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[28]}{/if}" /></td>
+                                        <td><input tabindex="35" type="text" name="sampleId[29]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[29]}{/if}" /></td>
+                                        <td><input tabindex="43" type="text" name="sampleId[30]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[30]}{/if}" /></td>
+                                        <td><input tabindex="51" type="text" name="sampleId[31]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[31]}{/if}" /></td>
+                                        <td><input tabindex="59" type="text" name="sampleId[32]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[32]}{/if}" /></td>
+                                        <td><input tabindex="67" type="text" name="sampleId[33]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[33]}{/if}" /></td>
+                                        <td><input tabindex="75" type="text" name="sampleId[34]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[34]}{/if}" /></td>
+                                        <td><input tabindex="83" type="text" name="sampleId[35]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[35]}{/if}" /></td>
+                                        <td><input tabindex="91" type="text" name="sampleId[36]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[36]}{/if}" /></td>
+                                    </tr>
+                                    <tr>
+                                        <th>D</th>
+                                        <td><input tabindex="4" type="text" name="sampleId[37]" id="D1" size="3" class="form-control" value="ST E/PC" /></td>
+                                        <td><input tabindex="12" type="text" name="sampleId[38]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[38]}{/if}" /></td>
+                                        <td><input tabindex="20" type="text" name="sampleId[39]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[39]}{/if}" /></td>
+                                        <td><input tabindex="28" type="text" name="sampleId[40]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[40]}{/if}" /></td>
+                                        <td><input tabindex="36" type="text" name="sampleId[41]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[41]}{/if}" /></td>
+                                        <td><input tabindex="44" type="text" name="sampleId[42]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[42]}{/if}" /></td>
+                                        <td><input tabindex="52" type="text" name="sampleId[43]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[43]}{/if}" /></td>
+                                        <td><input tabindex="60" type="text" name="sampleId[44]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[44]}{/if}" /></td>
+                                        <td><input tabindex="68" type="text" name="sampleId[45]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[45]}{/if}" /></td>
+                                        <td><input tabindex="76" type="text" name="sampleId[46]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[46]}{/if}" /></td>
+                                        <td><input tabindex="84" type="text" name="sampleId[47]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[47]}{/if}" /></td>
+                                        <td><input tabindex="92" type="text" name="sampleId[48]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[48]}{/if}" /></td>
+                                    </tr>
+                                    <tr>
+                                        <th>E</th>
+                                        <td><input tabindex="5" type="text" name="sampleId[49]" id="E1" size="3" class="form-control" value="ST A/NC" /></td>
+                                        <td><input tabindex="13" type="text" name="sampleId[50]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[50]}{/if}" /></td>
+                                        <td><input tabindex="21" type="text" name="sampleId[51]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[51]}{/if}" /></td>
+                                        <td><input tabindex="29" type="text" name="sampleId[52]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[52]}{/if}" /></td>
+                                        <td><input tabindex="37" type="text" name="sampleId[53]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[53]}{/if}" /></td>
+                                        <td><input tabindex="45" type="text" name="sampleId[54]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[54]}{/if}" /></td>
+                                        <td><input tabindex="53" type="text" name="sampleId[55]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[55]}{/if}" /></td>
+                                        <td><input tabindex="61" type="text" name="sampleId[56]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[56]}{/if}" /></td>
+                                        <td><input tabindex="69" type="text" name="sampleId[57]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[57]}{/if}" /></td>
+                                        <td><input tabindex="77" type="text" name="sampleId[58]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[58]}{/if}" /></td>
+                                        <td><input tabindex="85" type="text" name="sampleId[59]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[59]}{/if}" /></td>
+                                        <td><input tabindex="93" type="text" name="sampleId[60]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[60]}{/if}" /></td>
+                                    </tr>
+                                    <tr>
+                                        <th>F</th>
+                                        <td><input tabindex="6" type="text" name="sampleId[61]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[61]}{/if}" /></td>
+                                        <td><input tabindex="14" type="text" name="sampleId[62]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[62]}{/if}" /></td>
+                                        <td><input tabindex="22" type="text" name="sampleId[63]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[63]}{/if}" /></td>
+                                        <td><input tabindex="30" type="text" name="sampleId[64]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[64]}{/if}" /></td>
+                                        <td><input tabindex="38" type="text" name="sampleId[65]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[65]}{/if}" /></td>
+                                        <td><input tabindex="46" type="text" name="sampleId[66]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[66]}{/if}" /></td>
+                                        <td><input tabindex="54" type="text" name="sampleId[67]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[67]}{/if}" /></td>
+                                        <td><input tabindex="62" type="text" name="sampleId[68]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[68]}{/if}" /></td>
+                                        <td><input tabindex="70" type="text" name="sampleId[69]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[69]}{/if}" /></td>
+                                        <td><input tabindex="78" type="text" name="sampleId[70]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[70]}{/if}" /></td>
+                                        <td><input tabindex="86" type="text" name="sampleId[71]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[71]}{/if}" /></td>
+                                        <td><input tabindex="94" type="text" name="sampleId[72]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[72]}{/if}" /></td>
+                                    </tr>
+                                    <tr>
+                                        <th>G</th>
+                                        <td><input tabindex="7" type="text" name="sampleId[73]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[73]}{/if}" /></td>
+                                        <td><input tabindex="15" type="text" name="sampleId[74]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[74]}{/if}" /></td>
+                                        <td><input tabindex="23" type="text" name="sampleId[75]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[75]}{/if}" /></td>
+                                        <td><input tabindex="31" type="text" name="sampleId[76]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[76]}{/if}" /></td>
+                                        <td><input tabindex="39" type="text" name="sampleId[77]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[77]}{/if}" /></td>
+                                        <td><input tabindex="47" type="text" name="sampleId[78]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[78]}{/if}" /></td>
+                                        <td><input tabindex="55" type="text" name="sampleId[79]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[79]}{/if}" /></td>
+                                        <td><input tabindex="63" type="text" name="sampleId[80]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[80]}{/if}" /></td>
+                                        <td><input tabindex="71" type="text" name="sampleId[81]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[81]}{/if}" /></td>
+                                        <td><input tabindex="79" type="text" name="sampleId[82]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[82]}{/if}" /></td>
+                                        <td><input tabindex="87" type="text" name="sampleId[83]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[83]}{/if}" /></td>
+                                        <td><input tabindex="95" type="text" name="sampleId[84]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[84]}{/if}" /></td>
+                                    </tr>
+                                    <tr>
+                                        <th>H</th>
+                                        <td><input tabindex="8" type="text" name="sampleId[85]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[85]}{/if}" /></td>
+                                        <td><input tabindex="16" type="text" name="sampleId[86]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[86]}{/if}" /></td>
+                                        <td><input tabindex="24" type="text" name="sampleId[87]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[87]}{/if}" /></td>
+                                        <td><input tabindex="32" type="text" name="sampleId[88]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[88]}{/if}" /></td>
+                                        <td><input tabindex="40" type="text" name="sampleId[89]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[89]}{/if}" /></td>
+                                        <td><input tabindex="48" type="text" name="sampleId[90]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[90]}{/if}" /></td>
+                                        <td><input tabindex="56" type="text" name="sampleId[91]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[91]}{/if}" /></td>
+                                        <td><input tabindex="64" type="text" name="sampleId[92]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[92]}{/if}" /></td>
+                                        <td><input tabindex="72" type="text" name="sampleId[93]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[93]}{/if}" /></td>
+                                        <td><input tabindex="80" type="text" name="sampleId[94]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[94]}{/if}" /></td>
+                                        <td><input tabindex="88" type="text" name="sampleId[95]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[95]}{/if}" /></td>
+                                        <td><input tabindex="96" type="text" name="sampleId[96]" size="3" class="form-control" value="{if isset($sendSampleId)}{$sendSampleId[96]}{/if}" /></td>
+                                    </tr>
+                                </table>
+
+                                <hr>
+
+                            <h4>5. Spočítat / Calculate</h4>
+                            <p>Stisknutím tlačítka potvrzujete správnost zadaných údajů.</p>
+                            <small>Pressing the button confirms the correctness of the entered data.</small>
+                            {input sendElisaPdf}<br>
+                            {input sendElisaXls}<br>
+                            {input sendElisaText}
+
+                            </div>
+
+                        {/form}
+        
+                    {/snippetArea}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{include jsCallback, input => assay, link => loadAssayDetails}
+
+{define jsCallback}
+<script>
+$('#' + {$control["calculatorForm"][$input]->htmlId}).off('change').on('change', function () {
+    $.nette.ajax({
+        type: 'GET',
+        url: {link {$link}!},
+        data: {
+            'value': $(this).val(),
+        }
+    });
+});
+</script>
+{/define}

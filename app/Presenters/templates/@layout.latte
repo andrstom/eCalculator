@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{ifset title}{include title|stripHtml} | {/ifset}Vidia spol s.r.o.</title>
+
+    <link rel="stylesheet" href="{$basePath}/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{$basePath}/css/bootstrap_377.css?{filemtime("./css/bootstrap_377.css")}">
+    <link rel="stylesheet" href="{$basePath}/css/modern-business_377.css?{filemtime("./css/modern-business_377.css")}">
+    <link rel="shortcut icon" href="{$basePath}/favicon.png" type="image/x-icon">
+    
+    <script src="{$basePath}/js/jquery.js"></script>
+    <script src="{$basePath}/js/nette.ajax.js"></script>
+    <script src="https://nette.github.io/resources/js/netteForms.min.js"></script>
+    <script src="{$basePath}/js/main.js"></script>
+    
+    <link href="{$basePath}/data-tables-1.10.6/media/css/jquery.dataTables.css" rel="stylesheet">
+    <script src="{$basePath}/data-tables-1.10.6/media/js/jquery.dataTables.js"></script>
+    <script src="{$basePath}/data-tables-1.10.6/media/js/table-nastaveni.js"></script>
+    
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="http://www.vidia.cz">www.vidia.cz</a>
+            </div>
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    {if $user->loggedIn}
+                        <li><a n:href="User:edit $user->getIdentity()->id">Uživatel / User: {$user->getIdentity()->login}</a></li>
+                    {/if}
+                    <li><a n:href="Homepage:default">Kalkulačka / Calculator</a></li>
+                    {if $user->loggedIn}
+                        <li><a n:href="Settings:main">Nastavení / Settings</a></li>
+                        <li><a n:href="User:out">Odhlásit / Logout</a></li>
+                    {else}
+                        <li><a n:href="User:in">Přihlásit / Login</a></li>
+                        <li><a n:href="User:registration">Registrovat / Register <sup style='color:white; padding: 1px 1px 1px 1px; background-color: #e50000; border: 1px solid white; border-radius: 5px 0px 5px 0px;'>NEW</sup></a></li>
+                    {/if}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <div n:foreach="$flashes as $flash" n:class="flash, $flash->type">{$flash->message}</div>
+    </div>
+    {include content}
+    
+    {block scripts}
+    <script src="{$basePath}/js/bootstrap.js"></script>
+    <script src="{$basePath}/js/modern-business.js"></script>
+    {/block}
+</body>
+</html>

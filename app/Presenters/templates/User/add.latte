@@ -1,0 +1,67 @@
+{block content}
+<div class="section-colored text-center">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2 n:block=title>Nový uživatel</h2>
+                <hr>
+                <input type="button" value="Zpět" class="btn btn-primary" onclick="history.back()">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <!-- Add new user-->
+                <div class="col-lg-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <p>* povinné údaje</p>
+                        </div>
+                        <div class="panel-body">
+                            <form n:name=userForm class=form>
+                                <ul n:if="$form->hasErrors()">
+                                    <li n:foreach="$form->errors as $error" style="color: #993838;">{$error}</li>
+                                </ul>
+                                <p>{label login}<input n:name=login /></p>
+                                <p>{label email}<input n:name=email /></p>
+                                <p>{label password}<input n:name=password /></p>
+                                <p>{label password2}<input n:name=password2 /></p>
+                                <p>{label company_name}<input n:name=company_name /></p>
+                                <p>{label address}<input n:name=address /></p>
+                                <p>{label ico}<input n:name=ico /></p>
+                                <p>{label gsm}<input n:name=gsm /></p>
+                                <p>{label print_detail}<radio n:name=print_detail /></p>
+                                {if $user->isInRole('Admin')}
+                                    <p>{label active}<radio n:name=active /></p>
+                                    <p>{label role_short}<radio n:name=role_short /></p>
+                                    <hr>
+                                    <h4>Dostupné fotometry:</h4>
+                                    {foreach $readers as $reader}
+                                        <p><label for={$reader->id}><input type=checkbox name="reader_id[]" id={$reader->id} value={$reader->id}> {$reader->reader_name}</label></p>
+                                    {/foreach}
+                                    <hr>
+                                    <p>{label notice}<textarea n:name=notice></textarea></p>
+                                <hr>
+                                <h3>Metody a jednotky:</h3>
+                                {foreach $assays as $assay}
+                                    <hr>
+                                    <p><label for={$assay->id}><input type=checkbox name="assay[{$assay->id}]" id={$assay->id} value={$assay->id}> {$assay->assay_name}</label></p>
+                                    <p>
+                                    {foreach $units as $unit}
+                                        <label for={$assay->id}{$unit->id}><input type=radio name="unit[{$assay->id}][]" id={$assay->id}{$unit->id} value={$unit->id}> {$unit->unit_name}</label>
+                                    {/foreach}
+                                    </p>
+                                {/foreach}
+                                {/if}
+                                <p><input n:name=send class="btn btn-primary">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
