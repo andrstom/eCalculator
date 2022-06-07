@@ -7,6 +7,7 @@ use Nette;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Writer\Xls;
 use Nette\SmartObject;
 
 /**
@@ -25,9 +26,7 @@ class SpreadsheetManager
     /** @var Nette\Database\Context */
     private $database;
     
-
-    public function __construct(Nette\Database\Context $database)
-    {
+    public function __construct(Nette\Database\Context $database) {
         $this->database = $database;
     }
     
@@ -39,9 +38,7 @@ class SpreadsheetManager
      * @param string (dataArea -> "A1:L8")
      * @return array
      */
-    public function readExcel($tmpFileName = null, $sheetNumber = null, $dataArea = null) 
-    {
-
+    public function readExcel($tmpFileName = null, $sheetNumber = null, $dataArea = null) {
         // read data from excel file
         $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($tmpFileName)
                 ->getSheet($sheetNumber - 1)                            // set sheet number (substract -1)
@@ -50,18 +47,20 @@ class SpreadsheetManager
         /** Associate NON-EMPTY data from worksheet into array and replace comma to dot */
         $i = 1;
         foreach ($spreadsheet as $line) {
-
             foreach ($line as $k => $v) {
-
                 if (!empty($v) || $v == 0)
                     $this->readData[$i] = str_replace(",", ".", $v);
                 $i++;
-            }   
+            }
         }
-
         return $this->readData; 
     }
     
+    /**
+     * Syntesa results xls export
+     * @param array
+     * @return xls datasheet
+     */
     public function exportSyntesaXls($values) {
         
         // Create new Spreadsheet object
@@ -125,7 +124,6 @@ class SpreadsheetManager
         
         $this->spreadsheet->getActiveSheet()->getCell('A5')->getHyperlink()->setUrl('https://www.vidia.cz/eCalculator/images/IS_interpretation_table.pdf');
         $this->spreadsheet->getActiveSheet()->getCell('A6')->getHyperlink()->setUrl('https://www.vidia.cz/eCalculator/images/IS_interpretation_table.pdf');
-        
         
         // MERGE cells
         $cellToMerge = array('A1:K1', 'A2:K2', 'A3:K3', 'A4:K4', 'A5:K5', 'A6:K6');
@@ -204,21 +202,22 @@ class SpreadsheetManager
         $drawing->setWorksheet($this->spreadsheet->getActiveSheet());
         
 
-        // Redirect output to a client’s web browser (Xlsx)
+        // Redirect output to a client’s web browser (Xls)
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Type: application/force-download');
         header('Content-Type: application/octet-stream');
         header('Content-Type: application/download');
-        header('Content-Disposition: attachment;filename="Antibody Index - ' . date("Ymd_His",time()) . '.xlsx"');
+        header('Content-Disposition: attachment;filename="Antibody Index - ' . date("Ymd_His",time()) . '.xls"');
         header('Cache-Control: max-age=0');
         
-        $writer = IOFactory::createWriter($this->spreadsheet, 'Xlsx');
+        $writer = IOFactory::createWriter($this->spreadsheet, 'Xls');
         $writer->save('php://output');
     }
     
-    
-    /*
-     * Set EXCEL layout for ELISA results
+    /**
+     * ELISA results xls export
+     * @param array
+     * @return xls datasheet
      */
     public function exportElisaXls($values) {
         
@@ -274,10 +273,11 @@ class SpreadsheetManager
         $this->spreadsheet->getActiveSheet()->setCellValue('A19', 'Standardy / Standards');
         $this->spreadsheet->getActiveSheet()->setCellValue('A20', 'Blank');
         $this->spreadsheet->getActiveSheet()->setCellValue('E20', $param['Abs'][1]);
+        $this->spreadsheet->getActiveSheet()->setCellValue('F20', 'max. < ' . $param['blank_max']);
         $this->spreadsheet->getActiveSheet()->setCellValue('A21', 'St A / NC');
-        $this->spreadsheet->getActiveSheet()->setCellValue('E21', $qc->getStA());
+        $this->spreadsheet->getActiveSheet()->setCellValue('E21', $qc->getCal5());
         $this->spreadsheet->getActiveSheet()->setCellValue('A22', 'St E / PC');
-        $this->spreadsheet->getActiveSheet()->setCellValue('E22', $qc->getStE());
+        $this->spreadsheet->getActiveSheet()->setCellValue('E22', $qc->getCal4());
         $this->spreadsheet->getActiveSheet()->setCellValue('A23', 'St D / CAL');
         $this->spreadsheet->getActiveSheet()->setCellValue('E23', $qc->getStD());
         $this->spreadsheet->getActiveSheet()->setCellValue('A24', 'CUTOFF (serum)');
@@ -293,13 +293,10 @@ class SpreadsheetManager
         $i = 29;    // sample ID start row
         $j = 1;
         for ($l = 1; $l <= 12; $l++) {
-            
             for ($k = "A"; $k <= "L"; $k++) {
-                
                 if ($j == 97) break;
-                
                 $this->spreadsheet->getActiveSheet()->setCellValue($k . $i, $param['sampleId'][$j]);
-                $j++; 
+                $j++;
             }
             $i++;
         }
@@ -309,9 +306,7 @@ class SpreadsheetManager
         $i = 39;    // opical density start row
         $j = 1;
         for ($l = 1; $l <= 12; $l++) {
-            
             for ($k = "A"; $k <= "L"; $k++) {
-                
                 if ($j == 97) break;
                 
                 $this->spreadsheet->getActiveSheet()->setCellValue($k . $i, $param['Abs'][$j]);
@@ -325,11 +320,8 @@ class SpreadsheetManager
         $i = 49;    // results start row
         $j = 1;
         for ($l = 1; $l <= 12; $l++) {
-                
             for ($k = "A"; $k <= "L"; $k++) {
-
                 if ($j == 97) break;
-                
                 $this->spreadsheet->getActiveSheet()->setCellValue($k . $i, $result[$j]);
                 $j++;
             }
@@ -348,8 +340,6 @@ class SpreadsheetManager
         
         /** set font size */
         $this->spreadsheet->getActiveSheet()->getStyle('A1:L85')->getFont()->setSize(9);
-        
-        
         
         /** THIN borders */
         $styleThinBorder = [
@@ -451,19 +441,15 @@ class SpreadsheetManager
         $drawing->setHeight(109);
         $drawing->setWorksheet($this->spreadsheet->getActiveSheet());
         
-        // Redirect output to a client’s web browser (Xlsx)
+        // Redirect output to a client’s web browser (Xls)
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Type: application/force-download');
         header('Content-Type: application/octet-stream');
         header('Content-Type: application/download');
-        header('Content-Disposition: attachment;filename="' . $this->database->table('calc_assays')->get($param['assay'])->assay_short . '_' . date("Ymd_His",time()) . '.xlsx"');
+        header('Content-Disposition: attachment;filename="' . $this->database->table('calc_assays')->get($param['assay'])->assay_short . '_' . date("Ymd_His",time()) . '.xls"');
         header('Cache-Control: max-age=0');
         
-        $writer = IOFactory::createWriter($this->spreadsheet, 'Xlsx');
+        $writer = IOFactory::createWriter($this->spreadsheet, 'Xls');
         $writer->save('php://output');
-        
     }
-    
-    
-    
 }

@@ -14,6 +14,7 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
+                <h2>Seznam metod</h2>
                 <input type="button" value="Zpět" class="btn btn-primary" onclick="history.back()">
                 {if $user->isInRole('Admin')}
                     <a n:href=Assay:add class="btn btn-primary">Nový</a>
@@ -26,6 +27,7 @@
                         <th>Zkratka</th>
                         <th>Název</th>
                         <th>Poznámka</th>
+                        <th>Layout</th>
                         <th>Aktivní</th>
                         <th>Vložil</th>
                         <th>Datum vložení</th>
@@ -39,11 +41,44 @@
                             <td>{$assay->assay_short}</td>
                             <td>{$assay->assay_name}</td>
                             <td>{$assay->notice}</td>
+                            <td>{$assay->ref('calc_layouts','layout')->layout_name}</td>
                             <td>{$assay->active}</td>
                             <td>{$assay->creator}</td>
                             <td>{$assay->created_at|date:'j.n.Y H:i'}</td>
                             <td>{$assay->editor}</td>
                             <td>{$assay->edited_at|date:'j.n.Y H:i'}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2>Rozložení kontrol</h2>
+                <input type="button" value="Zpět" class="btn btn-primary" onclick="history.back()">
+                {if $user->isInRole('Admin')}
+                    <a n:href=Assay:addLayout class="btn btn-primary">Nový</a>
+                {/if}
+
+                <table id="table2-standard" class="display">
+                    <thead>
+                        <th>Upravit</th>
+                        <th>Smazat</th>
+                        <th>Název</th>
+                        <th>Poznámka</th>
+                        <th>Layout</th>
+                    </thead>
+                    <tbody>
+                        <tr n:foreach="$layouts as $layout" class="assay">
+                            <td><a n:href="Assay:editLayout $layout->id" class="btn btn-info">Upravit</a></td>
+                            <td><a n:href="Assay:deleteLayout $layout->id" onclick="return confirm('Opravdu smazat???');" class="btn btn-danger">Smazat</a></td>
+                            <td>{$layout->layout_name}</td>
+                            <td>{$layout->notice}</td>
+                            <td>{$layout->cal_1}, {$layout->cal_2}, {$layout->cal_3}, {$layout->cal_4}, {$layout->cal_5}, {$layout->cal_6}, {$layout->cal_7}, {$layout->cal_8}, {$layout->cal_9}, {$layout->cal_10}</td>
                         </tr>
                     </tbody>
                 </table>

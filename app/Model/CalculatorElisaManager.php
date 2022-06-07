@@ -28,7 +28,6 @@ class CalculatorElisaManager
     private $database;
 
     public function __construct(Nette\Database\Context $database) {
-        
         $this->database = $database;
     }
     
@@ -91,6 +90,7 @@ class CalculatorElisaManager
                 'kf_serum' => $this->getParam($values['kf_serum']),
                 'kf_csf' => $this->getParam($values['kf_csf']),
                 'kf_synovia' => $this->getParam($values['kf_synovia']),
+                'blank_max' => $this->getParam($values['blank_max']),
                 'std_bmax' => $this->getParam($values['std_bmax']),
                 'a1' => $this->getParam($values['a1']),
                 'a2' => $this->getParam($values['a2']),
@@ -142,12 +142,22 @@ class CalculatorElisaManager
     public function getParam($value) {
         $this->param = $value;
         if(!is_array($this->param)) {
+            /* replace comma for parametres outside of array */
             $this->param = str_replace(",", ".", $this->param);
         } else {
+            /* replace comma for parametres in array and associate CALs to sampleIds */
             foreach ($this->param as $k => $v) {
+                $this->param['sampleId'][1] = $this->param['cal_1'];
+                $this->param['sampleId'][13] = $this->param['cal_2'];
+                $this->param['sampleId'][25] = $this->param['cal_3'];
+                $this->param['sampleId'][37] = $this->param['cal_4'];
+                $this->param['sampleId'][49] = $this->param['cal_5'];
+                $this->param['sampleId'][61] = $this->param['cal_6'];
+                $this->param['sampleId'][73] = $this->param['cal_7'];
+                $this->param['sampleId'][85] = $this->param['cal_8'];
                 $this->param[$k] = str_replace(",", ".", $v);
             }
-
+        
             $reader = $this->getReader($this->param['reader']);
             if ($reader != "manual") {
                 if ($reader->reader_output == "XLS") {
@@ -159,7 +169,6 @@ class CalculatorElisaManager
                     */
                     $spreadsheet = new SpreadsheetManager($this->database);
                     $excelData = $spreadsheet->readExcel($this->param['file'], $reader->reader_xls_list, $reader->reader_data_range);
-
                     $this->param['Abs'] = $excelData;
                 }
 
@@ -174,7 +183,6 @@ class CalculatorElisaManager
                      */
                     $text = new TextManager($this->database);
                     $textReport = $text->readText($this->param['file'], $reader->reader_txt_separator, $reader->reader_data_range);
-
                     $this->param['Abs'] = $textReport;
                 }
             } else {

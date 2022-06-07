@@ -19,30 +19,23 @@ class SettingsPresenter extends BasePresenter
     
     public function renderUserlist()
     {
-        
         $this->template->userlist = $this->dbHandler->getUsers();
-        
     }
     
     public function renderAssaylist()
     {
-        
         $this->template->assaylist = $this->dbHandler->getAssays();
-        
+        $this->template->layouts = $this->dbHandler->getLayouts();
     }
 
     public function renderUnitlist()
     {
-        
         $this->template->unitlist = $this->dbHandler->getUnits();
-        
     }
     
     public function renderReaderlist()
     {
-        
         $this->template->readerlist = $this->dbHandler->getReaders();
-        
     }
     
 }

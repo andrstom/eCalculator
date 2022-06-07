@@ -38,6 +38,11 @@ class DbHandler
             return $this->database->table('calc_reader');
     }
     
+    public function getLayouts()
+    {
+            return $this->database->table('calc_layouts');
+    }
+    
     public function getUsersAssays()
     {
             return $this->database->table('calc_users_assays');
@@ -48,4 +53,8 @@ class DbHandler
             return $this->database->table('calc_users_readers');
     }
     
+    public function getAssaysLayouts()
+    {
+            return $this->database->table('calc_assays_layouts');
+    }
 }

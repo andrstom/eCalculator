@@ -23,12 +23,9 @@ class TextManager
     /** @var Nette\Database\Context */
     private $database;
 
-    public function __construct(Nette\Database\Context $database)
-    {
+    public function __construct(Nette\Database\Context $database) {
         $this->database = $database;
     }
-    
-    
     /**
      * readText load data from text file
      * 
@@ -87,9 +84,7 @@ class TextManager
         $file = file($tmpFileName);
 
         foreach ($file as $lines) {
-        
             $line[] = explode($dlmtr, $lines);
-        
         }
         
         /**
@@ -99,32 +94,20 @@ class TextManager
         $m = 1;
         
         for ($i = $firstRow; $i <= $lastRow; $i++) {
-        
             for ($j = $firstCol; $j <= $lastCol; $j++) {
-                
                 if (empty($line[$i][$j])) {
-                    
                     $line[$i][$j] = "0.0000";
-                    
                 }
-                
                 if (!empty($line[$i][$j])){
-                    
                     if ($m <= 96) {
-                        
                         $line[$i][$j] = str_replace("*****", "0.0000", $line[$i][$j]);
                         $this->txtData[$m] = trim(str_replace(",", ".", $line[$i][$j]));
                         $m++;
-                        
                     }
                 }
-            
             }
-            
             $i += $line_skipper;
-            
         }
-
         return $this->txtData;
     }
     
@@ -159,15 +142,17 @@ class TextManager
                 . "Korekční faktor / Correction factor (serum):\t" . str_replace(".", ",", $param['kf_serum']) . "\n\r" . PHP_EOL
                 . "Korekční faktor / Correction factor (CSF):\t" . str_replace(".", ",", $param['kf_csf']) . "\n\r" . PHP_EOL
                 . "Korekční faktor / Correction factor (synovia):\t" . str_replace(".", ",", $param['kf_synovia']) . "\n\r" . PHP_EOL
+                . "BLANK maximum:\t" . str_replace(".", ",", $param['blank_max']) . "\n\r" . PHP_EOL
                 . "Poměr / Ratio OD min:\t" . str_replace(".", ",", $param['ratio_min']) . "\n\r" . PHP_EOL
                 . "Poměr / Ratio OD max:\t" . str_replace(".", ",", $param['ratio_max']) . "\n\r" . PHP_EOL
                 . "Ředění vzorku / Dilution:\t" . $param['dilution'] . "x \n\r\n\r" . PHP_EOL
 
                 . "Standardy / Standards" . "\n\r" . PHP_EOL
-                . "Blank:\t" . str_replace(".", ",", $param['Abs'][1]) . "\n\r" . PHP_EOL
-                . "St D/CAL průměr (average):\t" . str_replace(".", ",", $qc->getStD()) . "\n\r" . PHP_EOL
-                . "St E/PC:\t" . str_replace(".", ",", $qc->getStE()) . "\n\r" . PHP_EOL
-                . "St A/NC:\t" . str_replace(".", ",", $qc->getStA()) . "\n\r" . PHP_EOL
+                . $param['cal_1'] . ":\t" . str_replace(".", ",", $param['Abs'][1]) . "\n\r" . PHP_EOL
+                . $param['cal_2'] . ":\t" . str_replace(".", ",", $qc->getCal2()) . "\n\r" . PHP_EOL
+                . $param['cal_3'] . ":\t" . str_replace(".", ",", $qc->getCal3()) . "\n\r" . PHP_EOL
+                . $param['cal_4'] . ":\t" . str_replace(".", ",", $qc->getCal4()) . "\n\r" . PHP_EOL
+                . $param['cal_5'] . ":\t" . str_replace(".", ",", $qc->getCal5()) . "\n\r" . PHP_EOL
                 . "Cut off (serum):\t" . str_replace(".", ",", $qc->getStD() * $param['kf_serum']) . "\n\r" . PHP_EOL
                 . "Cut off (CSF):\t" . str_replace(".", ",", $qc->getStD() * $param['kf_csf']) . "\n\r" . PHP_EOL
                 . "Cut off (synovia):\t" . str_replace(".", ",", $qc->getStD() * $param['kf_synovia']) . "\n\r\n\r" . PHP_EOL;
@@ -178,16 +163,11 @@ class TextManager
         $this->txtReport .= "ID vzorku / Sample ID:\n\r" . PHP_EOL;
         $i = 1;
         for ($row = "A"; $row <= "H"; $row ++) {
-
             $this->txtReport .= $row . "\t";
-
             for ($col = 1; $col <= 12; $col ++) {
-
                 if ($param['sampleId'][$i]) {
-
                     $this->txtReport .= $param['sampleId'][$i] . "\t";
                 } else {
-
                     $this->txtReport .= "XXX\t";
                 }
                 $i++;
@@ -196,61 +176,39 @@ class TextManager
         }
 
         $this->txtReport .= "\n\r\n\r" . PHP_EOL;
-
-        /**
-         * optical density (Absorbance)
-         */
+        // optical density (Absorbance)
         $this->txtReport .= "Optická densita / Optical density:\n\r" . PHP_EOL;
         $i = 1;
         for ($row = "A"; $row <= "H"; $row ++) {
-
             $this->txtReport .= $row . "\t";
-
             for ($col = 1; $col <= 12; $col ++) {
-
                 if (empty($param['sampleId'][$i])) {
-                    
                     $this->txtReport .= "XXX\t";
-                    
                 } else {
-                    
                     $this->txtReport .= number_format((float) $param['Abs'][$i], 4, ',', '') . "\t";
-                    
                 }
                 $i++;
             }
             $this->txtReport .= "\n\r" . PHP_EOL;
         }
-
         $this->txtReport .= "\n\r\n\r" . PHP_EOL;
-
-        /**
-         * results
-         */
+        // results
         $this->txtReport .= "Výsledky / Results  (" . $this->database->table('calc_units')->get($param['unit'])->unit_name . "):\n\r" . PHP_EOL;
         
         $i = 1;
         for ($row = "A"; $row <= "H"; $row ++) {
-
             $this->txtReport .= $row . "\t";
-
             for ($col = 1; $col <= 12; $col ++) {
-
                 if (empty($param['sampleId'][$i])) {
-
                     $this->txtReport .= "XXX\t";
-
                 } else {
-
                     $this->txtReport .= str_replace(".", ",", $result[$i]) . "\t";
-
                 }
                 $i++;
             }
             $this->txtReport .= "\n\r" . PHP_EOL;
         }
 
-        
         /**
          * write content into file and close file
          */
@@ -264,71 +222,64 @@ class TextManager
         $this->txtReport = header('Content-Length: ' . filesize($tmpFilename));
         $this->txtReport = readfile($tmpFilename);
         
-        /**
-         * delete temporary file
-         */
+        // delete temporary file
         unlink($tmpFilename);
         
         return $this->txtReport;
     }
     
-    public function exportSyntesaTxt($values)
-    {
-        //dump($values);
-        //exit;
+    public function exportSyntesaTxt($values) {
         /** open file */
         $tmpFilename =  'Antibody_index_' . date('ymd_His', time()) . '.txt';
         $txtReport = fopen($tmpFilename, "w");
 
         /** set file content e.g. parameters, sample ID, reader values and results */
         $this->txtReport = "Výsledky výpočtu intrathekální syntézy protilátek v CNS / Results of calculation of intrathecal synthesis of antibodies in CNS.\n\r\n\r" . PHP_EOL
-                . "Upozornění: výsledná interpretace musí být vyhodnocena dle výsledků ELISA testu a dle přiložené tabulky!\n\r" . PHP_EOL
-                . "Warning: the final interpretation must be evaluated according to the ELISA test results and the attached table!\n\r\n\r\n\r" . PHP_EOL
-                
-                // czech row
-                . "Vzorek ID\t"
-                . "Metoda\t"
-                . "Protilátka\t"
-                . "Konc. IgX v séru (AU/ml)\t"
-                . "Konc. IgX v CSF (AU/ml)\t"
-                . "Celková konc. IgX v séru (mg/l)\t"
-                . "Celková konc. IgX v CSF (mg/l)\t"
-                . "Celková konc. albuminu v séru (mg/l)\t"
-                . "Celková konc. albuminu v CSF (mg/l)\t"
-                . "Q total albumin\t"
-                . "Antibody index\t"
-                . "\n\r" . PHP_EOL
-                // english row
-                . "Sample ID\t"
-                . "Assay\t"
-                . "Antibody\t"
-                . "Serum IgX conc. (AU/ml)\t"
-                . "CSF IgX conc. (AU/ml)\t"
-                . "Serum total IgX conc. (mg/l)\t"
-                . "CSF total IgX conc. (mg/l)\t"
-                . "Serum total albumin conc. (AU/ml)\t"
-                . "CSF total albumin conc. (AU/ml)\t"
-                . "Q total albumin\t"
-                . "Antibody index"
-                . "\n\r" . PHP_EOL;
-                
-                // samples
-                foreach ($values as $k => $v) {
-            
-                    $this->txtReport .= "". str_replace(".", ",", $v['sampleId']) . "\t" .
-                            str_replace(".", ",", $v['assay']) . "\t" .
-                            str_replace(".", ",", $v['antibody']) . "\t" .
-                            str_replace(".", ",", $v['serumIgAu']) . "\t" .
-                            str_replace(".", ",", $v['csfIgAu']) . "\t" .
-                            str_replace(".", ",", $v['serumIgTotal']) . "\t" .
-                            str_replace(".", ",", $v['csfIgTotal']) . "\t" .
-                            str_replace(".", ",", $v['serumAlbTotal']) . "\t" .
-                            str_replace(".", ",", $v['csfAlbTotal']) . "\t" .
-                            str_replace(".", ",", $v['qAlbTotal']) . "\t" .
-                            str_replace(".", ",", $v['abIndex']) . "\n\r" . PHP_EOL;
-                }
-                
-        
+            . "Upozornění: výsledná interpretace musí být vyhodnocena dle výsledků ELISA testu a dle přiložené tabulky!\n\r" . PHP_EOL
+            . "Warning: the final interpretation must be evaluated according to the ELISA test results and the attached table!\n\r\n\r\n\r" . PHP_EOL
+
+            // czech row
+            . "Vzorek ID\t"
+            . "Metoda\t"
+            . "Protilátka\t"
+            . "Konc. IgX v séru (AU/ml)\t"
+            . "Konc. IgX v CSF (AU/ml)\t"
+            . "Celková konc. IgX v séru (mg/l)\t"
+            . "Celková konc. IgX v CSF (mg/l)\t"
+            . "Celková konc. albuminu v séru (mg/l)\t"
+            . "Celková konc. albuminu v CSF (mg/l)\t"
+            . "Q total albumin\t"
+            . "Antibody index\t"
+            . "\n\r" . PHP_EOL
+            // english row
+            . "Sample ID\t"
+            . "Assay\t"
+            . "Antibody\t"
+            . "Serum IgX conc. (AU/ml)\t"
+            . "CSF IgX conc. (AU/ml)\t"
+            . "Serum total IgX conc. (mg/l)\t"
+            . "CSF total IgX conc. (mg/l)\t"
+            . "Serum total albumin conc. (AU/ml)\t"
+            . "CSF total albumin conc. (AU/ml)\t"
+            . "Q total albumin\t"
+            . "Antibody index"
+            . "\n\r" . PHP_EOL;
+
+            // samples
+            foreach ($values as $k => $v) {
+                $this->txtReport .= "". str_replace(".", ",", $v['sampleId']) . "\t" .
+                    str_replace(".", ",", $v['assay']) . "\t" .
+                    str_replace(".", ",", $v['antibody']) . "\t" .
+                    str_replace(".", ",", $v['serumIgAu']) . "\t" .
+                    str_replace(".", ",", $v['csfIgAu']) . "\t" .
+                    str_replace(".", ",", $v['serumIgTotal']) . "\t" .
+                    str_replace(".", ",", $v['csfIgTotal']) . "\t" .
+                    str_replace(".", ",", $v['serumAlbTotal']) . "\t" .
+                    str_replace(".", ",", $v['csfAlbTotal']) . "\t" .
+                    str_replace(".", ",", $v['qAlbTotal']) . "\t" .
+                    str_replace(".", ",", $v['abIndex']) . "\n\r" . PHP_EOL;
+            }
+
         /**
          * write content into file and close file
          */
@@ -346,7 +297,6 @@ class TextManager
          * delete temporary file
          */
         unlink($tmpFilename);
-        
         return $this->txtReport;
     }
 }

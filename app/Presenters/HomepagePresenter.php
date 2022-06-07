@@ -55,7 +55,6 @@ class HomepagePresenter extends BasePresenter
     public $visitorManager;
     
     public function renderDefault() {
-    
         if ($this->getUser()->isLoggedIn()) {
             //$this->template->user_reader = $this->dbHandler->getReaders()->get($this->getUser()->getIdentity()->reader_id);
             //$this->template->user_readers = $this->dbHandler->getUsersReaders()->where('user_id', $this->getUser()->getIdentity()->id);
@@ -66,10 +65,8 @@ class HomepagePresenter extends BasePresenter
      * Load assay details into form
      * @param number
      */
-    public function handleLoadAssayDetails($value)
-    {
+    public function handleLoadAssayDetails($value) {
         if ($value) {
-
             // load assay details
             if ($this->getUser()->isLoggedIn()) {
                 
@@ -80,6 +77,7 @@ class HomepagePresenter extends BasePresenter
                 $this['calculatorForm']['kf_serum']->setDefaultValue(str_replace(".", ",", $assaydetail['kf_serum']));
                 $this['calculatorForm']['kf_csf']->setDefaultValue(str_replace(".", ",", $assaydetail['kf_csf']));
                 $this['calculatorForm']['kf_synovia']->setDefaultValue(str_replace(".", ",", $assaydetail['kf_synovia']));
+                $this['calculatorForm']['blank_max']->setDefaultValue(str_replace(".", ",", $assaydetail['blank_max']));
                 $this['calculatorForm']['std_bmax']->setDefaultValue(str_replace(".", ",", $assaydetail['std_bmax']));
                 $this['calculatorForm']['a1']->setDefaultValue(str_replace(".", ",", $assaydetail['a1']));
                 $this['calculatorForm']['a2']->setDefaultValue(str_replace(".", ",", $assaydetail['a2']));
@@ -121,12 +119,20 @@ class HomepagePresenter extends BasePresenter
                 $this['calculatorForm']['synovia_vieu_max']->setDefaultValue(str_replace(".", ",", $assaydetail['synovia_vieu_max']));
                 $this['calculatorForm']['synovia_iu_min']->setDefaultValue(str_replace(".", ",", $assaydetail['synovia_iu_min']));
                 $this['calculatorForm']['synovia_iu_max']->setDefaultValue(str_replace(".", ",", $assaydetail['synovia_iu_max']));
-                
                 $this['calculatorForm']['unit']->setDefaultValue($assaydetail['units_id']);
-                }
+            }
             
+            $layout_id = $this->dbHandler->getAssays()->get($value)->layout;
+            $layout_detail = $this->dbHandler->getLayouts()->get($layout_id);
+            $this['calculatorForm']['cal_1']->setDefaultValue($layout_detail->cal_1);
+            $this['calculatorForm']['cal_2']->setDefaultValue($layout_detail->cal_2);
+            $this['calculatorForm']['cal_3']->setDefaultValue($layout_detail->cal_3);
+            $this['calculatorForm']['cal_4']->setDefaultValue($layout_detail->cal_4);
+            $this['calculatorForm']['cal_5']->setDefaultValue($layout_detail->cal_5);
+            $this['calculatorForm']['cal_6']->setDefaultValue($layout_detail->cal_6);
+            $this['calculatorForm']['cal_7']->setDefaultValue($layout_detail->cal_7);
+            $this['calculatorForm']['cal_8']->setDefaultValue($layout_detail->cal_8);
         }
-
         $this->redrawControl('wrapper');
         $this->redrawControl('paramSnippet');
     }
@@ -225,6 +231,31 @@ class HomepagePresenter extends BasePresenter
         $form->addText('synovia_iu_min')->setDefaultValue('0');
         $form->addText('synovia_iu_max')->setDefaultValue('0');
         
+        $form->addText('cal_1')->setDefaultValue('BLANK')
+                ->setHtmlAttribute('tabindex', 1)
+                ->setHtmlAttribute('size', 3);
+        $form->addText('cal_2')->setDefaultValue('ST D/CAL')
+                ->setHtmlAttribute('tabindex', 2)
+                ->setHtmlAttribute('size', 3);
+        $form->addText('cal_3')->setDefaultValue('ST D/CAL')
+                ->setHtmlAttribute('tabindex', 3)
+                ->setHtmlAttribute('size', 3);
+        $form->addText('cal_4')->setDefaultValue('ST E/PC')
+                ->setHtmlAttribute('tabindex', 4)
+                ->setHtmlAttribute('size', 3);
+        $form->addText('cal_5')->setDefaultValue('ST A/NC')
+                ->setHtmlAttribute('tabindex', 5)
+                ->setHtmlAttribute('size', 3);
+        $form->addText('cal_6')->setDefaultValue('')
+                ->setHtmlAttribute('tabindex', 6)
+                ->setHtmlAttribute('size', 3);
+        $form->addText('cal_7')->setDefaultValue('')
+                ->setHtmlAttribute('tabindex', 7)
+                ->setHtmlAttribute('size', 3);
+        $form->addText('cal_8')->setDefaultValue('')
+                ->setHtmlAttribute('tabindex', 8)
+                ->setHtmlAttribute('size', 3);
+        
         $form->addText('batch', '* Šarže / LOT :')
                 ->setRequired('Vyplňtě Šarže / LOT');
         
@@ -240,11 +271,11 @@ class HomepagePresenter extends BasePresenter
                     ->setRequired()
                     ->addRule(Form::PATTERN, 'Nepovolený typ materiálu (povolené: serum, CSF, synovia) / Incorrect sample (allowed: serum, , CSF, synovia).', '101|2|81') // allowed sample: serum, CSF
                     ->endCondition()
-                ->addConditionOn($form['assay'], Form::PATTERN, '3|4|5|6|7|8|9') // 
+                ->addConditionOn($form['assay'], Form::PATTERN, '3|4|5|6|7|8') // 
                     ->setRequired()
                     ->addRule(Form::PATTERN, 'Nepovolený typ materiálu (povolené: serum, CSF) / Incorrect sample (allowed: serum, CSF).', '101|2') // allowed sample: serum, CSF
                     ->endCondition()
-                ->addConditionOn($form['assay'], Form::PATTERN, '10|11|12|13|14|15|16|17|18') // 
+                ->addConditionOn($form['assay'], Form::PATTERN, '9|10|11|12|13|14|15|16|17|18') // 
                     ->setRequired()
                     ->addRule(Form::PATTERN, 'Nepovolený typ materiálu (povolené: serum) / Incorrect sample (allowed: serum).', '101') // allowed sample: serum
                     ->endCondition();
@@ -252,6 +283,9 @@ class HomepagePresenter extends BasePresenter
         $form->addText('kf_csf', 'CSF:');
         
         $form->addText('kf_synovia', 'Synovia:');
+        
+        $form->addText('blank_max', 'BLANK maximum:')
+                ->setRequired('Vyplňtě BLANK maximum');
         
         $form->addText('std_bmax', '* ST D B/Bmax (CAL B/Bmax):')
                 ->setRequired('Vyplňtě ST D B/Bmax (CAL B/Bmax)');
@@ -332,18 +366,14 @@ class HomepagePresenter extends BasePresenter
 
         $form->addSubmit('sendElisaPdf', 'Uložit jako PDF (tisk) / Save as PDF (print)')
                 ->setHtmlAttribute('class', 'btn-primary');
-
         $form->addSubmit('sendElisaXls', 'Uložit jako EXCEL / Save as EXCEL')
                 ->setHtmlAttribute('class', 'btn-info');
-
         $form->addSubmit('sendElisaText', 'Uložit jako TEXT / Save as TEXT ')
                 ->setHtmlAttribute('class', 'btn-warning');
 
         // call method calculatorFormSucceeded() on success
         $form->onSuccess[] = [$this, 'calculatorFormSucceeded'];
-
         return $form;
-        
     }
     
     /**
@@ -384,11 +414,8 @@ class HomepagePresenter extends BasePresenter
          */
         if($this->getUser()->isLoggedIn()) {
             try {
-            
                 $this->calculatorElisaManager->updateAssayParameters($values, $this->getUser());
-            
             } catch (\PDOException $e) {
-            
                 $this->presenter->flashMessage('SQL ERROR: Update assay parameters failed!!! (Detail: '. $e->getMessage() . ')');
                 $this->redirect('Homepage:default');
             }
@@ -405,7 +432,7 @@ class HomepagePresenter extends BasePresenter
         
         // write visitor to log
         $this->visitorManager->addVisitor($values);
-
+            
         // create db backup (one per week)
         if (!file_exists('../db_backup/week_' . date('W') . '.sql.gz')) {
             // localhost
@@ -419,35 +446,24 @@ class HomepagePresenter extends BasePresenter
          * Return final report file (PDF, EXCEL or TEXT)
          */
         if (isset($values['sendElisaPdf'])) {
-            
             // PDF report
             try {
-                
                 $this->pdfManager->pdfReport($values);
             } catch (\Exception $e) {
-                
                 $this->presenter->flashMessage('ERROR: PdfManager::pdfReport(), ' . $e->getMessage() . ')', 'error');
             }
-            
         } elseif (isset($values['sendElisaXls'])) {
-            
             // Excel report
             try {
-                
                 $this->spreadsheetManager->exportElisaXls($values);
             } catch (\Exception $e) {
-                
                 $this->presenter->flashMessage('ERROR: SpreadsheetManager::exportElisaXLS(), ' . $e->getMessage() . ')', 'error');
             }
-        
         } else {
-            
             // TXT report
             try {
-                
                 $this->textManager->textReport($values);
             } catch (\Exception $e) {
-                
                 $this->presenter->flashMessage('ERROR: TextManager::textReport(), ' . $e->getMessage() . ')', 'error');
             }
         }

@@ -27,6 +27,14 @@ class QualityControlManager
     public $stD_avg;
     public $stD;
     public $stE;
+    public $cal_1;
+    public $cal_2;
+    public $cal_3;
+    public $cal_4;
+    public $cal_5;
+    public $cal_6;
+    public $cal_7;
+    public $cal_8;
     public $ratio;
     public $classification;
 
@@ -52,158 +60,154 @@ class QualityControlManager
     }
     
     /**
-     * Blank
-     * 
-     * @return float
+     * CAL 1 / Blank
+     * @return bool
      */
-    public function getBlank()
-    {
-        // Blank < 0.150
-        $this->blank = ($this->abs[1] < 0.150 ? true : false);
-        
-        return $this->blank;
+    public function getCal1() {
+        // Blank < Blank_min
+        $this->cal_1 = ($this->abs[1] < $this->param['blank_max'] ? true : false);
+        return $this->cal_1;
     }
     
     /**
-     * Standard E
-     * 
+     * CAL 2
      * @return float
      */
-    public function getStA()
-    {
-        // StD average
-        $this->stA = ($this->abs[49] - $this->abs[1]);
-        
-        return $this->stA;
+    public function getCal2() {
+        $this->cal_2 = $this->abs[13] - $this->abs[1];
+        return $this->cal_2;
+    }
+    /**
+     * CAL 3
+     * @return float
+     */
+    public function getCal3() {
+        $this->cal_3 = $this->abs[25] - $this->abs[1];
+        return $this->cal_3;
     }
     
     /**
-     * Standard D (average)
-     * 
+     * CAL 4
      * @return float
      */
-    public function getStD()
-    {
-        // StD average
-        $this->stD_avg = ((($this->abs[13] - $this->abs[1]) + ($this->abs[25] - $this->abs[1])) / 2);
-        
+    public function getCal4() {
+        $this->cal_4 = ($this->abs[37] - $this->abs[1]);
+        return $this->cal_4;
+    }
+    /**
+     * CAL_5
+     * @return float
+     */
+    public function getCal5() {
+        $this->cal_5 = ($this->abs[49] - $this->abs[1]);
+        return $this->cal_5;
+    }
+    
+    /**
+     * CAL_6
+     * @return float
+     */
+    public function getCal6() {
+        $this->cal_6 = ($this->abs[61] - $this->abs[1]);
+        return $this->cal_6;
+    }
+    /**
+     * CAL_7
+     * @return float
+     */
+    public function getCal7() {
+        $this->cal_7 = ($this->abs[73] - $this->abs[1]);
+        return $this->cal_7;
+    }
+    /**
+     * CAL_8
+     * @return float
+     */
+    public function getCal8() {
+        $this->cal_8 = ($this->abs[85] - $this->abs[1]);
+        return $this->cal_8;
+    }
+    
+    /**
+     * Standard D average
+     * @return float
+     */
+    public function getStD() {
+        $this->stD_avg = ($this->getCal2() + $this->getCal3()) / 2;
         return $this->stD_avg;
     }
     
-    /**
-     * Standard E
-     * 
-     * @return float
-     */
-    public function getStE()
-    {
-        // StD average
-        $this->stE = ($this->abs[37] - $this->abs[1]);
-        
-        return $this->stE;
-    }
     /**
      * Cutoff
      * 
      * @return float
      */
-    public function getCutoff()
-    {
+    public function getCutoff() {
         // cuttoff
         if ($this->param['dilution'] == 101) {
-            
             $this->cutoff = $this->getStD() * $this->param['kf_serum'];
-            
         } elseif ($this->param['dilution'] == 2) {
-            
             $this->cutoff = $this->getStD() * $this->param['kf_csf'];
-            
         } else {
-            
             $this->cutoff = $this->getStD() * $this->param['kf_synovia'];
-            
         }
-        
         return $this->cutoff;
     }
     
-    
     /**
-     * Standard A validation
-     * 
-     * @return boolean
+     * Standard A (cal5) validation
+     * @return bool
      */
-    public function qcStA()
-    {
+    public function qcStA() {
         // StA < cutoff * 0.9
-        $this->stA = (($this->abs[49] - $this->abs[1]) < (($this->getStD() * $this->param['kf_serum']) * 0.9) ? true : false);
-        
-        //dump($this->stA);
-        //exit;
-        
+        $this->stA = ($this->getCal5() < (($this->getStD() * $this->param['kf_serum']) * 0.9) ? true : false);
         return $this->stA;
     }
     
     /**
-     * Standard A validation (mlU/ml only)
-     * 
+     * Standard A (cal5) validation (mlU/ml only)
      * @return boolean
      */
-    public function qcStAmlu()
-    {
+    public function qcStAmlu() {
         // StA < 120
         $this->stA_mlu = ($this->results[49] < 120 ? true : false);
-        
         return $this->stA_mlu;
     }
     
     /**
-     * Standard E validation
-     * 
-     * @return boolean
+     * Standard E (cal4) validation
+     * @return bool
      */
-    public function qcStE()
-    {
+    public function qcStE() {
         // StE > cutoff * 1.1
-        $this->stE = (($this->abs[37] - $this->abs[1]) > (($this->getStD() * $this->param['kf_serum']) * 1.1) ? true : false);
-        
+        $this->stE = ($this->getCal4() > (($this->getStD() * $this->param['kf_serum']) * 1.1) ? true : false);
         return $this->stE;
     }
     
     /**
-     * Standard D validation
-     * 
+     * Standard D average validation
      * @return boolean
      */
-    public function qcStD()
-    {
+    public function qcStD() {
         // StD > 0.500
         $this->stD = ($this->getStD() > 0.500 ? true : false);
-        
         return $this->stD;
     }
     
-    
     /**
      * Ratio OD validation
-     * 
      * @return boolean
      */
-    public function qcRatio()
-    {
+    public function qcRatio() {
         // RatioOD min < StE / StD < RatioOD max
-        $this->ratio = (($this->abs[37] - $this->abs[1]) / $this->getStD() > $this->param['ratio_min'] ? (($this->abs[37] - $this->abs[1]) / $this->getStD() < $this->param['ratio_max'] ? true : false) : false);
-        
+        $this->ratio = ($this->getCal4() / $this->getStD() > $this->param['ratio_min'] ? ($this->getCal4() / $this->getStD() < $this->param['ratio_max'] ? true : false) : false);
         return $this->ratio;
     }
-    
     
     /**
     * @return array
     */
-    public function getQCreport()
-    {
-        
+    public function getQCreport() {
         // set array with qc results
         $this->qualityControl = array(
             'qcBlank' => $this->getBlank(),
@@ -212,14 +216,11 @@ class QualityControlManager
             'qcStE' => $this->qcStE(),
             'qcStD' => $this->qcStD(),
             'qcRatio' => $this->qcRatio());
-        
         return $this->qualityControl;
     }
     
-    public function getClassification($param = null)
-    {
+    public function getClassification($param = null) {
         if($param['dilution'] == '101') {
-            
             if ($param['unit'] == 1) {
                 $this->classification = ($param['serum_ip_min'] != 0 && $param['serum_ip_min'] != 0 ? "(Negative > " . $param['serum_ip_min'] . " > Greyzone > " . $param['serum_ip_max'] . " > Positive)" : "(Nevyžadováno / Unclaimed)");
             } elseif ($param['unit'] == 2) {

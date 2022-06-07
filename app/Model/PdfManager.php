@@ -116,14 +116,14 @@ class PdfManager
                                 <tr><th colspan="3">Validační kriteria / Validation criteria</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Blank < 0,150: </td><td>' . str_replace(".", ",", $param['Abs'][1]) . ' < 0,150</td><td>' . ($qc->getBlank() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>'). '</td></tr>
-                                <tr><td>ST A/NC < 0,9 x CUT OFF: </td><td>' . str_replace(".", ",", $qc->getStA()) . ' < ' . number_format(($qc->getStD() * $param['kf_serum']) * 0.9, 3, ",", "") . '</td><td>' . ($qc->qcStA() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>') . '</td></tr>
+                                <tr><td>Blank < '. str_replace(".", ",", $param['blank_max']) .': </td><td>' . str_replace(".", ",", $param['Abs'][1]) . ' < ' . str_replace(".", ",", $param['blank_max']) . '</td><td>' . ($qc->getCal1() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>'). '</td></tr>
+                                <tr><td>ST A/NC < 0,9 x CUT OFF: </td><td>' . str_replace(".", ",", $qc->getCal5()) . ' < ' . number_format(($qc->getStD() * $param['kf_serum']) * 0.9, 3, ",", "") . '</td><td>' . ($qc->qcStA() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>') . '</td></tr>
                                 ' . 
                                 /** if unit = 4 (mlU/ml) */ 
                                 ($param['unit'] == 4 ? '<tr><td>ST A/NC < 120 (mlU/ml): </td><td>' . str_replace(".", ",", $result[49]) . ' < 120</td><td>' . ($qc->qcStAmlu() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>') . '</td></tr>' : '') . '
-                                <tr><td>ST E/PC > 1,1 x CUT OFF: </td><td>' . str_replace(".", ",", $qc->getStE()) . ' > ' . number_format(($qc->getStD() * $param['kf_serum']) * 1.1, 3, ",", "") . '</td><td>' . ($qc->qcStE() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>') . '</td></tr>
+                                <tr><td>ST E/PC > 1,1 x CUT OFF: </td><td>' . str_replace(".", ",", $qc->getCal4()) . ' > ' . number_format(($qc->getStD() * $param['kf_serum']) * 1.1, 3, ",", "") . '</td><td>' . ($qc->qcStE() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>') . '</td></tr>
                                 <tr><td>ST D/CAL > 0,500: </td><td>' . str_replace(".", ",", $qc->getStD()) . '</td><td>' . ($qc->qcStD() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>') . '</td></tr>
-                                <tr><td>Poměr / Ratio OD ST E / ST D: </td><td>' . number_format(($param['Abs'][37] - $param['Abs'][1]) / $qc->getStD(), 3, ",", "") . '</td><td>' . ($qc->qcRatio() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>') . '</td></tr>
+                                <tr><td>Poměr / Ratio OD ST E / ST D: </td><td>' . number_format($qc->getCal4() / $qc->getStD(), 3, ",", "") . '</td><td>' . ($qc->qcRatio() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>') . '</td></tr>
                                 </tbody>
                         </table>
                     </div>
