@@ -68,14 +68,13 @@ class PdfManager
      * Define PDF content (ELISA)
      * @return string
      */
-    public function getElisaContent($value)
-    {
-        
+    public function getElisaContent($value) {
         /** App\Model\CalculatorElisaManager */
         $calculator = new CalculatorElisaManager($this->database);
         $param = $calculator->getParam($value);
         $result = $calculator->getResult($value);
         $interpret = $calculator->getInterpretation($value);
+        $assay_layout = $this->database->table('calc_assays')->get($param['assay'])->layout;
 
         /** App\Model\QualityControlManager */
         $qc = new QualityControlManager($value, $this->database);
@@ -99,12 +98,19 @@ class PdfManager
                                 <tr><td>St D B/B<sub>max</sub>: </td><td>' . str_replace(".", ",", $param['std_bmax']) . '</td></tr>
                                 <tr><td>A1: </td><td>' . str_replace(".", ",", $param['a1']) . '</td></tr>
                                 <tr><td>A2: </td><td>' . str_replace(".", ",", $param['a2']) . '</td></tr>
-                                <tr><td>C: </td><td>' . str_replace(".", ",", $param['c']) . '</td></tr>
-                                <tr><td>Korekční faktor / Correction factor <sub>serum</sub>: </td><td>' . str_replace(".", ",", $param['kf_serum']) . '</td></tr>
-                                <tr><td>Korekční faktor / Correction factor <sub>CSF</sub>: </td><td>' . str_replace(".", ",", $param['kf_csf']) . '</td></tr>
-                                <tr><td>Korekční faktor / Correction factor <sub>synovia</sub>: </td><td>' . str_replace(".", ",", $param['kf_synovia']) . '</td></tr>
-                                <tr><td>Poměr / Ratio OD (ST E / ST D): </td><td>' . str_replace(".", ",", $param['ratio_min']) . ' - ' . str_replace(".", ",", $param['ratio_max']) . '</td></tr>
-                                <tr><td>Ředení vzorku / Dilution: </td><td>' . str_replace(".", ",", $param['dilution']) . 'x</td></tr>
+                                <tr><td>C: </td><td>' . str_replace(".", ",", $param['c']) . '</td></tr>';
+                                if ($assay_layout == 1) { // default layout BL, CAL, CAL, PC, NC
+                                    $this->reportContent .= '<tr><td>Korekční faktor / Correction factor <sub>serum</sub>: </td><td>' . str_replace(".", ",", $param['kf_serum']) . '</td></tr>
+                                    <tr><td>Korekční faktor / Correction factor <sub>CSF</sub>: </td><td>' . str_replace(".", ",", $param['kf_csf']) . '</td></tr>
+                                    <tr><td>Korekční faktor / Correction factor <sub>synovia</sub>: </td><td>' . str_replace(".", ",", $param['kf_synovia']) . '</td></tr>
+                                    <tr><td>Poměr / Ratio OD (ST E / ST D): </td><td>' . str_replace(".", ",", $param['ratio_min']) . ' - ' . str_replace(".", ",", $param['ratio_max']) . '</td></tr>';
+                                } elseif ($assay_layout == 2) { // CXCL13 layout BL, CAL, CAL
+                                    $this->reportContent .= '<tr><td>Analytická citlivost / Analytical sensitivity (OD): </td><td>' . str_replace(".", ",", $param['c_min']) . '</td></tr>
+                                    <tr><td>Mez detekce (pg/ml) / Detection limit (pg/ml): </td><td>' . str_replace(".", ",", $param['detection_limit']) . '</td></tr>';
+                                } else {
+                                    $this->reportContent .= '';
+                                }
+                                $this->reportContent .= '<tr><td>Ředení vzorku / Dilution: </td><td>' . str_replace(".", ",", $param['dilution']) . 'x</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -116,29 +122,35 @@ class PdfManager
                                 <tr><th colspan="3">Validační kriteria / Validation criteria</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Blank < '. str_replace(".", ",", $param['blank_max']) .': </td><td>' . str_replace(".", ",", $param['Abs'][1]) . ' < ' . str_replace(".", ",", $param['blank_max']) . '</td><td>' . ($qc->getCal1() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>'). '</td></tr>
-                                <tr><td>ST A/NC < 0,9 x CUT OFF: </td><td>' . str_replace(".", ",", $qc->getCal5()) . ' < ' . number_format(($qc->getStD() * $param['kf_serum']) * 0.9, 3, ",", "") . '</td><td>' . ($qc->qcStA() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>') . '</td></tr>
+                                <tr><td>Blank < '. number_format((float)$param['blank_max'], 3, ",", "") .': </td><td>' . number_format((float)$param['Abs'][1], 3, ",", "") . ' < ' . number_format((float)$param['blank_max'], 3, ",", "") . '</td><td>' . ($qc->getCal1() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>'). '</td></tr>
                                 ' . 
                                 /** if unit = 4 (mlU/ml) */ 
-                                ($param['unit'] == 4 ? '<tr><td>ST A/NC < 120 (mlU/ml): </td><td>' . str_replace(".", ",", $result[49]) . ' < 120</td><td>' . ($qc->qcStAmlu() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>') . '</td></tr>' : '') . '
-                                <tr><td>ST E/PC > 1,1 x CUT OFF: </td><td>' . str_replace(".", ",", $qc->getCal4()) . ' > ' . number_format(($qc->getStD() * $param['kf_serum']) * 1.1, 3, ",", "") . '</td><td>' . ($qc->qcStE() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>') . '</td></tr>
-                                <tr><td>ST D/CAL > 0,500: </td><td>' . str_replace(".", ",", $qc->getStD()) . '</td><td>' . ($qc->qcStD() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>') . '</td></tr>
-                                <tr><td>Poměr / Ratio OD ST E / ST D: </td><td>' . number_format($qc->getCal4() / $qc->getStD(), 3, ",", "") . '</td><td>' . ($qc->qcRatio() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>') . '</td></tr>
-                                </tbody>
+                                ($param['unit'] == 4 ? '<tr><td>ST A/NC < 120 (mlU/ml): </td><td>' . str_replace(".", ",", $result[49]) . ' < 120</td><td>' . ($qc->qcStAmlu() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>') . '</td></tr>' : '');
+                                if ($assay_layout == 1) { // default layout BL, CAL, CAL, PC, NC
+                                    $this->reportContent .= '<tr><td>ST A/NC < 0,9 x CUT OFF: </td><td>' . str_replace(".", ",", $qc->getCal5()) . ' < ' . number_format(($qc->getStD() * $param['kf_serum']) * 0.9, 3, ",", "") . '</td><td>' . ($qc->qcStA() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>') . '</td></tr>
+                                    <tr><td>ST E/PC > 1,1 x CUT OFF: </td><td>' . str_replace(".", ",", $qc->getCal4()) . ' > ' . number_format(($qc->getStD() * $param['kf_serum']) * 1.1, 3, ",", "") . '</td><td>' . ($qc->qcStE() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>') . '</td></tr>
+                                    <tr><td>ST D/CAL > 0,500: </td><td>' . str_replace(".", ",", $qc->getStD()) . '</td><td>' . ($qc->qcStD() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>') . '</td></tr>
+                                    <tr><td>Poměr / Ratio OD ST E / ST D: </td><td>' . number_format($qc->getCal4() / $qc->getStD(), 3, ",", "") . '</td><td>' . ($qc->qcRatio() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>') . '</td></tr>';
+                                } elseif ($assay_layout == 2) { // CXCL13 layout BL, CAL, CAL
+                                    $this->reportContent .= '<tr><td>ST CXCL13 > 0,500: </td><td>' . number_format($qc->getStCXCL13(), 3, ",", "") . '</td><td>' . ($qc->qcStCXCL13() ? '<span id="valid">Valid</span>' : '<span id="invalid">Invalid</span>') . '</td></tr>
+                                    <tr><td>Analytická citlivost / Analytical sensitivity (OD): </td><td colspan="2">' . str_replace(".", ",", $param['c_min']) . '</td></tr>
+                                    <tr><td>Mez detekce / Detection limit (pg/ml): </td><td colspan="2">' . str_replace(".", ",", $param['detection_limit']) . '</td></tr>';
+                                } else {
+                                    $this->reportContent .= '';
+                                }
+                                $this->reportContent .= '
+                            </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         <br>';
-
-
         $i = 1;
         $j = 1;
         $r = array("", "A", "B", "C", "D", "E", "F", "G", "H");
-
         $this->reportContent .= '
             <div id="results">
-                Výsledky / Results (' . ($param['dilution'] == '101' ? 'Serum' : ($param['dilution'] == '2' ? 'CSF' : 'Synovia')) . '; ' . $this->database->table('calc_units')->get($param['unit'])->unit_name . ')
+                Výsledky / Results (' . ($param['dilution'] == '101' ? 'Serum' : ($param['dilution'] == '2' ? 'CSF' : ($param['dilution'] == '81' ? 'Synovia' : 'Jiné/Other'))) . '; ' . $this->database->table('calc_units')->get($param['unit'])->unit_name . ')
                 <div id="border-radius">
                     <table id="assay-result">
                         <thead><tr><th></th><th>1.</th><th>2.</th><th>3.</th><th>4.</th><th>5.</th><th>6.</th><th>7.</th><th>8.</th><th>9.</th><th>10.</th><th>11.</th><th>12.</th></tr></thead>';
@@ -147,14 +159,12 @@ class PdfManager
                             $this->reportContent .= '<tr><th>' . $r[$i] . '</th>';
                             $i++;
                             for ($col = 1; $col <= 12; ++$col) {
-
                                 // relese data if sampleID is empty 
                                 if (empty($param['sampleId'][$j])) {
                                     $param['Abs'][$j] = "";
                                     $result[$j] = "";
                                     $interpret[$j] = "";
                                 }
-
                                 // print cell with sampleID, Abs, Result and interpretation values
                                 $this->reportContent .= ''
                                         . '<td id="assay-result">'
@@ -163,7 +173,6 @@ class PdfManager
                                         . '<span id="result-value">' . str_replace(".", ",", $result[$j]) . '</span><br>'
                                         . '<span id="interpretation">' . $interpret[$j] . '</span>'
                                         . '</td>';
-
                                 $j++;
                             }
                             $this->reportContent .= '</tr>';

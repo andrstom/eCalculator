@@ -15,8 +15,7 @@ use Nette\SmartObject;
  *
  * @author andrs
  */
-class SpreadsheetManager
-{
+class SpreadsheetManager {
     // @array
     private $readData;
     
@@ -225,7 +224,7 @@ class SpreadsheetManager
         $calculator = new CalculatorElisaManager($this->database);
         $param = $calculator->getParam($values);
         $result = $calculator->getResult($values);
-        
+        $assay = $this->database->table('calc_assays')->get($param['assay']);
         /** App\Model\QualityControlManager */
         $qc = new QualityControlManager($values, $this->database);
         
@@ -233,11 +232,11 @@ class SpreadsheetManager
         $this->spreadsheet = new Spreadsheet();
 
         $this->spreadsheet->setActiveSheetIndex(0);
-        $this->spreadsheet->getActiveSheet()->setTitle('Results_' . $this->database->table('calc_assays')->get($param['assay'])->assay_short);
+        $this->spreadsheet->getActiveSheet()->setTitle('Results_' . $assay->assay_short);
 
         /** assay info cells */
         $this->spreadsheet->getActiveSheet()->setCellValue('A1', 'Protokol o měření / Assay protocol');
-        $this->spreadsheet->getActiveSheet()->setCellValue('A2', $this->database->table('calc_assays')->get($param['assay'])->assay_name);
+        $this->spreadsheet->getActiveSheet()->setCellValue('A2', $assay->assay_name);
         $this->spreadsheet->getActiveSheet()->setCellValue('A3', 'Šarže / Lot');
         $this->spreadsheet->getActiveSheet()->setCellValue('C3', $param["batch"]);
         $this->spreadsheet->getActiveSheet()->setCellValue('A4', 'Expirace / Expiry');
@@ -257,35 +256,53 @@ class SpreadsheetManager
         $this->spreadsheet->getActiveSheet()->setCellValue('E11', $param["c_min"]);
         $this->spreadsheet->getActiveSheet()->setCellValue('A12', 'Cmax');
         $this->spreadsheet->getActiveSheet()->setCellValue('E12', $param["c_max"]);
-        $this->spreadsheet->getActiveSheet()->setCellValue('A13', 'Korekční faktor / Correction factor (serum)');
-        $this->spreadsheet->getActiveSheet()->setCellValue('E13', $param["kf_serum"]);
-        $this->spreadsheet->getActiveSheet()->setCellValue('A14', 'Korekční faktor / Correction factor (CSF)');
-        $this->spreadsheet->getActiveSheet()->setCellValue('E14', $param["kf_csf"]);
-        $this->spreadsheet->getActiveSheet()->setCellValue('A15', 'Korekční faktor / Correction factor (synovia)');
-        $this->spreadsheet->getActiveSheet()->setCellValue('E15', $param["kf_synovia"]);
-        $this->spreadsheet->getActiveSheet()->setCellValue('A16', 'Poměr / Ratio OD (St E / St D) min-max');
-        $this->spreadsheet->getActiveSheet()->setCellValue('E16', $param["ratio_min"]);
-        $this->spreadsheet->getActiveSheet()->setCellValue('F16', $param["ratio_max"]);
-        $this->spreadsheet->getActiveSheet()->setCellValue('A17', 'Ředění / Dilution');
-        $this->spreadsheet->getActiveSheet()->setCellValue('E17', $param["dilution"]);
+        if ($assay->layout == 1) {
+            $this->spreadsheet->getActiveSheet()->setCellValue('A14', 'Korekční faktor / Correction factor (serum)');
+            $this->spreadsheet->getActiveSheet()->setCellValue('E14', (isset($param['kf_serum']) ? $param['kf_serum'] : "N/A"));
+            $this->spreadsheet->getActiveSheet()->setCellValue('A15', 'Korekční faktor / Correction factor (CSF)');
+            $this->spreadsheet->getActiveSheet()->setCellValue('E15', (isset($param['kf_csf']) ? $param['kf_csf'] : "N/A"));
+            $this->spreadsheet->getActiveSheet()->setCellValue('A16', 'Korekční faktor / Correction factor (synovia)');
+            $this->spreadsheet->getActiveSheet()->setCellValue('E16', (isset($param['kf_synovia']) ? $param['kf_synovia'] : "N/A"));
+            $this->spreadsheet->getActiveSheet()->setCellValue('A17', 'Poměr / Ratio OD (St E / St D) min-max');
+            $this->spreadsheet->getActiveSheet()->setCellValue('E17', (isset($param['ratio_min']) ? $param['ratio_min'] : "N/A"));
+            $this->spreadsheet->getActiveSheet()->setCellValue('F17', (isset($param['ratio_max']) ? $param['ratio_max'] : "N/A"));
+        } elseif ($assay->layout == 2) {
+            $this->spreadsheet->getActiveSheet()->setCellValue('A14', 'Analytická citlivost / Analytical sensitivity (OD)');
+            $this->spreadsheet->getActiveSheet()->setCellValue('E14', $param["c_min"]);
+            $this->spreadsheet->getActiveSheet()->setCellValue('A15', 'Mez stanovitelnosti / Detection limit (pg/ml)');
+            $this->spreadsheet->getActiveSheet()->setCellValue('E15', $param["detection_limit"]);
+        } else { // pripraveno pro dalsi layout
+            $this->spreadsheet->getActiveSheet()->setCellValue('A14', '');
+            $this->spreadsheet->getActiveSheet()->setCellValue('E14', '');
+        }
+        $this->spreadsheet->getActiveSheet()->setCellValue('A13', 'Ředění / Dilution');
+        $this->spreadsheet->getActiveSheet()->setCellValue('E13', $param["dilution"]);
         
         /** standards */
         $this->spreadsheet->getActiveSheet()->setCellValue('A19', 'Standardy / Standards');
         $this->spreadsheet->getActiveSheet()->setCellValue('A20', 'Blank');
         $this->spreadsheet->getActiveSheet()->setCellValue('E20', $param['Abs'][1]);
         $this->spreadsheet->getActiveSheet()->setCellValue('F20', 'max. < ' . $param['blank_max']);
-        $this->spreadsheet->getActiveSheet()->setCellValue('A21', 'St A / NC');
-        $this->spreadsheet->getActiveSheet()->setCellValue('E21', $qc->getCal5());
-        $this->spreadsheet->getActiveSheet()->setCellValue('A22', 'St E / PC');
-        $this->spreadsheet->getActiveSheet()->setCellValue('E22', $qc->getCal4());
-        $this->spreadsheet->getActiveSheet()->setCellValue('A23', 'St D / CAL');
-        $this->spreadsheet->getActiveSheet()->setCellValue('E23', $qc->getStD());
-        $this->spreadsheet->getActiveSheet()->setCellValue('A24', 'CUTOFF (serum)');
-        $this->spreadsheet->getActiveSheet()->setCellValue('E24', $qc->getStD() * $param['kf_serum']);
-        $this->spreadsheet->getActiveSheet()->setCellValue('A25', 'CUTOFF (csf)');
-        $this->spreadsheet->getActiveSheet()->setCellValue('E25', $qc->getStD() * $param['kf_csf']);
-        $this->spreadsheet->getActiveSheet()->setCellValue('A26', 'CUTOFF (synovia)');
-        $this->spreadsheet->getActiveSheet()->setCellValue('E26', $qc->getStD() * $param['kf_synovia']);
+        if($assay->layout == 1) {
+            $this->spreadsheet->getActiveSheet()->setCellValue('A21', 'St A / NC');
+            $this->spreadsheet->getActiveSheet()->setCellValue('E21', $qc->getCal5());
+            $this->spreadsheet->getActiveSheet()->setCellValue('A22', 'St E / PC');
+            $this->spreadsheet->getActiveSheet()->setCellValue('E22', $qc->getCal4());
+            $this->spreadsheet->getActiveSheet()->setCellValue('A23', 'St D / CAL');
+            $this->spreadsheet->getActiveSheet()->setCellValue('E23', $qc->getStD());
+            $this->spreadsheet->getActiveSheet()->setCellValue('A24', 'CUTOFF (serum)');
+            $this->spreadsheet->getActiveSheet()->setCellValue('E24', (isset($param['kf_serum']) ? $qc->getStD() * $param['kf_serum'] : "N/A"));
+            $this->spreadsheet->getActiveSheet()->setCellValue('A25', 'CUTOFF (csf)');
+            $this->spreadsheet->getActiveSheet()->setCellValue('E25', (isset($param['kf_csf']) ? $qc->getStD() * $param['kf_csf'] : "N/A"));
+            $this->spreadsheet->getActiveSheet()->setCellValue('A26', 'CUTOFF (synovia)');
+            $this->spreadsheet->getActiveSheet()->setCellValue('E26', (isset($param['kf_synovia']) ? $qc->getStD() * $param['kf_synovia'] : "N/A"));
+        } elseif($assay->layout == 2) {
+            $this->spreadsheet->getActiveSheet()->setCellValue('A21', 'St CXCL13 average');
+            $this->spreadsheet->getActiveSheet()->setCellValue('E21', $qc->getStCXCL13());
+        } else { // pripraveno pro dalsi layout
+            $this->spreadsheet->getActiveSheet()->setCellValue('A21', '');
+            $this->spreadsheet->getActiveSheet()->setCellValue('E21', '');
+        }
         
         /** table of sample ID */
         $this->spreadsheet->getActiveSheet()->setCellValue('A28', 'Vzorkek ID / Sample ID');

@@ -34,8 +34,7 @@ class TextManager
      * @param string (dataRange -> row:col:line_skipper -> "118:2:6")
      * @return array
      */
-    public function readText($tmpFileName = null, $delimiter, $dataRange)
-    {
+    public function readText($tmpFileName = null, $delimiter, $dataRange) {
         /**
          * data range (firstRow:firstCol position)
          * @array
@@ -72,9 +71,7 @@ class TextManager
          * @string
          */
         if (array_key_exists($delimiter, $posibleDelimiters)) {
-            
             $dlmtr = $posibleDelimiters[$delimiter];
-            
         }
 
         /**
@@ -92,7 +89,6 @@ class TextManager
          * @array
          */
         $m = 1;
-        
         for ($i = $firstRow; $i <= $lastRow; $i++) {
             for ($j = $firstCol; $j <= $lastCol; $j++) {
                 if (empty($line[$i][$j])) {
@@ -112,8 +108,7 @@ class TextManager
     }
     
     
-    public function textReport($values)
-    {
+    public function textReport($values) {
         /** App\Model\Calculator */
         $calculator = new CalculatorElisaManager($this->database);
         $param = $calculator->getParam($values);
@@ -126,9 +121,11 @@ class TextManager
         $tmpFilename = $this->database->table('calc_assays')->get($param['assay'])->assay_short . '_' . date('ymd_His', time()) . '.txt';
         $txtReport = fopen($tmpFilename, "w");
 
+        $assay = $this->database->table('calc_assays')->get($param['assay']);
+        
         /** set file content e.g. parameters, sample ID, reader values and results */
         $this->txtReport = "Protokol o měření / Assay protocol\n\r\n\r" . PHP_EOL
-                . "Název metody / Assay name: " . $this->database->table('calc_assays')->get($param['assay'])->assay_name . "\n\r" . PHP_EOL
+                . "Název metody / Assay name: " . $assay->assay_name . "\n\r" . PHP_EOL
                 . "Šarže / Lot: " . $param['batch'] . "\n\r" . PHP_EOL
                 . "Expirace / Expiration: " . $param['expiry'] . "\n\r\n\r" . PHP_EOL
 
@@ -139,23 +136,21 @@ class TextManager
                 . "C:\t" . str_replace(".", ",", $param['c']) . "\n\r" . PHP_EOL
                 . "Cmin:\t" . str_replace(".", ",", $param['c_min']) . "\n\r" . PHP_EOL
                 . "Cmax:\t" . str_replace(".", ",", $param['c_max']) . "\n\r" . PHP_EOL
-                . "Korekční faktor / Correction factor (serum):\t" . str_replace(".", ",", $param['kf_serum']) . "\n\r" . PHP_EOL
-                . "Korekční faktor / Correction factor (CSF):\t" . str_replace(".", ",", $param['kf_csf']) . "\n\r" . PHP_EOL
-                . "Korekční faktor / Correction factor (synovia):\t" . str_replace(".", ",", $param['kf_synovia']) . "\n\r" . PHP_EOL
                 . "BLANK maximum:\t" . str_replace(".", ",", $param['blank_max']) . "\n\r" . PHP_EOL
-                . "Poměr / Ratio OD min:\t" . str_replace(".", ",", $param['ratio_min']) . "\n\r" . PHP_EOL
-                . "Poměr / Ratio OD max:\t" . str_replace(".", ",", $param['ratio_max']) . "\n\r" . PHP_EOL
+                . "Korekční faktor / Correction factor (serum):\t" . (isset($param['kf_serum']) ? str_replace(".", ",", $param['kf_serum']) : "N/A") . "\n\r" . PHP_EOL
+                . "Korekční faktor / Correction factor (CSF):\t" . (isset($param['kf_csf']) ? str_replace(".", ",", $param['kf_csf']) : "N/A") . "\n\r" . PHP_EOL
+                . "Korekční faktor / Correction factor (synovia):\t" . (isset($param['kf_synovia']) ? str_replace(".", ",", $param['kf_synovia']) : "N/A") . "\n\r" . PHP_EOL
+                . "Poměr / Ratio OD min:\t" . (isset($param['ratio_min']) ? str_replace(".", ",", $param['ratio_min']) : "N/A") . "\n\r" . PHP_EOL
+                . "Poměr / Ratio OD max:\t" . (isset($param['ratio_max']) ? str_replace(".", ",", $param['ratio_max']) : "N/A") . "\n\r" . PHP_EOL
+                . "Analytická citlivost / Analytical sensitivity (OD):\t" . (isset($param['c_min']) ? str_replace(".", ",", $param['c_min']) : "N/A") . "\n\r" . PHP_EOL
+                . "Mez stanovitelnosti / Detection limit (pg/ml):\t" . (isset($param['detection_limit']) ? str_replace(".", ",", $param['detection_limit']) : "N/A") . "\n\r" . PHP_EOL
                 . "Ředění vzorku / Dilution:\t" . $param['dilution'] . "x \n\r\n\r" . PHP_EOL
 
-                . "Standardy / Standards" . "\n\r" . PHP_EOL
+                . "Naměřené hodnoty / Measured values:" . "\n\r" . PHP_EOL
                 . $param['cal_1'] . ":\t" . str_replace(".", ",", $param['Abs'][1]) . "\n\r" . PHP_EOL
-                . $param['cal_2'] . ":\t" . str_replace(".", ",", $qc->getCal2()) . "\n\r" . PHP_EOL
-                . $param['cal_3'] . ":\t" . str_replace(".", ",", $qc->getCal3()) . "\n\r" . PHP_EOL
-                . $param['cal_4'] . ":\t" . str_replace(".", ",", $qc->getCal4()) . "\n\r" . PHP_EOL
-                . $param['cal_5'] . ":\t" . str_replace(".", ",", $qc->getCal5()) . "\n\r" . PHP_EOL
-                . "Cut off (serum):\t" . str_replace(".", ",", $qc->getStD() * $param['kf_serum']) . "\n\r" . PHP_EOL
-                . "Cut off (CSF):\t" . str_replace(".", ",", $qc->getStD() * $param['kf_csf']) . "\n\r" . PHP_EOL
-                . "Cut off (synovia):\t" . str_replace(".", ",", $qc->getStD() * $param['kf_synovia']) . "\n\r\n\r" . PHP_EOL;
+                . "Cut off (serum):\t" . (isset($param['kf_serum']) ? str_replace(".", ",", $qc->getStD() * $param['kf_serum']) : "N/A") . "\n\r" . PHP_EOL
+                . "Cut off (CSF):\t" . (isset($param['kf_csf']) ? str_replace(".", ",", $qc->getStD() * $param['kf_csf']) : "N/A") . "\n\r" . PHP_EOL
+                . "Cut off (synovia):\t" . (isset($param['kf_synovia']) ? str_replace(".", ",", $qc->getStD() * $param['kf_synovia']) : "N/A") . "\n\r\n\r" . PHP_EOL;
         
         /**
          * sample ID

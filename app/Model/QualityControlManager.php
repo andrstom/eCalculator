@@ -25,6 +25,7 @@ class QualityControlManager
     public $stA;
     public $stA_mlu;
     public $stD_avg;
+    public $stCXCL13_avg;
     public $stD;
     public $stE;
     public $cal_1;
@@ -47,16 +48,13 @@ class QualityControlManager
     /** @var \Nette\Security\User */
     private $user;
     
-    public function __construct($param = null, Nette\Database\Context $database)
-    {
+    public function __construct($param = null, Nette\Database\Context $database) {
         $this->database = $database;
-
         // quality control
         $calculatorElisa = new CalculatorElisaManager($this->database);
         $this->param = $calculatorElisa->getParam($param);
         $this->abs = $this->param['Abs'];
         $this->results = $calculatorElisa->getResult($param);
-
     }
     
     /**
@@ -138,6 +136,15 @@ class QualityControlManager
     }
     
     /**
+     * Standard CXCL13 average
+     * @return float
+     */
+    public function getStCXCL13() {
+        $this->stCXCL13_avg = ($this->abs[13] + $this->abs[25]) / 2;
+        return $this->stCXCL13_avg;
+    }
+    
+    /**
      * Cutoff
      * 
      * @return float
@@ -195,6 +202,16 @@ class QualityControlManager
     }
     
     /**
+     * Standard CXCL13 average validation
+     * @return boolean
+     */
+    public function qcStCXCL13() {
+        // StCXCL13 > 0.500
+        $this->stCXCL13 = ($this->getStCXCL13() > 0.500 ? true : false);
+        return $this->stCXCL13;
+    }
+    
+    /**
      * Ratio OD validation
      * @return boolean
      */
@@ -215,6 +232,7 @@ class QualityControlManager
             'qcStAmlu' => $this->qcStAmlu(),
             'qcStE' => $this->qcStE(),
             'qcStD' => $this->qcStD(),
+            'qcStCXCL13' => $this->qcCXCL13(),
             'qcRatio' => $this->qcRatio());
         return $this->qualityControl;
     }
@@ -229,8 +247,10 @@ class QualityControlManager
                 $this->classification = ($param['serum_vieu_min'] != 0 && $param['serum_vieu_min'] != 0 ? "(Negative > " . $param['serum_vieu_min'] . " > Greyzone > " . $param['serum_vieu_max'] . " > Positive)" : "(Nevyžadováno / Unclaimed)");
             } elseif ($param['unit'] == 4) {
                 $this->classification = ($param['serum_mlu_min'] != 0 && $param['serum_mlu_max'] != 0 ? "(Negative > " . $param['serum_mlu_min'] . " > Greyzone > " . $param['serum_mlu_max'] . " > Positive)" : "(Nevyžadováno / Unclaimed)");
-            } else {
+            } elseif ($param['unit'] == 5) {
                 $this->classification = ($param['serum_iu_min'] != 0 && $param['serum_iu_min'] != 0 ? "(Negative > " . $param['serum_iu_min'] . " > Greyzone > " . $param['serum_iu_max'] . " > Positive)" : "(Nevyžadováno / Unclaimed)");
+            } else {
+                $this->classification = "";
             }
         } elseif ($param['dilution'] == '2') {
             if ($param['unit'] == 1) {
@@ -241,21 +261,27 @@ class QualityControlManager
                 $this->classification = ($param['csf_vieu_min'] != 0 || $param['csf_vieu_min'] != 0 ? "(Negative > " . $param['csf_vieu_min'] . " > Greyzone > " . $param['csf_vieu_max'] . " > Positive)" : "(Nevyžadováno / Unclaimed)");
             } elseif ($param['unit'] == 4) {
                 $this->classification = ($param['csf_mlu_min'] != 0 || $param['csf_mlu_max'] != 0 ? "(Negative > " . $param['csf_mlu_min'] . " > Greyzone > " . $param['csf_mlu_max'] . " > Positive)" : "(Nevyžadováno / Unclaimed)");
-            } else {
+            } elseif ($param['unit'] == 5) {
                 $this->classification = ($param['csf_iu_min'] != 0 || $param['csf_iu_max'] != 0 ? "(Negative > " . $param['csf_iu_min'] . " > Greyzone > " . $param['csf_iu_max'] . " > Positive)" : "(Nevyžadováno / Unclaimed)");
+            } else {
+                $this->classification = ($param['csf_pg_min'] != 0 || $param['csf_pg_max'] != 0 ? "(Negative > " . $param['csf_pg_min'] . " > Greyzone > " . $param['csf_pg_max'] . " > Positive)" : "(Nevyžadováno / Unclaimed)");
             }
-        } else {
+        } elseif ($param['dilution'] == '81') {
             if ($param['unit'] == 1) {
                 $this->classification = ($param['synovia_ip_min'] != 0 || $param['synovia_ip_min'] != 0 ? "(Negative > " . $param['synovia_ip_min'] . " > Greyzone > " . $param['synovia_ip_max'] . " > Positive)" : "(Nevyžadováno / Unclaimed)");
             } elseif ($param['unit'] == 2) {
                 $this->classification = ($param['synovia_au_min'] != 0 || $param['synovia_au_min'] != 0 ? "(Negative > " . $param['synovia_au_min'] . " > Greyzone > " . $param['synovia_au_max'] . " > Positive)" : "(Nevyžadováno / Unclaimed)");
-            } elseif ($param['unit'] == 3) {
-                $this->classification = ($param['synovia_vieu_min'] != 0 || $param['synovia_vieu_min'] != 0 ? "(Negative > " . $param['synovia_vieu_min'] . " > Greyzone > " . $param['synovia_vieu_max'] . " > Positive)" : "(Nevyžadováno / Unclaimed)");
-            } elseif ($param['unit'] == 4) {
-                $this->classification = ($param['synovia_mlu_min'] != 0 || $param['synovia_mlu_max'] != 0 ? "(Negative > " . $param['synovia_mlu_min'] . " > Greyzone > " . $param['synovia_mlu_max'] . " > Positive)" : "(Nevyžadováno / Unclaimed)");
             } else {
-                $this->classification = ($param['synovia_iu_min'] != 0 || $param['synovia_iu_max'] != 0 ? "(Negative > " . $param['synovia_iu_min'] . " > Greyzone > " . $param['synovia_iu_max'] . " > Positive)" : "(Nevyžadováno / Unclaimed)");
+                $this->classification = "";
             }
+        } elseif ($param['dilution'] != '101' || $param['dilution'] != '2' || $param['dilution'] != '81') {
+            if ($param['unit'] == 6) { //pg{ml
+                $this->classification = ($param['csf_pg_min'] != 0 || $param['csf_pg_min'] != 0 ? "(Negative > " . $param['csf_pg_min'] . " > Greyzone > " . $param['csf_pg_max'] . " > Positive)" : "(Nevyžadováno / Unclaimed)");
+            } else {
+                $this->classification = "";
+            }
+        } else {
+            $this->classification = "";
         }
         return $this->classification;
     }
