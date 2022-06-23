@@ -115,12 +115,6 @@ class HomepagePresenter extends BasePresenter {
                 $this['calculatorForm']['synovia_ip_max']->setDefaultValue(str_replace(".", ",", $assaydetail['synovia_ip_max']));
                 $this['calculatorForm']['synovia_au_min']->setDefaultValue(str_replace(".", ",", $assaydetail['synovia_au_min']));
                 $this['calculatorForm']['synovia_au_max']->setDefaultValue(str_replace(".", ",", $assaydetail['synovia_au_max']));
-                /*$this['calculatorForm']['synovia_mlu_min']->setDefaultValue(str_replace(".", ",", $assaydetail['synovia_mlu_min']));
-                $this['calculatorForm']['synovia_mlu_max']->setDefaultValue(str_replace(".", ",", $assaydetail['synovia_mlu_max']));
-                $this['calculatorForm']['synovia_vieu_min']->setDefaultValue(str_replace(".", ",", $assaydetail['synovia_vieu_min']));
-                $this['calculatorForm']['synovia_vieu_max']->setDefaultValue(str_replace(".", ",", $assaydetail['synovia_vieu_max']));
-                $this['calculatorForm']['synovia_iu_min']->setDefaultValue(str_replace(".", ",", $assaydetail['synovia_iu_min']));
-                $this['calculatorForm']['synovia_iu_max']->setDefaultValue(str_replace(".", ",", $assaydetail['synovia_iu_max']));*/
                 $this['calculatorForm']['unit']->setDefaultValue($assaydetail['units_id']);
             }
             $assay = $this->dbHandler->getAssays()->get($value);
@@ -220,12 +214,6 @@ class HomepagePresenter extends BasePresenter {
         $form->addText('synovia_ip_max')->setDefaultValue('0');
         $form->addText('synovia_au_min')->setDefaultValue('0');
         $form->addText('synovia_au_max')->setDefaultValue('0');
-        /*$form->addText('synovia_mlu_min')->setDefaultValue('0');
-        $form->addText('synovia_mlu_max')->setDefaultValue('0');
-        $form->addText('synovia_vieu_min')->setDefaultValue('0');
-        $form->addText('synovia_vieu_max')->setDefaultValue('0');
-        $form->addText('synovia_iu_min')->setDefaultValue('0');
-        $form->addText('synovia_iu_max')->setDefaultValue('0');*/
         
         $form->addText('cal_1')->setDefaultValue('BLANK')
                 ->setHtmlAttribute('tabindex', 1)
@@ -283,11 +271,13 @@ class HomepagePresenter extends BasePresenter {
                     ->setRequired()
                     ->addRule(Form::PATTERN, 'Nepovolený typ materiálu (povolené: CSF, Jiné) / Incorrect sample (allowed: CSF, Other).', '2|x') // allowed dilution: CSF, other
                     ->endCondition();
-        $form->addText('other_dilution', 'Jiné/Other:')
+        $form->addInteger('other_dilution', 'Jiné/Other:')
                 ->setHtmlId('other_dilution')
                 ->setHtmlAttribute('class', 'col-lg-2')
+                ->addRule($form::RANGE, 'Hodnota musí být v rozsahu mezi: / Allowed range is between: (%d - %d)', [2, 1000])
                 ->addConditionOn($form['dilution'], Form::EQUAL, 'x')
-                    ->setRequired('Vyplnit Jiné ředění / Set Other dilution');
+                    ->setRequired('Vyplnit Jiné ředění / Set Other dilution')
+                    ->endCondition();
         $form->addText('kf_csf', 'CSF:')
                 ->addConditionOn($form['assay'], Form::NOT_EQUAL, '19') // kf_csf is required for non-CXCL13 assays and dilution "CSF"
                     ->addConditionOn($form['dilution'], Form::EQUAL, '2')
