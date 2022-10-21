@@ -13,48 +13,40 @@ class DbHandler
      */
     private $database;
 
-    public function __construct(Nette\Database\Context $database)
-    {
-        $this->database = $database;
+    public function __construct(Nette\Database\Context $database) {
+            $this->database = $database;
     }
     
-    public function getUsers()
-    {
+    public function getUsers() {
             return $this->database->table('calc_users');
     }
     
-    public function getAssays()
-    {
-            return $this->database->table('calc_assays');
+    public function getAssays() {
+            $assays = $this->database->table('calc_assays')->order('assay_name');
+            return $assays;
     }
     
-    public function getUnits()
-    {
+    public function getUnits() {
             return $this->database->table('calc_units');
     }
     
-    public function getReaders()
-    {
+    public function getReaders() {
             return $this->database->table('calc_reader');
     }
     
-    public function getLayouts()
-    {
+    public function getLayouts() {
             return $this->database->table('calc_layouts');
     }
     
-    public function getUsersAssays()
-    {
+    public function getUsersAssays() {
             return $this->database->table('calc_users_assays');
     }
     
-    public function getUsersReaders()
-    {
+    public function getUsersReaders() {
             return $this->database->table('calc_users_readers');
     }
     
-    public function getAssaysLayouts()
-    {
+    public function getAssaysLayouts() {
             return $this->database->table('calc_assays_layouts');
     }
 }

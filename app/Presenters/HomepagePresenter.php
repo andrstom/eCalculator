@@ -52,7 +52,7 @@ class HomepagePresenter extends BasePresenter {
     public $visitorManager;
     
     public function renderDefault() {
-        $dilutions = ['101' => '101x (serum)', '2' => '2x (CSF)', '81' => '81x (synovia)', 'x' => 'Jiné / Other'];
+        $dilutions = ['101' => '101x (serum)', '2' => '2x (CSF)', '81' => '81x (synovia)', '505' => '505x (A. fumigatus IgG)', 'x' => 'Jiné / Other'];
         $this->template->dilutions = $dilutions;
         if ($this->getUser()->isLoggedIn()) {
             //$this->template->user_reader = $this->dbHandler->getReaders()->get($this->getUser()->getIdentity()->reader_id);
@@ -145,7 +145,7 @@ class HomepagePresenter extends BasePresenter {
         // set default reader
         $reader = array('manual' => 'MANUAL');
         
-        $dilutions = ['101' => '101x (serum)', '2' => '2x (CSF)', '81' => '81x (synovia)', 'x' => 'Jiné / Other'];;
+        $dilutions = ['101' => '101x (serum)', '2' => '2x (CSF)', '81' => '81x (synovia)', '505' => '505x (A. fumigatus IgG)', 'x' => 'Jiné / Other'];;
         $this->template->dilutions = $dilutions;
         
         // create form
@@ -176,6 +176,7 @@ class HomepagePresenter extends BasePresenter {
                 foreach ($assays as $assay) {
                     $userassay[$assay->assays_id] = $assay->assays->assay_name;
                 }
+                sort($userassay);
                 $form->addSelect('assay', '* Vyberte soupravu  / Select assay:', $userassay)
                     ->setRequired('Vyberte soupravu  / Select assay')
                     ->setPrompt('Vybrat  / Select ...');
@@ -247,7 +248,7 @@ class HomepagePresenter extends BasePresenter {
                 ->addConditionOn($form['assay'], Form::NOT_EQUAL, '19') // kf_serum is required for non-CXCL13 assays
                 ->setRequired('Vyplňtě Korekční faktor / Set Correction factor (serum)')
                 ->endCondition();
-        $form->addRadioList('dilution', '* Ředění vzorku / Dilution:', ['101' => '101x (serum)', '2' => '2x (CSF)', '81' => '81x (synovia)', 'x' => 'Jiné / Other'])
+        $form->addRadioList('dilution', '* Ředění vzorku / Dilution:', ['101' => '101x (serum)', '2' => '2x (CSF)', '81' => '81x (synovia)', '505' => '505x (A. fumigatus IgG)', 'x' => 'Jiné / Other'])
                 ->setDefaultValue('101')
                 ->addCondition(Form::EQUAL, 'x')
                     ->toggle('other_dilution', true) 
@@ -255,19 +256,19 @@ class HomepagePresenter extends BasePresenter {
                 ->addCondition(Form::NOT_EQUAL, 'x')
                     ->toggle('other_dilution', false) 
                     ->endCondition()
-                ->addConditionOn($form['assay'], Form::PATTERN, '1|2') // 
+                ->addConditionOn($form['assay'], Form::PATTERN, '1|2') // BBM, BBG
                     ->setRequired()
                     ->addRule(Form::PATTERN, 'Nepovolený typ materiálu (povolené: serum, CSF, synovia, Jiné) / Incorrect sample (allowed: serum, CSF, synovia, Other).', '101|2|81|x') // allowed sample: serum, CSF, synovia, Other
                     ->endCondition()
-                ->addConditionOn($form['assay'], Form::PATTERN, '3|4|5|6|7|8') // 
+                ->addConditionOn($form['assay'], Form::PATTERN, '3|4|5|6|7|8') // CMVG, HHV6G, HSVG, TBEVG, VCAG, VZVG
                     ->setRequired()
                     ->addRule(Form::PATTERN, 'Nepovolený typ materiálu (povolené: serum, CSF, Jiné) / Incorrect sample (allowed: serum, CSF, Other).', '101|2|x') // allowed dilution: serum, CSF, other
                     ->endCondition()
-                ->addConditionOn($form['assay'], Form::PATTERN, '9|10|11|12|13|14|15|16|17|18') // 
+                ->addConditionOn($form['assay'], Form::PATTERN, '9|10|11|12|13|14|15|16|17|18|20|21|22') // JCV, SARSS1A, SARSS1M, SARSS1G, SARSNPA, SARSNPM, SARSNPA, SARSS1A, SARSRBDG, PSAE, EBNAG, ASFUG, ASFUM, ASFUA
                     ->setRequired()
                     ->addRule(Form::PATTERN, 'Nepovolený typ materiálu (povolené: serum, Jiné) / Incorrect sample (allowed: serum, Other).', '101|x') // allowed dilution: serum, other
                     ->endCondition()
-                ->addConditionOn($form['assay'], Form::PATTERN, '19') // 
+                ->addConditionOn($form['assay'], Form::PATTERN, '19') // CXCL13
                     ->setRequired()
                     ->addRule(Form::PATTERN, 'Nepovolený typ materiálu (povolené: CSF, Jiné) / Incorrect sample (allowed: CSF, Other).', '2|x') // allowed dilution: CSF, other
                     ->endCondition();
@@ -305,7 +306,7 @@ class HomepagePresenter extends BasePresenter {
         $form->addText('c_max', '* C (max):')
                 ->setRequired('Vyplňtě C (max) / Set C (max)');
         $form->addText('detection_limit', '')
-                ->addConditionOn($form['assay'], Form::EQUAL, '19') // kf_serum is required for CXCL13 assay
+                ->addConditionOn($form['assay'], Form::EQUAL, '19') // detection_limit is required for CXCL13 assay
                 ->setRequired('Vyplňtě Mez stanovitelnosti / Set Detection limit')
                 ->endCondition();
         $form->addText('ratio_min', 'min:')
@@ -332,7 +333,7 @@ class HomepagePresenter extends BasePresenter {
         
         $form->addSelect('unit', '* Jednotka / Unit:', $units)
                 ->setDefaultValue(1)
-                ->addConditionOn($form['assay'], Form::PATTERN, '1|2|3|4|5|7|9|15|18') // BORRG, BORRM, CMVG, HHV6G, HSVG, VCAG, JCVG, SARSNPG, EBNAG
+                ->addConditionOn($form['assay'], Form::PATTERN, '1|2|3|4|5|7|9|15|18|20|21|22|23') // BORRG, BORRM, CMVG, HHV6G, HSVG, VCAG, JCVG, SARSNPG, EBNAG, 
                     ->setRequired()
                     ->addRule(Form::PATTERN, 'Jednotku nezle použít pro zvolenou metodu (povolené jednotky Index, AU/ml) / Selected unit can not be used for selected assay (allowed units Index, AU/ml).', '[1]|[2]') // IP, AU
                     ->endCondition()

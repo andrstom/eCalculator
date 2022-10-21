@@ -24,6 +24,7 @@
                     <thead>
                         <th>Upravit</th>
                         <th>Smazat</th>
+                        <th>ID</th>
                         <th>Zkratka</th>
                         <th>Název</th>
                         <th>Poznámka</th>
@@ -38,6 +39,7 @@
                         <tr n:foreach="$assaylist as $assay" class="assay">
                             <td><a n:href="Assay:edit $assay->id" class="btn btn-info">Upravit</a></td>
                             <td><a n:href="Assay:delete $assay->id" onclick="return confirm('Opravdu smazat???');" class="btn btn-danger">Smazat</a></td>
+                            <td>{$assay->id}</td>
                             <td>{$assay->assay_short}</td>
                             <td>{$assay->assay_name}</td>
                             <td>{$assay->notice}</td>
