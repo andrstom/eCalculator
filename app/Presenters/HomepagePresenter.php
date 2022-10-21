@@ -176,7 +176,7 @@ class HomepagePresenter extends BasePresenter {
                 foreach ($assays as $assay) {
                     $userassay[$assay->assays_id] = $assay->assays->assay_name;
                 }
-                sort($userassay);
+                asort($userassay);
                 $form->addSelect('assay', '* Vyberte soupravu  / Select assay:', $userassay)
                     ->setRequired('Vyberte soupravu  / Select assay')
                     ->setPrompt('Vybrat  / Select ...');
