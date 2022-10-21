@@ -271,7 +271,12 @@ class HomepagePresenter extends BasePresenter {
                 ->addConditionOn($form['assay'], Form::PATTERN, '19') // CXCL13
                     ->setRequired()
                     ->addRule(Form::PATTERN, 'Nepovolený typ materiálu (povolené: CSF, Jiné) / Incorrect sample (allowed: CSF, Other).', '2|x') // allowed dilution: CSF, other
+                    ->endCondition()
+                ->addConditionOn($form['assay'], Form::PATTERN, '20') //  ASFUG
+                    ->setRequired()
+                    ->addRule(Form::PATTERN, 'Nepovolený typ materiálu (povolené: 505x, Jiné) / Incorrect sample (allowed: 505x, Other).', '505|x') // allowed dilution: 505x, other
                     ->endCondition();
+                
         $form->addInteger('other_dilution', 'Jiné/Other:')
                 ->setHtmlId('other_dilution')
                 ->setHtmlAttribute('class', 'col-lg-2')
