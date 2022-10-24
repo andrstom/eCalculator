@@ -145,7 +145,7 @@ class HomepagePresenter extends BasePresenter {
         // set default reader
         $reader = array('manual' => 'MANUAL');
         
-        $dilutions = ['101' => '101x (serum)', '2' => '2x (CSF)', '81' => '81x (synovia)', '505' => '505x (A. fumigatus IgG)', 'x' => 'Jiné / Other'];;
+        $dilutions = ['101' => '101x (serum)', '2' => '2x (CSF)', '81' => '81x (synovia)', '505' => '505x (A. fumigatus IgG)', 'x' => 'Jiné / Other'];
         $this->template->dilutions = $dilutions;
         
         // create form
@@ -264,7 +264,7 @@ class HomepagePresenter extends BasePresenter {
                     ->setRequired()
                     ->addRule(Form::PATTERN, 'Nepovolený typ materiálu (povolené: serum, CSF, Jiné) / Incorrect sample (allowed: serum, CSF, Other).', '101|2|x') // allowed dilution: serum, CSF, other
                     ->endCondition()
-                ->addConditionOn($form['assay'], Form::PATTERN, '9|10|11|12|13|14|15|16|17|18|20|21|22') // JCV, SARSS1A, SARSS1M, SARSS1G, SARSNPA, SARSNPM, SARSNPA, SARSS1A, SARSRBDG, PSAE, EBNAG, ASFUG, ASFUM, ASFUA
+                ->addConditionOn($form['assay'], Form::PATTERN, '9|10|11|12|13|14|15|16|17|18|21|22') // JCV, SARSS1A, SARSS1M, SARSS1G, SARSNPA, SARSNPM, SARSNPA, SARSS1A, SARSRBDG, PSAE, EBNAG, ASFUM, ASFUA
                     ->setRequired()
                     ->addRule(Form::PATTERN, 'Nepovolený typ materiálu (povolené: serum, Jiné) / Incorrect sample (allowed: serum, Other).', '101|x') // allowed dilution: serum, other
                     ->endCondition()
@@ -274,15 +274,15 @@ class HomepagePresenter extends BasePresenter {
                     ->endCondition()
                 ->addConditionOn($form['assay'], Form::PATTERN, '20') //  ASFUG
                     ->setRequired()
-                    ->addRule(Form::PATTERN, 'Nepovolený typ materiálu (povolené: 505x, Jiné) / Incorrect sample (allowed: 505x, Other).', '505|x') // allowed dilution: 505x, other
+                    ->addRule(Form::PATTERN, 'Nepovolený typ materiálu (povolené: 505x) / Incorrect sample (allowed: 505x).', '505') // allowed dilution: 505x, other
                     ->endCondition();
                 
-        $form->addInteger('other_dilution', 'Jiné/Other:')
+        $form->addText('other_dilution', 'Jiné/Other:')
                 ->setHtmlId('other_dilution')
                 ->setHtmlAttribute('class', 'col-lg-2')
-                ->addRule($form::RANGE, 'Hodnota musí být v rozsahu mezi: / Allowed range is between: (%d - %d)', [2, 1000])
                 ->addConditionOn($form['dilution'], Form::EQUAL, 'x')
                     ->setRequired('Vyplnit Jiné ředění / Set Other dilution')
+                    ->addRule($form::RANGE, 'Hodnota ředění musí být celé číslo v rozsahu mezi: / The dilution value must be an integer in the range between: (%d - %d)', [2, 1000])
                     ->endCondition();
         $form->addText('kf_csf', 'CSF:')
                 ->addConditionOn($form['assay'], Form::NOT_EQUAL, '19') // kf_csf is required for non-CXCL13 assays and dilution "CSF"
@@ -338,7 +338,7 @@ class HomepagePresenter extends BasePresenter {
         
         $form->addSelect('unit', '* Jednotka / Unit:', $units)
                 ->setDefaultValue(1)
-                ->addConditionOn($form['assay'], Form::PATTERN, '1|2|3|4|5|7|9|15|18|20|21|22|23') // BORRG, BORRM, CMVG, HHV6G, HSVG, VCAG, JCVG, SARSNPG, EBNAG, 
+                ->addConditionOn($form['assay'], Form::PATTERN, '1|2|3|4|5|7|9|15|18|20|21|22') // BORRG, BORRM, CMVG, HHV6G, HSVG, VCAG, JCVG, SARSNPG, EBNAG, ASFUG, ASFUM, ASFUA
                     ->setRequired()
                     ->addRule(Form::PATTERN, 'Jednotku nezle použít pro zvolenou metodu (povolené jednotky Index, AU/ml) / Selected unit can not be used for selected assay (allowed units Index, AU/ml).', '[1]|[2]') // IP, AU
                     ->endCondition()

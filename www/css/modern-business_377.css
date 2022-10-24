@@ -138,3 +138,7 @@ footer {
     border-top: 2px solid #b76598;
     border-radius: 5px;
 }
+
+.fw-bold {
+    font-weight: bold;
+}

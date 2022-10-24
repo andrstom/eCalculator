@@ -21,7 +21,7 @@
 
                         {form calculatorForm}
                             <ul n:if="$form->hasErrors()">
-                                <li n:foreach="$form->errors as $error">{$error}</li>
+                                <li n:foreach="$form->errors as $error" class="text-danger"><p class="fw-bold">{$error}</p></li>
                             </ul>
 
                             <div class="panel-heading" style="background-color: #926ea3;" >
