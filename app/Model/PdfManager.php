@@ -150,7 +150,7 @@ class PdfManager
         $r = array("", "A", "B", "C", "D", "E", "F", "G", "H");
         $this->reportContent .= '
             <div id="results">
-                Výsledky / Results (' . ($param['dilution'] == '101' ? 'Serum' : ($param['dilution'] == '2' ? 'CSF' : ($param['dilution'] == '81' ? 'Synovia' : 'Jiné/Other'))) . '; ' . $this->database->table('calc_units')->get($param['unit'])->unit_name . ')
+                Výsledky / Results (' . ($param['dilution'] == '101' ? 'Serum' : ($param['dilution'] == '2' ? 'CSF' : ($param['dilution'] == '81' ? 'Synovia' : ($param['dilution'] == '505' ? 'Serum' : 'Jiné/Other')))) . '; ' . $this->database->table('calc_units')->get($param['unit'])->unit_name . ')
                 <div id="border-radius">
                     <table id="assay-result">
                         <thead><tr><th></th><th>1.</th><th>2.</th><th>3.</th><th>4.</th><th>5.</th><th>6.</th><th>7.</th><th>8.</th><th>9.</th><th>10.</th><th>11.</th><th>12.</th></tr></thead>';
