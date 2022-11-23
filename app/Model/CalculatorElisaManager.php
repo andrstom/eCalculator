@@ -214,7 +214,7 @@ class CalculatorElisaManager {
      */
     public function calcIP($value) {
         $param = $this->getParam($value);
-        if ($param['dilution'] == "101") {
+        if ($param['dilution'] == "101" || $param['dilution'] == "505" || $param['dilution'] == "x") {
             $kf = $param['kf_serum'];
         } elseif ($param['dilution'] == "2") {
             $kf = $param['kf_csf'];
