@@ -245,6 +245,8 @@ class CalculatorElisaManager {
      */
     public function calcAU($value) {
         $param = $this->getParam($value);
+        //dump($param);
+        //exit();
         $Blank = $param['Abs'][1];
         $BMax = (((($param['Abs'][13] - $Blank) / $param['std_bmax']) + (($param['Abs'][25] - $Blank) / $param['std_bmax'])) / 2);
         foreach ($param['Abs'] as $k => $v) {
@@ -458,6 +460,11 @@ class CalculatorElisaManager {
             $ip_max = $param['synovia_ip_max'];
             $au_min = $param['synovia_au_min'];
             $au_max = $param['synovia_au_max'];
+        } elseif ($param['dilution'] == "505") {
+            $ip_min = $param['serum_ip_min'];
+            $ip_max = $param['serum_ip_max'];
+            $au_min = $param['serum_au_min'];
+            $au_max = $param['serum_au_max'];
         } else {
             $pg_min = $param['csf_pg_min'];
             $pg_max = $param['csf_pg_max'];
