@@ -151,12 +151,12 @@ class QualityControlManager
      */
     public function getCutoff() {
         // cuttoff
-        if ($this->param['dilution'] == 101) {
-            $this->cutoff = $this->getStD() * $this->param['kf_serum'];
+        if ($this->param['dilution'] == 81) {
+            $this->cutoff = $this->getStD() * $this->param['kf_synovia'];
         } elseif ($this->param['dilution'] == 2) {
             $this->cutoff = $this->getStD() * $this->param['kf_csf'];
         } else {
-            $this->cutoff = $this->getStD() * $this->param['kf_synovia'];
+            $this->cutoff = $this->getStD() * $this->param['kf_serum'];
         }
         return $this->cutoff;
     }
@@ -238,6 +238,8 @@ class QualityControlManager
     }
     
     public function getClassification($param = null) {
+        /*dump($param);
+        exit;*/
         if($param['dilution'] == '101') {
             if ($param['unit'] == 1) {
                 $this->classification = ($param['serum_ip_min'] != 0 && $param['serum_ip_min'] != 0 ? "(Negative > " . $param['serum_ip_min'] . " > Greyzone > " . $param['serum_ip_max'] . " > Positive)" : "(Nevyžadováno / Unclaimed)");
@@ -274,13 +276,21 @@ class QualityControlManager
             } else {
                 $this->classification = "";
             }
-        } elseif ($param['dilution'] != '101' || $param['dilution'] != '2' || $param['dilution'] != '81') {
-            if ($param['unit'] == 6) { //pg{ml
+        } elseif ($param['assay'] == '20') { // show interpratation if assay = ASFUG
+            if ($param['unit'] == 1) { // IP
+                $this->classification = ($param['serum_ip_min'] != 0 && $param['serum_ip_max'] != 0 ? "(Negative > " . $param['serum_ip_min'] . " > Greyzone > " . $param['serum_ip_max'] . " > Positive)" : "(Nevyžadováno / Unclaimed)");
+            } elseif ($param['unit'] == 2) { // AU/ml
+                $this->classification = ($param['serum_au_min'] != 0 && $param['serum_au_max'] != 0 ? "(Negative > " . $param['serum_au_min'] . " > Greyzone > " . $param['serum_au_max'] . " > Positive)" : "(Nevyžadováno / Unclaimed)");
+            } else {
+                $this->classification = "";
+            }
+        } elseif ($param['dilution'] != '101' || $param['dilution'] != '2' || $param['dilution'] != '81' || $param['dilution'] != '505') {
+            if ($param['unit'] == 6) { //pg/ml
                 $this->classification = ($param['csf_pg_min'] != 0 || $param['csf_pg_min'] != 0 ? "(Negative > " . $param['csf_pg_min'] . " > Greyzone > " . $param['csf_pg_max'] . " > Positive)" : "(Nevyžadováno / Unclaimed)");
             } else {
                 $this->classification = "";
             }
-        } else {
+        }  else {
             $this->classification = "";
         }
         return $this->classification;
