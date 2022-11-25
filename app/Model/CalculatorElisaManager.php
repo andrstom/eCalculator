@@ -258,10 +258,11 @@ class CalculatorElisaManager {
             if ($sample <= 0) { // division by zero
                 $result[$k] = "< Blank";
             } elseif ($sample > $BMax) {
-                $result[$k] = "> " . number_format((($param['c_max'] / 101) * $param['dilution']), 0, '.', '');
+                $result[$k] = (($param['c_max'] / 101) * $param['dilution']);
                 if ($param['assay'] == '20') { // result for ASFUG
                     $result[$k] = $result[$k] / 5;
-                } 
+                }
+                $result[$k] = "> " . number_format($result[$k], 0, '.', '');
             } elseif ($condition1 < $param['c_min']) {
                 $result[$k] = ((($sample / $BMax) * (log(($param['c_min'] - $param['a1']) / (-$param['a2']))) * (-$param['c']) / $param['c_min']) / 101) * $param['dilution'];
                 if ($param['assay'] == '20') { // result for ASFUG
