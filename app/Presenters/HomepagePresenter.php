@@ -285,13 +285,15 @@ class HomepagePresenter extends BasePresenter {
                     ->addRule($form::RANGE, 'Hodnota ředění musí být celé číslo v rozsahu mezi: / The dilution value must be an integer in the range between: (%d - %d)', [2, 1000])
                     ->endCondition();
         $form->addText('kf_csf', 'CSF:')
-                ->addConditionOn($form['assay'], Form::NOT_EQUAL, '19') // kf_csf is required for non-CXCL13 assays and dilution "CSF"
+                //->addConditionOn($form['assay'], Form::NOT_EQUAL, '19') // kf_csf is required for non-CXCL13 assays and dilution "CSF"
+                ->addConditionOn($form['assay'], Form::PATTERN, '1|2|6') // kf_csf is required for BBG, BBM, TBEVG
                     ->addConditionOn($form['dilution'], Form::EQUAL, '2')
                         ->setRequired('Vyplňtě Korekční faktor / Set Correction factor (CSF)')
                     ->endCondition()
                 ->endCondition();
         $form->addText('kf_synovia', 'Synovia:')
-                ->addConditionOn($form['assay'], Form::NOT_EQUAL, '19') // kf_synovia is required for non-CXCL13 assays and dilution "Synovia"
+                //->addConditionOn($form['assay'], Form::NOT_EQUAL, '19') // kf_synovia is required for non-CXCL13 assays and dilution "Synovia"
+                ->addConditionOn($form['assay'], Form::PATTERN, '1|2') // kf_synovia is required for BBG, BBM
                     ->addConditionOn($form['dilution'], Form::EQUAL, '81')
                         ->setRequired('Vyplňtě Korekční faktor / Set Correction factor (Synovia)')
                     ->endCondition()

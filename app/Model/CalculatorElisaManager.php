@@ -214,12 +214,15 @@ class CalculatorElisaManager {
      */
     public function calcIP($value) {
         $param = $this->getParam($value);
-        if ($param['dilution'] == "101" || $param['dilution'] == "505" || $param['dilution'] == "x") {
-            $kf = $param['kf_serum'];
-        } elseif ($param['dilution'] == "2") {
+        
+        $kf_csf_allowed = array(1, 2, 6); // platny KFcsf pro metody BBG, BBM, TBEVG
+        $kf_synovial_allowed = array(1, 2); // platny KFsynovial pro metody BBG, BBM
+        if ($param['dilution'] == "81" && in_array($param['assay'], $kf_synovial_allowed)) {
+            $kf = $param['kf_synovia'];
+        } elseif ($param['dilution'] == "2" && in_array($param['assay'], $kf_csf_allowed)) {
             $kf = $param['kf_csf'];
         } else {
-            $kf = $param['kf_synovia'];
+            $kf = $param['kf_serum'];
         }
         $Blank = $param['Abs'][1];
         $cutoff = ((($param['Abs'][13] - $Blank) + ($param['Abs'][25] - $Blank)) / 2) * $kf;
