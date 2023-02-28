@@ -9,11 +9,9 @@ use Nette\Application\UI\Form;
 /**
  * Base presenter for all application presenters.
  */
-abstract class BasePresenter extends Nette\Application\UI\Presenter
-{
+abstract class BasePresenter extends Nette\Application\UI\Presenter {
     
-    function makeStyleBootstrap3(Form $form)
-    {
+    function makeStyleBootstrap3(Form $form) {
         $renderer = $form->getRenderer();
         $renderer->wrappers['controls']['container'] = NULL;
         $renderer->wrappers['pair']['container'] = 'div class=form-group';
@@ -37,5 +35,4 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
             }
         };
     }
-    
 }
