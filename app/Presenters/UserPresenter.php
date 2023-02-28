@@ -43,6 +43,11 @@ class UserPresenter extends BasePresenter {
         $this->template->assays = $this->dbHandler->getAssays();
         $this->template->units = $this->dbHandler->getUnits();
     }
+    
+    public function renderIn() {
+        $this->template->assays = $this->dbHandler->getAssays();
+        $this->template->units = $this->dbHandler->getUnits();
+    }
 
     public function renderEdit($userId) {
         $getUser = $this->dbHandler->getUsers()->get($userId);
@@ -263,7 +268,7 @@ class UserPresenter extends BasePresenter {
                 ->setDefaultValue('ANO');
         //->setAttribute('style', "display:inline; margin-left: 5px");
         $form->addHidden('antispam', '');
-        $form->addSubmit('send', 'Uložit / Send');
+        $form->addSubmit('send', 'Registrovat / Sign Up');
         //call method signUpFormSucceeded() on success
         $form->onSuccess[] = [$this, 'userRegistrationFormSucceeded'];
         return $form;
@@ -374,16 +379,16 @@ class UserPresenter extends BasePresenter {
         $this->makeStyleBootstrap3($form);
 
         $form->addText('login', '* Login:')
-                ->setRequired('Prosím vyplňte Login.')
+                ->setRequired('Chybí Login / Login missing.')
                 ->setHtmlAttribute('placeholder', 'login');
         
-        $form->addPassword('password', '* Heslo:')
-                ->setRequired('Prosím vyplňte Heslo.')
-                ->setHtmlAttribute('placeholder', 'heslo');
+        $form->addPassword('password', '* Heslo / Password:')
+                ->setRequired('Chybí heslo / Password missing.')
+                ->setHtmlAttribute('placeholder', 'heslo / password');
                 
-        $form->addCheckbox('remember', 'Pamatovat přihlášení (10 dní).');
+        $form->addCheckbox('remember', 'Zapamatovat si mě (10 dní) / Remember me (10 days).');
 
-        $form->addSubmit('send', 'Přihlásit');
+        $form->addSubmit('send', 'Přihlásit / Sign in');
 
         $form->onSuccess[] = [$this, 'signInFormSucceeded'];
         

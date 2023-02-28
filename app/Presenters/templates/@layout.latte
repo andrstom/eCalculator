@@ -38,13 +38,16 @@
                     {if $user->loggedIn}
                         <li><a n:href="User:edit $user->getIdentity()->id">Uživatel / User: {$user->getIdentity()->login}</a></li>
                     {/if}
-                    <li><a n:href="Homepage:default">Kalkulačka / Calculator</a></li>
+                    <li><a n:href="Homepage:default">Home</a></li>
+                    <li><a n:href="Elisa:default">ELISA-VIDITEST&copy</a></li>
+                    <!--<li><a n:href="Mono:default">MONO-VIDITEST&copy</a></li>-->
+                    <li><a n:href="Syntesa:default">Antibody Index (AI)</a></li>
                     {if $user->loggedIn}
                         <li><a n:href="Settings:main">Nastavení / Settings</a></li>
                         <li><a n:href="User:out">Odhlásit / Logout</a></li>
                     {else}
-                        <li><a n:href="User:in">Přihlásit / Login</a></li>
-                        <li><a n:href="User:registration">Registrovat / Register <sup style='color:white; padding: 1px 1px 1px 1px; background-color: #e50000; border: 1px solid white; border-radius: 5px 0px 5px 0px;'>NEW</sup></a></li>
+                        <li><a n:href="User:in">Sign In / Sign Up</a></li>
+                        <!--<li><a n:href="User:registration">Registrovat / Register <sup style='color:white; padding: 1px 1px 1px 1px; background-color: #e50000; border: 1px solid white; border-radius: 5px 0px 5px 0px;'>NEW</sup></a></li>-->
                     {/if}
                 </ul>
             </div>
