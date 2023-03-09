@@ -6,9 +6,10 @@
 
     <title>{ifset title}{include title|stripHtml} | {/ifset}Vidia spol s.r.o.</title>
 
-    <link rel="stylesheet" href="{$basePath}/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="{$basePath}/css/bootstrap_377.css?{filemtime("./css/bootstrap_377.css")}">
     <link rel="stylesheet" href="{$basePath}/css/modern-business_377.css?{filemtime("./css/modern-business_377.css")}">
+    <link rel="stylesheet" href="{$basePath}/font-awesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="{$basePath}/font-awesome/css/solid.css">
     <link rel="shortcut icon" href="{$basePath}/favicon.png" type="image/x-icon">
     
     <script src="{$basePath}/js/jquery.js"></script>
@@ -40,7 +41,7 @@
                     {/if}
                     <li><a n:href="Homepage:default">Home</a></li>
                     <li><a n:href="Elisa:default">ELISA-VIDITEST&copy</a></li>
-                    <!--<li><a n:href="Mono:default">MONO-VIDITEST&copy</a></li>-->
+                    <li><a n:href="Mono:default">MONO-VIDITEST&copy</a></li>
                     <li><a n:href="Syntesa:default">Antibody Index (AI)</a></li>
                     {if $user->loggedIn}
                         <li><a n:href="Settings:main">Nastavení / Settings</a></li>

@@ -207,16 +207,16 @@ h4 {
 
 .link-text {
     position: absolute;
-    margin-top: 158px;
-    margin-left: 75px;
-    width: 70%;
-    transform: rotate(-26.5deg);
+    margin-top: 50px;
+    margin-left: 0;
+    width: 100%;
+    font-size: 1.8rem;
 }
 
 .elisatest {
     position: absolute;
     margin-left: 50%;
-    left: -100px;
+    left: -310px;
     background: rgba(14, 14, 99,0.8);
 }
 
@@ -245,9 +245,8 @@ h4 {
 
 .monotest {
     position: absolute;
-    margin-top: 160px;
     margin-left: 50%;
-    left: -205px;
+    left: -100px;
     background: rgba(40, 63, 235,1);
 }
 
@@ -274,19 +273,10 @@ h4 {
     z-index: -1;
 }
 
-.monotest .download {
-    position: absolute;
-    top: -160px;
-    left: 5px;
-    font-size: 1.5em;
-    font-weight: bold;
-}
-
 .antibody {
     position: absolute;
-    margin-top: 160px;
     margin-left: 50%;
-    left: 5px;
+    left: 110px;
 }
 .antibody:before {
     content: '';
@@ -305,8 +295,8 @@ h4 {
 .antibody:after {
     content: url(../images/antibody_index_web.png);
     position: absolute;
-    transform: scale(0.50);
-    top: -50px;
+    transform: scale(0.25);
+    top: -35px;
     left: -50px;
     z-index: -1;
 }
@@ -314,7 +304,7 @@ h4 {
 .empty-1 {
     position: absolute;
     margin-left: 50%;
-    left: -310px;
+    left: -520px;
     background: rgb(158,158,158);
     background: linear-gradient(300deg, rgba(158,158,158,1) 0%, rgba(255,255,255,1) 60%);
 }
@@ -344,7 +334,7 @@ h4 {
 .empty-2 {
     position: absolute;
     margin-left: 50%;
-    left: 110px;
+    left: 320px;
     background: rgb(158,158,158);
     background: linear-gradient(50deg, rgba(158,158,158,1) 0%, rgba(255,255,255,1) 60%);
 }
@@ -432,4 +422,34 @@ h4 {
     top: 20px;
     left: -50px;
     z-index: -1;
+}
+
+.info {
+    z-index: 1;
+    position: relative;
+    margin: -40px auto;
+    /*display: inline;*/
+    width: 80%;
+    height: auto;
+    border: 1px solid #b76598;
+    border-radius: 5px;
+}
+
+.info-image {
+    z-index: 2;
+    position: absolute;
+    width: 250px;
+    height: 90px;
+    right: -50px;
+    bottom: -20px;
+    background-image: url(../images/monotest.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.info-text {
+
+    margin: 15px 10px;
+    
+    text-align: justify;
 }
