@@ -184,9 +184,9 @@ h4 {
 
 .hexagon-container {
     position: relative;
-    margin: 5px auto;
+    margin: 30px auto;
     width: 100%;
-    height: 400px;
+    height: 200px;
 }
 
 .hexagon-container a {
@@ -237,7 +237,7 @@ h4 {
 .elisatest:after {
     content: url(../images/elisa_viditest_web.png);
     position: absolute;
-    transform: scale(0.70);
+    transform: scale(0.50);
     top: 20px;
     left: -50px;
     z-index: -1;
@@ -427,7 +427,7 @@ h4 {
 .info {
     z-index: 1;
     position: relative;
-    margin: -40px auto;
+    margin: 20px auto;
     width: 80%;
     height: auto;
     border: 1px solid #b76598;

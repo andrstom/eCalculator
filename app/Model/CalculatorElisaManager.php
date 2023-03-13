@@ -252,6 +252,7 @@ class CalculatorElisaManager {
         //exit();
         $Blank = $param['Abs'][1];
         $BMax = (((($param['Abs'][13] - $Blank) / $param['std_bmax']) + (($param['Abs'][25] - $Blank) / $param['std_bmax'])) / 2);
+        $CmaxRounded = round(($param['c_max'] / 101) * $param['dilution'], -1); // round to nearest 10
         foreach ($param['Abs'] as $k => $v) {
             // substract BLANK value from sample
             $sample = $v - $Blank;
@@ -261,11 +262,8 @@ class CalculatorElisaManager {
             if ($sample <= 0) { // division by zero
                 $result[$k] = "< Blank";
             } elseif ($sample > $BMax) {
-                if ($param['dilution'] == 81) {
-                    $result[$k] = "> 320";
-                } else {
-                    $result[$k] = "> " . number_format((($param['c_max'] / 101) * $param['dilution']), 0, '.', '');
-                }
+                $rounded = round(($param['c_max'] / 101) * $param['dilution'], -1); // round to nearest 10
+                $result[$k] = "> " . number_format($CmaxRounded, 0, '.', '');
             } elseif ($condition1 < $param['c_min']) {
                 $result[$k] = ((($sample / $BMax) * (log(($param['c_min'] - $param['a1']) / (-$param['a2']))) * (-$param['c']) / $param['c_min']) / 101) * $param['dilution'];
                 if ($param['assay'] == '20') { // result for ASFUG
@@ -281,9 +279,9 @@ class CalculatorElisaManager {
             }
             if ($result[$k] == "nan") {
                 if ($param['assay'] == '20') { // result for ASFUG 
-                    $result[$k] = "> " . number_format((($param['c_max'] / 101) * $param['dilution']) / 5, 0, '.', '');
+                    $result[$k] = "> " . number_format($CmaxRounded / 5, 0, '.', '');
                 }
-                $result[$k] = "> " . number_format((($param['c_max'] / 101) * $param['dilution']), 0, '.', '');
+                $result[$k] = "> " . number_format($CmaxRounded, 0, '.', '');
             }
         }
         return $result;
@@ -297,6 +295,7 @@ class CalculatorElisaManager {
         $param = $this->getParam($value);
         $Blank = $param['Abs'][1];
         $BMax = (((($param['Abs'][13] - $Blank) / $param['std_bmax']) + (($param['Abs'][25] - $Blank) / $param['std_bmax'])) / 2);
+        $CmaxRounded = round(($param['c_max'] / 101) * $param['dilution'], -1); // round to nearest 10
         foreach ($param['Abs'] as $k => $v) {
             // substract BLANK value from sample
             $sample = $v - $Blank;
@@ -308,18 +307,18 @@ class CalculatorElisaManager {
             if ($sample <= 0) { // check division by zero
                 $result[$k] = "< Blank";
             } elseif ($condition1 > $BMax) {
-                $result[$k] = "> " . number_format((($param['c_max'] / 101) * $param['dilution']), 0, '.', '');
+                $result[$k] = "> " . number_format($CmaxRounded, 0, '.', '');
             } elseif ($condition2 < $param['c_min']) {
                 $result[$k] = ((($sample / $BMax) * (log(($param['c_min'] - $param['a1']) / (-$param['a2']))) * (-$param['c']) / $param['c_min']) / 101) * $param['dilution'];
                 $result[$k] = number_format($result[$k] , 2, '.', '');
             } elseif ($condition3 > $param['c_max']) {
-                $result[$k] = "> " . number_format((($param['c_max'] / 101) * $param['dilution']), 0, '.', '');
+                $result[$k] = "> " . number_format($CmaxRounded, 0, '.', '');
             } else {
                 $result[$k] = ((log(($sample / $BMax - $param['a1'])/(-$param['a2'])) * (-$param['c'])) / 101) * $param['dilution'];
                 $result[$k] = number_format($result[$k] , 2, '.', '');
             }
             if ($result[$k] == "nan") {
-                $result[$k] = "> " . number_format((($param['c_max'] / 101) * $param['dilution']), 0, '.', '');
+                $result[$k] = "> " . number_format($CmaxRounded, 0, '.', '');
             }
         }
         return $result;

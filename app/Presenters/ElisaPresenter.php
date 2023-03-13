@@ -264,7 +264,7 @@ class ElisaPresenter extends BasePresenter {
                     ->setRequired()
                     ->addRule(Form::PATTERN, 'Nepovolený typ materiálu (povolené: serum, CSF, Jiné) / Incorrect sample (allowed: serum, CSF, Other).', '101|2|x') // allowed dilution: serum, CSF, other
                     ->endCondition()
-                ->addConditionOn($form['assay'], Form::PATTERN, '9|10|11|12|13|14|15|16|17|18|21|22') // JCV, SARSS1A, SARSS1M, SARSS1G, SARSNPA, SARSNPM, SARSNPA, SARSS1A, SARSRBDG, PSAE, EBNAG, ASFUM, ASFUA
+                ->addConditionOn($form['assay'], Form::PATTERN, '9|10|11|12|13|14|15|16|17|18|21|22|23') // JCV, SARSS1A, SARSS1M, SARSS1G, SARSNPA, SARSNPM, SARSNPA, SARSS1A, SARSRBDG, PSAE, EBNAG, ASFUM, ASFUA, HHV6M
                     ->setRequired()
                     ->addRule(Form::PATTERN, 'Nepovolený typ materiálu (povolené: serum, Jiné) / Incorrect sample (allowed: serum, Other).', '101|x') // allowed dilution: serum, other
                     ->endCondition()
