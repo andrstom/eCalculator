@@ -38,9 +38,9 @@
                                     <h4>Dostupné fotometry:</h4>
                                     <p>
                                     {foreach $readers as $reader}
-                                        <label for={$reader->id}><input type="checkbox" name=reader_id[] id="{$reader->id}" value="{$reader->id}"
-                                            {foreach $getUser->related('users_readers') as $userreader}
-                                                {if $userreader->reader->id == $reader->id}  checked=checked {/if}
+                                        <label for={$reader->id}><input type="checkbox" name="reader_id[]" id="{$reader->id}" value="{$reader->id}"
+                                            {foreach $getUser->related('calc_users_readers') as $userreader}
+                                                {if $userreader->reader->id == $reader->id}  checked="checked" {/if}
                                             {/foreach} /> {$reader->reader_name}</label><br>
                                     {/foreach}
                                     </p>
@@ -52,15 +52,15 @@
                                 {foreach $assays as $assay}
 
                                     <!-- Empty inputs for user without assigned assays -->
-                                    <p><label for={$assay->id}><input type="checkbox" name=assay[{$assay->id}] id="{$assay->id}" value="{$assay->id}" 
-                                    {foreach $getUser->related('users_assays') as $userassay}
-                                        {if $userassay->assays->id == $assay->id}  checked=checked {/if}
+                                    <p><label for={$assay->id}><input type="checkbox" name="assay[{$assay->id}]" id="{$assay->id}" value="{$assay->id}" 
+                                    {foreach $getUser->related('calc_users_assays') as $userassay}
+                                        {if $userassay->assays->id == $assay->id}  checked="checked" {/if}
                                     {/foreach} /> {$assay->assay_name}</label></p>
 
                                     {foreach $units as $unit}
 
-                                        <label for={$assay->id}{$unit->id}><input type="radio" name=unit[{$assay->id}][] id=""{$assay->id}{$unit->id}" value="{$unit->id}"
-                                        {foreach $getUser->related('users_assays') as $userassay}
+                                        <label for={$assay->id}{$unit->id}><input type="radio" name="unit[{$assay->id}][]" id="{$assay->id}{$unit->id}" value="{$unit->id}"
+                                        {foreach $getUser->related('calc_users_assays') as $userassay}
                                             {if $userassay->assays->id == $assay->id && $userassay->units->id == $unit->id}  checked="checked" {/if}
                                         {/foreach} />{$unit->unit_name}</label>
                                     {/foreach}

@@ -22,12 +22,19 @@ class DbHandler
     }
     
     public function getAssays() {
-            $assays = $this->database->table('calc_assays')->order('assay_name');
-            return $assays;
+            return $this->database->table('calc_assays')->order('assay_name');
+    }
+    
+    public function getAssaysMono() {
+            return $this->database->table('calc_assays_mono')->order('assay_name');
     }
     
     public function getUnits() {
             return $this->database->table('calc_units');
+    }
+    
+    public function getUnitsMono() {
+            return $this->database->table('calc_units_mono');
     }
     
     public function getReaders() {
@@ -38,8 +45,16 @@ class DbHandler
             return $this->database->table('calc_layouts');
     }
     
+    public function getLayoutsMono() {
+            return $this->database->table('calc_layouts_mono');
+    }
+    
     public function getUsersAssays() {
             return $this->database->table('calc_users_assays');
+    }
+    
+    public function getUsersAssaysMono() {
+            return $this->database->table('calc_users_assays_mono');
     }
     
     public function getUsersReaders() {
