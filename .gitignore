@@ -3,4 +3,4 @@ app/config/local.neon
 /nbproject
 /log
 /temp
-/www/db_backup
+/db_backup
