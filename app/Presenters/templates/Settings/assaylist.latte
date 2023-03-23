@@ -14,12 +14,11 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
-                <h2>Seznam metod</h2>
+                <h2>Seznam dostupných souprav ELISA-VIDITEST</h2>
                 <input type="button" value="Zpět" class="btn btn-primary" onclick="history.back()">
                 {if $user->isInRole('Admin')}
                     <a n:href=Assay:add class="btn btn-primary">Nový</a>
                 {/if}
-
                 <table id="table-standard" class="display">
                     <thead>
                         <th>Upravit</th>
@@ -60,13 +59,57 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
-                <h2>Rozložení kontrol</h2>
+                <h2>Seznam dostupných souprav MONO-VIDITEST</h2>
+                <input type="button" value="Zpět" class="btn btn-primary" onclick="history.back()">
+                {if $user->isInRole('Admin')}
+                    <a n:href=Assay:addMono class="btn btn-primary">Nový</a>
+                {/if}
+                <table id="table2-standard" class="display">
+                    <thead>
+                        <th>Upravit</th>
+                        <th>Smazat</th>
+                        <th>ID</th>
+                        <th>Zkratka</th>
+                        <th>Název</th>
+                        <th>Typ detekce</th>
+                        <th>Poznámka</th>
+                        <th>Aktivní</th>
+                        <th>Vložil</th>
+                        <th>Datum vložení</th>
+                        <th>Upravil</th>
+                        <th>Datum úpravy</th>
+                    </thead>
+                    <tbody>
+                        <tr n:foreach="$assaylistMono as $assayMono" class="assay">
+                            <td><a n:href="Assay:editMono $assayMono->id" class="btn btn-info">Upravit</a></td>
+                            <td><a n:href="Assay:deleteMono $assayMono->id" onclick="return confirm('Opravdu smazat???');" class="btn btn-danger">Smazat</a></td>
+                            <td>{$assayMono->id}</td>
+                            <td>{$assayMono->assay_short}</td>
+                            <td>{$assayMono->assay_name}</td>
+                            <td>{$assayMono->ref('calc_detection_type','detection_type')->detection_type}</td>
+                            <td>{$assayMono->notice}</td>
+                            <td>{$assayMono->active}</td>
+                            <td>{$assayMono->creator}</td>
+                            <td>{$assayMono->created_at|date:'j.n.Y H:i'}</td>
+                            <td>{$assayMono->editor}</td>
+                            <td>{$assayMono->edited_at|date:'j.n.Y H:i'}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2>Rozložení kontrol pro ELISA-VIDITEST</h2>
                 <input type="button" value="Zpět" class="btn btn-primary" onclick="history.back()">
                 {if $user->isInRole('Admin')}
                     <a n:href=Assay:addLayout class="btn btn-primary">Nový</a>
                 {/if}
-
-                <table id="table2-standard" class="display">
+                <table id="table3-standard" class="display">
                     <thead>
                         <th>Upravit</th>
                         <th>Smazat</th>
@@ -81,6 +124,38 @@
                             <td>{$layout->layout_name}</td>
                             <td>{$layout->notice}</td>
                             <td>{$layout->cal_1}, {$layout->cal_2}, {$layout->cal_3}, {$layout->cal_4}, {$layout->cal_5}, {$layout->cal_6}, {$layout->cal_7}, {$layout->cal_8}, {$layout->cal_9}, {$layout->cal_10}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2>Způsob vyhodnocení</h2>
+                <input type="button" value="Zpět" class="btn btn-primary" onclick="history.back()">
+                {if $user->isInRole('Admin')}
+                    <a n:href=Assay:addDetectionType class="btn btn-primary">Nový</a>
+                {/if}
+                <table id="table4-standard" class="display">
+                    <thead>
+                        <th>Upravit</th>
+                        <th>Smazat</th>
+                        <th>ID</th>
+                        <th>Název</th>
+                        <th>Poznámka</th>
+                    </thead>
+                    <tbody>
+                        <tr n:foreach="$detection_types as $type" class="assay">
+                            <td><a n:href="Assay:editDetectionTypes $type->id" class="btn btn-info">Upravit</a></td>
+                            <td><a n:href="Assay:deleteDetectionTypes $type->id" onclick="return confirm('Opravdu smazat???');" class="btn btn-danger">Smazat</a></td>
+                            <td>{$type->id}</td>
+                            <td>{$type->detection_type}</td>
+                            <td>{$type->notice}</td>
                         </tr>
                     </tbody>
                 </table>

@@ -45,8 +45,8 @@ class DbHandler
             return $this->database->table('calc_layouts');
     }
     
-    public function getLayoutsMono() {
-            return $this->database->table('calc_layouts_mono');
+    public function getDetectionTypes() {
+            return $this->database->table('calc_detection_type');
     }
     
     public function getUsersAssays() {

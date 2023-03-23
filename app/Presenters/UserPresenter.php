@@ -34,34 +34,41 @@ class UserPresenter extends BasePresenter {
     public function renderAdd() {
         $this->template->userlist = $this->dbHandler->getUsers()->order('id DESC');
         $this->template->assays = $this->dbHandler->getAssays();
+        $this->template->assaysMono = $this->dbHandler->getAssaysMono();
         $this->template->units = $this->dbHandler->getUnits();
+        $this->template->unitsMono = $this->dbHandler->getUnitsMono();
         $this->template->readers = $this->dbHandler->getReaders();
         
     }
     
     public function renderRegistration() {
         $this->template->assays = $this->dbHandler->getAssays();
+        $this->template->assaysMono = $this->dbHandler->getAssaysMono();
         $this->template->units = $this->dbHandler->getUnits();
+        $this->template->unitsMono = $this->dbHandler->getUnitsMono();
     }
     
     public function renderIn() {
         $this->template->assays = $this->dbHandler->getAssays();
+        $this->template->assaysMono = $this->dbHandler->getAssaysMono();
         $this->template->units = $this->dbHandler->getUnits();
     }
 
     public function renderEdit($userId) {
         $getUser = $this->dbHandler->getUsers()->get($userId);
         $this->template->getUser = $getUser;
-        
         if (!$getUser) {
             $this->error('Uživatel nebyl nalezen!');
         }
         $this->template->assays = $this->dbHandler->getAssays();
+        $this->template->assaysMono = $this->dbHandler->getAssaysMono();
         $this->template->units = $this->dbHandler->getUnits();
+        $this->template->unitsMono = $this->dbHandler->getUnitsMono();
         $this->template->readers = $this->dbHandler->getReaders();
         $usersAssays = $this->dbHandler->getUsersAssays()->where('users_id', $getUser->id);
+        $usersAssaysMono = $this->dbHandler->getUsersAssaysMono()->where('users_id', $getUser->id);
         $this->template->usersAssays = $usersAssays;
-        
+        $this->template->usersAssaysMono = $usersAssaysMono;
     }
 
     /**
@@ -73,13 +80,13 @@ class UserPresenter extends BasePresenter {
         $roles = array('Admin' => 'Admin', 'Klient' => 'Klient');
         // load assays
         $this->template->assays = $this->dbHandler->getAssays()->fetchAll();
+        $this->template->assaysMono = $this->dbHandler->getAssaysMono()->fetchAll();
         // load units
         $units = $this->dbHandler->getUnits()->fetchPairs('id', 'unit_name');
 
         $form = new Form;
         // Set Bootstrap 3 layout
         $this->makeStyleBootstrap3($form);
-
         // Set form labels
         $form->addText('login', 'Login: *')
                 ->setRequired('Vyplňtě Login / Fill in the Login');
@@ -112,10 +119,7 @@ class UserPresenter extends BasePresenter {
                 ->setDefaultValue('ANO');
         $form->addHidden('antispam', '');
         $form->addSubmit('send', 'Uložit / Save');
-
-        //call method signUpFormSucceeded() on success
         $form->onSuccess[] = [$this, 'userFormSucceeded'];
-
         return $form;
     }
 
@@ -151,13 +155,14 @@ class UserPresenter extends BasePresenter {
                 }
                 // delete all previous assays
                 $this->dbHandler->getUsersAssays()->where('users_id', $this->editUser->id)->delete();
+                $this->dbHandler->getUsersAssaysMono()->where('users_id', $this->editUser->id)->delete();
                 // get values from assays and units inputs
                 $assays = $form->getHttpData($form::DATA_TEXT | $form::DATA_KEYS, 'assay[]');
                 foreach ($assays as $k => $v) {
                     $unit = $form->getHttpData($form::DATA_TEXT | $form::DATA_KEYS, 'unit[' . $k . '][]');
                     // if $units empty - set default unit to 1
                     if (empty($unit)) {
-                        $unit = 1;
+                        $unit[] = 1;
                     }
                     // insert into db (calc_users_assays)
                     $this->dbHandler->getUsersAssays()->insert([
@@ -168,10 +173,26 @@ class UserPresenter extends BasePresenter {
                         'created_at' => time()
                     ]);
                 }
+                $assaysMono = $form->getHttpData($form::DATA_TEXT | $form::DATA_KEYS, 'assayMono[]');
+                foreach ($assaysMono as $k => $v) {
+                    $unitMono = $form->getHttpData($form::DATA_TEXT | $form::DATA_KEYS, 'unitMono[' . $k . '][]');
+                    
+                    // if $units empty - set default unit to 1
+                    if (empty($unitMono)) {
+                        $unitMono[] = "1";
+                    }
+                    // insert into db (calc_users_assays)
+                    $this->dbHandler->getUsersAssaysMono()->insert([
+                        'users_id' => $this->editUser->id,
+                        'assays_id' => $k,
+                        'units_id' => $unitMono[0],
+                        'creator' => $this->getUser()->getIdentity()->getData()['login'],
+                        'created_at' => time()
+                    ]);
+                }
             } else {
                 // insert user details
                 try {
-                    
                     $row = $this->dbHandler->getUsers()->insert([
                         'login' => $values->login,
                         'email' => $values->email,
@@ -202,13 +223,30 @@ class UserPresenter extends BasePresenter {
                         $unit = $form->getHttpData($form::DATA_TEXT | $form::DATA_KEYS, 'unit[' . $k . '][]');
                         // if $units empty - set default unit to 1
                         if (empty($unit)) {
-                            $unit = 1;
+                            $unit[] = "1";
                         }
-                        // insert into db (users_assays)
+                        // insert into db (calc_users_assays)
                         $this->dbHandler->getUsersAssays()->insert([
                             'users_id' => $userLastId,
                             'assays_id' => $k,
                             'units_id' => $unit[0],
+                            'creator' => $this->getUser()->getIdentity()->getData()['login'],
+                            'created_at' => time(),
+                        ]);
+                    }
+                    // get values from assays and units inputs
+                    $assaysMono = $form->getHttpData($form::DATA_TEXT | $form::DATA_KEYS, 'assayMono[]');
+                    foreach ($assaysMono as $k => $v) {
+                        $unitMono = $form->getHttpData($form::DATA_TEXT | $form::DATA_KEYS, 'unitMono[' . $k . '][]');
+                        // if $units empty - set default unit to 1
+                        if (empty($unitMono)) {
+                            $unitMono[] = "1";
+                        }
+                        // insert into db (calc_users_assays_mono)
+                        $this->dbHandler->getUsersAssaysMono()->insert([
+                            'users_id' => $userLastId,
+                            'assays_id' => $k,
+                            'units_id' => $unitMono[0],
                             'creator' => $this->getUser()->getIdentity()->getData()['login'],
                             'created_at' => time(),
                         ]);
@@ -232,15 +270,13 @@ class UserPresenter extends BasePresenter {
         $true_false = array('ANO' => 'YES', 'NE' => 'NO');
         // load assays
         $this->template->assays = $this->dbHandler->getAssays()->fetchAll();
-
+        $this->template->assaysMono = $this->dbHandler->getAssaysMono()->fetchAll();
         // load units
-        $units = $this->dbHandler->getUnits()->fetchPairs('id', 'unit_name');
-
+        /*$units = $this->dbHandler->getUnits()->fetchPairs('id', 'unit_name');
+        $unitsMono = $this->dbHandler->getUnitsMono()->fetchPairs('id', 'unit_name');*/
         $form = new Form;
-
         // Set Bootstrap 3 layout
         $this->makeStyleBootstrap3($form);
-
         // Set form labels
         $form->addText('login', 'Login: *')
                 ->setRequired('Vyplňtě Login / Fill in the login')
@@ -269,7 +305,6 @@ class UserPresenter extends BasePresenter {
         //->setAttribute('style', "display:inline; margin-left: 5px");
         $form->addHidden('antispam', '');
         $form->addSubmit('send', 'Registrovat / Sign Up');
-        //call method signUpFormSucceeded() on success
         $form->onSuccess[] = [$this, 'userRegistrationFormSucceeded'];
         return $form;
     }
@@ -277,7 +312,6 @@ class UserPresenter extends BasePresenter {
     public function userRegistrationFormSucceeded($form) {
         // get values from form
         $values = $form->getValues();
-        
         if(empty($values->antispam)) {
             try {
                 // insert user details
@@ -296,24 +330,37 @@ class UserPresenter extends BasePresenter {
                     'creator' => $values->email,
                     'created_at' => time(),
                 ]);
-
                 // get last inserted id
                 $userLastId = $row->id;
-
                 // get values from assays and units inputs
                 $assays = $form->getHttpData($form::DATA_TEXT | $form::DATA_KEYS, 'assay[]');
                 foreach ($assays as $k => $v) {
-
-                    $units = $form->getHttpData($form::DATA_TEXT | $form::DATA_KEYS, 'unit[' . $k . '][]');
+                    $unit = $form->getHttpData($form::DATA_TEXT | $form::DATA_KEYS, 'unit[' . $k . '][]');
                     // if $units empty - set default unit to 1
-                    if (empty($units)) {
-                        $units = 1;
+                    if (empty($unit)) {
+                        $unit[] = "1";
                     }
-                    // insert into db (users_assays)
+                    // insert into db (calc_users_assays)
                     $this->dbHandler->getUsersAssays()->insert([
                         'users_id' => $userLastId,
                         'assays_id' => $k,
-                        'units_id' => $units,
+                        'units_id' => $unit[0],
+                        'creator' => $values->email,
+                        'created_at' => time(),
+                    ]);
+                }
+                $assaysMono = $form->getHttpData($form::DATA_TEXT | $form::DATA_KEYS, 'assayMono[]');
+                foreach ($assaysMono as $k => $v) {
+                    $unitMono = $form->getHttpData($form::DATA_TEXT | $form::DATA_KEYS, 'unitMono[' . $k . '][]');
+                    // if $units empty - set default unit to 1
+                    if (empty($unitMono)) {
+                        $unitMono[] = "1";
+                    }
+                    // insert into db (users_assays_mono)
+                    $this->dbHandler->getUsersAssaysMono()->insert([
+                        'users_id' => $userLastId,
+                        'assays_id' => $k,
+                        'units_id' => $unitMono[0],
                         'creator' => $values->email,
                         'created_at' => time(),
                     ]);
@@ -372,36 +419,27 @@ class UserPresenter extends BasePresenter {
         }
     }
     
-    protected function createComponentSignInForm()
-    {
+    protected function createComponentSignInForm() {
         $form = new Form;
         // Set Bootstrap 3 layout
         $this->makeStyleBootstrap3($form);
-
         $form->addText('login', '* Login:')
                 ->setRequired('Chybí Login / Login missing.')
                 ->setHtmlAttribute('placeholder', 'login');
-        
         $form->addPassword('password', '* Heslo / Password:')
                 ->setRequired('Chybí heslo / Password missing.')
                 ->setHtmlAttribute('placeholder', 'heslo / password');
-                
         $form->addCheckbox('remember', 'Zapamatovat si mě (10 dní) / Remember me (10 days).');
-
         $form->addSubmit('send', 'Přihlásit / Sign in');
-
         $form->onSuccess[] = [$this, 'signInFormSucceeded'];
-        
         return $form;
-        
     }
 
     /**
      * @param $form Nette\Application\UI\Form
      * @param $values Nette\Utils\ArrayHash
      */
-    public function signInFormSucceeded($form, $values)
-    {
+    public function signInFormSucceeded($form, $values) {
         try {
             $this->getUser()->setExpiration($values->remember ? '10 days' : '20 minutes');
             $this->getUser()->login($values->login, $values->password);
@@ -414,103 +452,73 @@ class UserPresenter extends BasePresenter {
     /**
      * @return Nette\Application\UI\Form
      */
-    protected function createComponentChangePasswordForm()
-    {
+    protected function createComponentChangePasswordForm() {
         //dump($this->editUser->password);
         $form = new Form;
-
         // Set Bootstrap 3 layout
         $this->makeStyleBootstrap3($form);
-
         $form->addPassword('passwordNew', 'Nové heslo:', 20)
                 ->setOption('description', 'Alespoň 4 znaky')
                 ->setRequired('Vyplňte Heslo')
                 ->addRule(Form::MIN_LENGTH, 'Heslo musí mít alespoň %d znaků.', 4);
-
         $form->addPassword('passwordNew2', 'Nové heslo znovu:', 20)
                 ->addConditionOn($form['passwordNew'], Form::VALID)
                 ->setRequired('Vyplňte Heslo znovu')
                 ->addRule(Form::EQUAL, 'Hesla se neshodují.', $form['passwordNew']);
-
         $form->addSubmit('send', 'Změnit / Change');
-
         $form->onSuccess[] = [$this, 'changePasswordFormSucceeded'];
-        
         return $form;
-
     }
     
-    public function changePasswordFormSucceeded($form)
-    {
-
+    public function changePasswordFormSucceeded($form) {
         // get values from form
         $values = $form->getValues();
-        
         if ($this->editUser) {
-            
             try {
-                
                 $row = $this->editUser->update([
                     'password' => $this->passwords->hash($values->passwordNew),
                     'editor' => $this->getUser()->getIdentity()->getData()['login'],
                     'edited_at' => time(),
                 ]);
-                
                 // redirect and message
                 $this->flashMessage('Heslo bylo změněno.');
                 $this->redirect('User:edit?userId=' . $this->editUser->id);
                 
             } catch (Exception $e) {
-
                 // redirect and message
                 $this->error('Heslo nelze změnit. (CHYBA: ' . $e . ')');
                 $this->redirect('User:edit?userId=' . $this->editUser->id);
             }
         }
-        
     }
     
-    
-    public function actionEdit($userId)
-    {
-        
+    public function actionEdit($userId) {
         if (!$this->getUser()->isLoggedIn()) {
             $this->redirect('User:in');
         }
-
         $editUser = $this->dbHandler->getUsers()->get($userId);
         $this->editUser = $editUser;
-
         if (!$editUser) {
-
             $this->error('Uživatel nebyl nalezen');
         }
-
         $this['userForm']->setDefaults($editUser->toArray());
     }
 
     // delete user
-    public function actionDelete($userId)
-    {
+    public function actionDelete($userId) {
         if (!$this->getUser()->isLoggedIn()) {
             $this->redirect('User:in');
         }
-
         $delete = $this->dbHandler->getUsers()->get($userId);
         if (!$delete) {
-
             $this->error('Nelze smazat, záznam neexistuje!!!');
         } else {
-
             try {
-                
                 $delete->delete();
-
                 // redirect and message
                 $this->flashMessage('Záznam byl úspěšně odstraněn.');
                 $this->redirect('Settings:userlist');
             } catch (Exception $e) {
-
                 // redirect and message
                 $this->flashMessage('Záznam nelze odstranit. (CHYBA: ' . $e . ')');
                 $this->redirect('Settings:userlist');
@@ -524,5 +532,4 @@ class UserPresenter extends BasePresenter {
         $this->flashMessage('Odhlášení bylo úspěšné.');
         $this->redirect('Homepage:default');
     }
-
 }

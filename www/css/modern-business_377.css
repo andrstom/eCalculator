@@ -458,3 +458,50 @@ h4 {
     text-align: center;
     display: block;
 }
+
+.italic {
+    font-style: italic;
+}
+
+.monotest-table thead {
+    font-size: .9em;
+}
+
+.monotest-table th, .monotest-table td  {
+    text-align: center;
+}
+
+.monotest-table .form-control {
+    font-size: .95em;
+}
+
+.monotest-table .assay-deff {
+    background-color: #F5C6EC;
+}
+
+.monotest-table .validation-criteria {
+    background-color: #E11299;
+}
+
+.monotest-table .calc-parameters {
+    background-color: #FFEAEA;
+}
+
+.monotest-table .well {
+    border: 1px solid grey;
+    border-radius: 50%;
+    -web-border-radius: 50%;
+    -moz-border-radius: 50%;
+    width: 75px;
+    height: 75px;
+    padding: 5px;
+    margin: 5px 5px;
+    font-size: 1.1em;
+    -webkit-box-shadow: 8px 12px 10px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 8px 12px 10px 0px rgba(0,0,0,0.75);
+    box-shadow: 8px 12px 10px 0px rgba(0,0,0,0.75);
+}
+
+.monotest-table .btn-danger {
+    background-color: #9A208C;
+}

@@ -25,7 +25,9 @@ class SettingsPresenter extends BasePresenter
     public function renderAssaylist()
     {
         $this->template->assaylist = $this->dbHandler->getAssays();
+        $this->template->assaylistMono = $this->dbHandler->getAssaysMono();
         $this->template->layouts = $this->dbHandler->getLayouts();
+        $this->template->detection_types = $this->dbHandler->getDetectionTypes();
     }
 
     public function renderUnitlist()

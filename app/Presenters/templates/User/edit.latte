@@ -3,7 +3,7 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
-                <h2 n:block=title>Upravit uživatele / Edit user</h2>
+                <h2 n:block=title>Upravit uživatele</h2>
                 <hr>
                 <input type="button" value="Zpět" class="btn btn-primary" onclick="history.back()">
             </div>
@@ -47,26 +47,39 @@
                                 {/if}
                                 <p>{label notice}<textarea n:name=notice></textarea></p>
                                 <hr>
-                                <h3>Metody a jednotky / Assays & Units:</h3>
-
+                                <h3>ELISA-VIDITEST</h3>
                                 {foreach $assays as $assay}
-
                                     <!-- Empty inputs for user without assigned assays -->
-                                    <p><label for={$assay->id}><input type="checkbox" name="assay[{$assay->id}]" id="{$assay->id}" value="{$assay->id}" 
+                                    <p><label for="elisa-assay-{$assay->id}"><input type="checkbox" name="assay[{$assay->id}]" id="elisa-assay-{$assay->id}" value="{$assay->id}" 
                                     {foreach $getUser->related('calc_users_assays') as $userassay}
                                         {if $userassay->assays->id == $assay->id}  checked="checked" {/if}
                                     {/foreach} /> {$assay->assay_name}</label></p>
 
                                     {foreach $units as $unit}
-
-                                        <label for={$assay->id}{$unit->id}><input type="radio" name="unit[{$assay->id}][]" id="{$assay->id}{$unit->id}" value="{$unit->id}"
+                                        <label for="elisa-unit-{$assay->id}{$unit->id}"><input type="radio" name="unit[{$assay->id}][]" id="elisa-unit-{$assay->id}{$unit->id}" value="{$unit->id}"
                                         {foreach $getUser->related('calc_users_assays') as $userassay}
                                             {if $userassay->assays->id == $assay->id && $userassay->units->id == $unit->id}  checked="checked" {/if}
                                         {/foreach} />{$unit->unit_name}</label>
                                     {/foreach}
                                     <hr>
                                 {/foreach}
+                                <hr>
+                                <h2>MONO-VIDITEST</h2>
+                                {foreach $assaysMono as $assayMono}
+                                    <!-- Empty inputs for user without assigned assays -->
+                                    <p><label for="mono-assay-{$assayMono->id}"><input type="checkbox" name="assayMono[{$assayMono->id}]" id="mono-assay-{$assayMono->id}" value="{$assayMono->id}" 
+                                    {foreach $getUser->related('calc_users_assays_mono') as $userassayMono}
+                                        {if $userassayMono->assays->id == $assayMono->id}  checked="checked" {/if}
+                                    {/foreach} /> {$assayMono->assay_name}</label></p>
 
+                                    {foreach $unitsMono as $unitMono}
+                                        <label for="mono-unit-{$assayMono->id}{$unitMono->id}"><input type="radio" name="unitMono[{$assayMono->id}][]" id="mono-unit-{$assayMono->id}{$unitMono->id}" value="{$unitMono->id}"
+                                        {foreach $getUser->related('calc_users_assays_mono') as $userassayMono}
+                                            {if $userassayMono->assays->id == $assayMono->id && $userassayMono->units->id == $unitMono->id}  checked="checked" {/if}
+                                        {/foreach} />{$unitMono->unit_name}</label>
+                                    {/foreach}
+                                    <hr>
+                                {/foreach}
                                 <p><input n:name=send class="btn btn-primary">
                             </form>
                         </div>

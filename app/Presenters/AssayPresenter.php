@@ -10,7 +10,9 @@ use App\Model\DbHandler;
 class AssayPresenter extends BasePresenter {
 
     private $editAssay;
+    private $editAssayMono;
     private $editLayout;
+    private $editDetectionType;
 
     /**
      * @var \App\Model\DbHandler
@@ -18,32 +20,50 @@ class AssayPresenter extends BasePresenter {
      */
     public $dbHandler;
 
-    public function renderAdd() 
-    {
+    public function renderAdd() {
         $this->template->assays = $this->dbHandler->getAssays();
     }
 
-    public function renderEdit($assayId) 
-    {
+    public function renderEdit($assayId) {
         $assay = $this->dbHandler->getAssays()->get($assayId);
         $this->template->assay = $assay;
-        if (!$assay) 
-        {
+        if (!$assay) {
             $this->error('Metoda nebyla nalezena!');
         }
     }
     
-    public function renderAddLayout() 
-    {
+    public function renderAddMono() {
+        $this->template->assaysMono = $this->dbHandler->getAssaysMono();
+    }
+
+    public function renderEditMono($assayId) {
+        $assay = $this->dbHandler->getAssaysMono()->get($assayId);
+        $this->template->assayMono = $assay;
+        if (!$assay) {
+            $this->error('Metoda nebyla nalezena!');
+        }
+    }
+    
+    public function renderAddLayout() {
         $this->template->layout = $this->dbHandler->getLayouts();
     }
 
-    public function renderEditLayout($layoutId) 
-    {
+    public function renderEditLayout($layoutId) {
         $layout = $this->dbHandler->getLayouts()->get($layoutId);
         $this->template->layout = $layout;
-        if (!$layout) 
-        {
+        if (!$layout) {
+            $this->error('Layout nebyl nalezena!');
+        }
+    }
+    
+    public function renderAddDetectionType() {
+        $this->template->detection_types = $this->dbHandler->getDetectionTypes();
+    }
+
+    public function renderEditDetectionTypes($layoutId) {
+        $layout = $this->dbHandler->getDetectionTypes()->get($layoutId);
+        $this->template->detection_types = $layout;
+        if (!$layout) {
             $this->error('Layout nebyl nalezena!');
         }
     }
@@ -52,48 +72,32 @@ class AssayPresenter extends BasePresenter {
      * Assay form factory.
      * @return Nette\Application\UI\Form
      */
-    protected function createComponentAssayForm()
-    {
-
+    protected function createComponentAssayForm() {
         $cal_layouts = $this->dbHandler->getLayouts()->fetchPairs('id', 'layout_name');
-        
         $form = new Form;
-
         // Set Bootstrap 3 layout
         $this->makeStyleBootstrap3($form);
-
         // Set form labels
         $form->addText('assay_short', 'Zkratka: *')
                 ->setRequired('Vyplňtě Zkratku');
-
         $form->addText('assay_name', 'Název: *')
                 ->setRequired('Vyplňte Název');
-
         $form->addTextArea('notice', 'Poznámka:');
-
         $form->addRadioList('active', 'Aktivní:', ['ANO' => 'ANO', 'NE' => 'NE'])
                 ->setDefaultValue('ANO');
-        
         $form->addRadioList('layout', 'Rozložení kontrol: *', $cal_layouts)
                 ->setDefaultValue(1)
                 ->setRequired('Vyplňte Název');
-        
         $form->addSubmit('send', 'Uložit');
-
         //call method signUpFormSucceeded() on success
         $form->onSuccess[] = [$this, 'assayFormSucceeded'];
-
         return $form;
     }
 
-    public function assayFormSucceeded($form)
-    {
-
+    public function assayFormSucceeded($form) {
         // get values from form
         $values = $form->getValues();
-
         if ($this->editAssay) {
-
             $row = $this->editAssay->update([
                 'assay_short' => $values->assay_short,
                 'assay_name' => $values->assay_name,
@@ -103,11 +107,8 @@ class AssayPresenter extends BasePresenter {
                 'editor' => $this->getUser()->getIdentity()->getData()['login'],
                 'edited_at' => time(),
             ]);
-
         } else {
-
             try {
-
                 // insert user details
                 $row = $this->dbHandler->getAssays()->insert([
                     'assay_short' => $values->assay_short,
@@ -118,36 +119,85 @@ class AssayPresenter extends BasePresenter {
                     'creator' => $this->getUser()->getIdentity()->getData()['login'],
                     'created_at' => time(),
                 ]);
-
             } catch (\Nette\Database\UniqueConstraintViolationException $e) {
-
                 throw new DuplicateNameException;
             }
         }
-
         // redirect and message
         $this->flashMessage('Metoda byla úspěšně vložena/upravena.');
         $this->redirect('Settings:assaylist');
     }
 
     /**
+     * MONO Assay form factory.
+     * @return Nette\Application\UI\Form
+     */
+    protected function createComponentAssayMonoForm() {
+        $detection_types = $this->dbHandler->getDetectionTypes()->fetchPairs('id', 'detection_type');
+        $form = new Form;
+        // Set Bootstrap 3 layout
+        $this->makeStyleBootstrap3($form);
+        // Set form labels
+        $form->addText('assay_short', 'Zkratka: *')
+                ->setRequired('Vyplňtě Zkratku');
+        $form->addText('assay_name', 'Název: *')
+                ->setRequired('Vyplňte Název');
+        $form->addRadioList('detection_type', 'Typ detekce:', $detection_types)
+                ->setDefaultValue(1);
+        $form->addTextArea('notice', 'Poznámka:');
+        $form->addRadioList('active', 'Aktivní:', ['ANO' => 'ANO', 'NE' => 'NE'])
+                ->setDefaultValue('ANO');
+        $form->addSubmit('send', 'Uložit');
+        $form->onSuccess[] = [$this, 'assayMonoFormSucceeded'];
+        return $form;
+    }
+
+    public function assayMonoFormSucceeded($form) {
+        // get values from form
+        $values = $form->getValues();
+        if ($this->editAssayMono) {
+            $row = $this->editAssayMono->update([
+                'assay_short' => $values->assay_short,
+                'assay_name' => $values->assay_name,
+                'detection_type' => $values->detection_type,
+                'notice' => $values->notice,
+                'active' => $values->active,
+                'editor' => $this->getUser()->getIdentity()->getData()['login'],
+                'edited_at' => time(),
+            ]);
+        } else {
+            try {
+                // insert user details
+                $row = $this->dbHandler->getAssaysMono()->insert([
+                    'assay_short' => $values->assay_short,
+                    'assay_name' => $values->assay_name,
+                    'detection_type' => $values->detection_type,
+                    'notice' => $values->notice,
+                    'active' => $values->active,
+                    'creator' => $this->getUser()->getIdentity()->getData()['login'],
+                    'created_at' => time(),
+                ]);
+            } catch (\Nette\Database\UniqueConstraintViolationException $e) {
+                throw new DuplicateNameException;
+            }
+        }
+        // redirect and message
+        $this->flashMessage('Metoda byla úspěšně vložena/upravena.');
+        $this->redirect('Settings:assaylist');
+    }
+    
+    /**
      * Layout form factory.
      * @return Nette\Application\UI\Form
      */
-    protected function createComponentLayoutForm()
-    {
-
+    protected function createComponentLayoutForm() {
         $form = new Form;
-
         // Set Bootstrap 3 layout
         $this->makeStyleBootstrap3($form);
-
         // Set form labels
         $form->addText('layout_name', 'Název: *')
                 ->setRequired('Vyplňtě Název');
-        
         $form->addTextArea('notice', 'Poznámka:');
-        
         $form->addText('cal_1', 'Název pozice "A1": *')
                 ->setRequired('Vyplňte Název pozice "A1"');
         $form->addText('cal_2', 'Název pozice "B1":');
@@ -159,17 +209,13 @@ class AssayPresenter extends BasePresenter {
         $form->addText('cal_8', 'Název pozice "H1":');
         $form->addText('cal_9', 'Název pozice "A2":');
         $form->addText('cal_10', 'Název pozice "B2":');
-
         $form->addSubmit('send', 'Uložit');
-
         //call method signUpFormSucceeded() on success
         $form->onSuccess[] = [$this, 'layoutFormSucceeded'];
-
         return $form;
     }
 
-    public function layoutFormSucceeded($form)
-    {
+    public function layoutFormSucceeded($form) {
         // get values from form
         $values = $form->getValues();
         if ($this->editLayout) {
@@ -209,53 +255,82 @@ class AssayPresenter extends BasePresenter {
                 throw new DuplicateNameException;
             }
         }
-
         // redirect and message
         $this->flashMessage('Layout byl úspěšně vložen/upraven.');
         $this->redirect('Settings:assaylist');
     }
-        
     
-    public function actionEdit($assayId)
-    {
-        
+    /**
+     * Detection type form factory.
+     * @return Nette\Application\UI\Form
+     */
+    protected function createComponentDetectionTypeForm() {
+        $form = new Form;
+        // Set Bootstrap 3 layout
+        $this->makeStyleBootstrap3($form);
+        // Set form labels
+        $form->addText('detection_type', 'Název: *')
+                ->setRequired('Vyplňtě Název');
+        $form->addTextArea('notice', 'Poznámka:');
+        $form->addSubmit('send', 'Uložit');
+        $form->onSuccess[] = [$this, 'detectionTypeFormSucceeded'];
+        return $form;
+    }
+
+    public function detectionTypeFormSucceeded($form) {
+        // get values from form
+        $values = $form->getValues();
+        if ($this->editDetectionType) {
+            // edit layout detail
+            $row = $this->editDetectionType->update([
+                'detection_type' => $values->detection_type,
+                'notice' => $values->notice
+            ]);
+        } else {
+            try {
+                // insert layout detail
+                $row = $this->dbHandler->getDetectionTypes()->insert([
+                    'detection_type' => $values->detection_type,
+                    'notice' => $values->notice
+                ]);
+            } catch (\Nette\Database\UniqueConstraintViolationException $e) {
+                throw new DuplicateNameException;
+            }
+        }
+        // redirect and message
+        $this->flashMessage('Typ detekce byl úspěšně vložen/upraven.');
+        $this->redirect('Settings:assaylist');
+    }
+    
+    // edit ELISA assay
+    public function actionEdit($assayId) {
         if (!$this->getUser()->isLoggedIn()) {
             $this->redirect('User:in');
         }
-
         $editAssay = $this->dbHandler->getAssays()->get($assayId);
         $this->editAssay = $editAssay;
-
         if (!$editAssay) {
-
             $this->error('Metoda nebyla nalezena.');
         }
-
         $this['assayForm']->setDefaults($editAssay->toArray());
     }
 
-    // delete user
-    public function actionDelete($assayId)
-    {
+    // delete ELISA assay
+    public function actionDelete($assayId) {
         if (!$this->getUser()->isLoggedIn()) {
             $this->redirect('User:in');
         }
-
         $delete = $this->dbHandler->getAssays()->get($assayId);
         if (!$delete) {
-
             $this->error('Nelze smazat, záznam neexistuje!!!');
         } else {
-
             try {
                 
                 $delete->delete();
-
                 // redirect and message
                 $this->flashMessage('Záznam byl úspěšně odstraněn.');
                 $this->redirect('Settings:assaylist');
             } catch (Exception $e) {
-
                 // redirect and message
                 $this->flashMessage('Záznam nelze odstranit. (CHYBA: ' . $e . ')');
                 $this->redirect('Settings:assaylist');
@@ -263,31 +338,97 @@ class AssayPresenter extends BasePresenter {
         }
     }
     
-    //edit layout
-    public function actionEditLayout($layoutId)
-    {
+    // edit MONO assay
+    public function actionEditMono($assayId) {
+        if (!$this->getUser()->isLoggedIn()) {
+            $this->redirect('User:in');
+        }
+        $editAssayMono = $this->dbHandler->getAssaysMono()->get($assayId);
+        $this->editAssayMono = $editAssayMono;
+        if (!$editAssayMono) {
+            $this->error('Metoda nebyla nalezena.');
+        }
+        $this['assayMonoForm']->setDefaults($editAssayMono->toArray());
+    }
+
+    // delete MONO assay
+    public function actionDeleteMono($assayId) {
+        if (!$this->getUser()->isLoggedIn()) {
+            $this->redirect('User:in');
+        }
+        $delete = $this->dbHandler->getAssaysMono()->get($assayId);
+        if (!$delete) {
+            $this->error('Nelze smazat, záznam neexistuje!!!');
+        } else {
+            try {
+                $delete->delete();
+                // redirect and message
+                $this->flashMessage('Záznam byl úspěšně odstraněn.');
+                $this->redirect('Settings:assaylist');
+            } catch (Exception $e) {
+                // redirect and message
+                $this->flashMessage('Záznam nelze odstranit. (CHYBA: ' . $e . ')');
+                $this->redirect('Settings:assaylist');
+            }
+        }
+    }
+    
+    // edit layout
+    public function actionEditLayout($layoutId) {
         
         if (!$this->getUser()->isLoggedIn()) {
             $this->redirect('User:in');
         }
-
         $editLayout = $this->dbHandler->getLayouts()->get($layoutId);
         $this->editLayout = $editLayout;
-
         if (!$editLayout) {
             $this->error('Layout nebyl nalezen.');
         }
         $this['layoutForm']->setDefaults($editLayout->toArray());
     }
-
+    
     // delete layout
-    public function actionDeleteLayout($layoutId)
-    {
+    public function actionDeleteLayout($layoutId) {
         if (!$this->getUser()->isLoggedIn()) {
             $this->redirect('User:in');
         }
-
         $delete = $this->dbHandler->getLayouts()->get($layoutId);
+        if (!$delete) {
+            $this->error('Nelze smazat, záznam neexistuje!!!');
+        } else {
+            try {
+                $delete->delete();
+                // redirect and message
+                $this->flashMessage('Záznam byl úspěšně odstraněn.');
+                $this->redirect('Settings:assaylist');
+            } catch (Exception $e) {
+                // redirect and message
+                $this->flashMessage('Záznam nelze odstranit. (CHYBA: ' . $e . ')');
+                $this->redirect('Settings:assaylist');
+            }
+        }
+    }
+    
+    // edit detection types
+    public function actionEditDetectionTypes($id) {
+        
+        if (!$this->getUser()->isLoggedIn()) {
+            $this->redirect('User:in');
+        }
+        $editDetectionType = $this->dbHandler->getDetectionTypes()->get($id);
+        $this->editDetectionType = $editDetectionType;
+        if (!$editDetectionType) {
+            $this->error('Typ detekce nebyl nalezen.');
+        }
+        $this['detectionTypeForm']->setDefaults($editDetectionType->toArray());
+    }
+    
+    // delete detection types
+    public function actionDeleteDetectionTypes($id) {
+        if (!$this->getUser()->isLoggedIn()) {
+            $this->redirect('User:in');
+        }
+        $delete = $this->dbHandler->getDetectionTypes()->get($id);
         if (!$delete) {
             $this->error('Nelze smazat, záznam neexistuje!!!');
         } else {

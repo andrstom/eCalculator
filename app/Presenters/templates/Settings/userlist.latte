@@ -25,18 +25,11 @@
                         <th>Login</th>
                         <th>E-mail</th>
                         <th>Název laboratoře</th>
-                        <th>Adresa</th>
-                        <th>IČO / DIČ</th>
-                        <th>Telefon</th>
                         <th>Role</th>
                         <th>Reader</th>
-                        <th>Metody</th>
-                        <th>Tisk detailů</th>
+                        <th>Dostupné ELISA metody</th>
+                        <th>Dostupné MONO metody</th>
                         <th>Aktivní</th>
-                        <th>Vložil</th>
-                        <th>Datum vložení</th>
-                        <th>Upravil</th>
-                        <th>Datum úpravy</th>
                     </thead>
                     <tbody>
                         {if $user->isInRole('Admin')}
@@ -46,9 +39,6 @@
                                 <td>{$client->login}</td>
                                 <td>{$client->email}</td>
                                 <td>{$client->company_name}</td>
-                                <td>{$client->address}</td>
-                                <td>{$client->ico}</td>
-                                <td>{$client->gsm}</td>
                                 <td>{$client->role_short}</td>
                                 <td>
                                     {foreach $client->related('calc_users_readers') as $userreader}
@@ -60,12 +50,12 @@
                                         {$userassay->assays->assay_short} ({$userassay->units->unit_short})<br>
                                     {/foreach}
                                 </td>
-                                <td>{$client->print_detail}</td>
+                                <td>
+                                    {foreach $client->related('calc_users_assays_mono') as $userAssayMono}
+                                        {$userAssayMono->assays->assay_short} ({$userAssayMono->units->unit_short})<br>
+                                    {/foreach}
+                                </td>
                                 <td>{$client->active}</td>
-                                <td>{$client->creator}</td>
-                                <td>{$client->created_at|date:'j.n.Y H:i'}</td>
-                                <td>{$client->editor}</td>
-                                <td>{$client->edited_at|date:'j.n.Y H:i'}</td>
                             </tr>
                         {else}
                             <tr class="user">
@@ -74,25 +64,23 @@
                                 <td>{$userlist->get($user->id)->login}</td>
                                 <td>{$userlist->get($user->id)->email}</td>
                                 <td>{$userlist->get($user->id)->company_name}</td>
-                                <td>{$userlist->get($user->id)->address}</td>
-                                <td>{$userlist->get($user->id)->ico}</td>
-                                <td>{$userlist->get($user->id)->gsm}</td>
                                 <td>{$userlist->get($user->id)->role_short}</td>
                                 <td>
                                     {foreach $userlist->get($user->id)->related('calc_users_readers') as $userreader}
                                         {$userreader->reader->reader_name},<br>
-                                    {/foreach}</td>
+                                    {/foreach}
+                                </td>
                                 <td>
                                     {foreach $userlist->get($user->id)->related('calc_users_assays') as $userassay}
                                         {$userassay->assays->assay_short} ({$userassay->units->unit_short})<br>
                                     {/foreach}
                                 </td>
-                                <td>{$userlist->get($user->id)->print_detail}</td>
+                                <td>
+                                    {foreach $userlist->get($user->id)->related('calc_users_assays_mono') as $userAssayMono}
+                                        {$userAssayMono->assays->assay_short} ({$userAssayMono->units->unit_short})<br>
+                                    {/foreach}
+                                </td>
                                 <td>{$userlist->get($user->id)->active}</td>
-                                <td>{$userlist->get($user->id)->creator}</td>
-                                <td>{$userlist->get($user->id)->created_at|date:'j.n.Y H:i'}</td>
-                                <td>{$userlist->get($user->id)->editor}</td>
-                                <td>{$userlist->get($user->id)->edited_at|date:'j.n.Y H:i'}</td>
                             </tr>
                         {/if}
                     </tbody>

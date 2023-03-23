@@ -69,20 +69,15 @@ class SyntesaPresenter extends BasePresenter
         
     }
     
-    public function createComponentMultiplierForm() 
-    {
-
+    public function createComponentMultiplierForm() {
             $form = new Form;
-
             // set Bootstrap 3 layout
             $this->makeStyleBootstrap3($form);
-
             // set dafault number of samples
             $copies = 1;
-
             ///set maximum samples
             $maxCopies = 100;
-            
+
             $multiplier = $form->addMultiplier('formValues', function (Container $container, Form $form) {
 
                 $regNumb = "^-?(0|[1-9][0-9]*)(\.[0-9]+|\,[0-9]+)?$";
