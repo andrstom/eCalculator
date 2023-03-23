@@ -7,6 +7,7 @@
                 <hr>
                 <p>
                     <a class="btn btn-danger" n:href="Homepage:default">Home</a>
+                    <a class="btn btn-danger" n:href="Mono:default">Refresh</a>
                     <!--<a class="btn btn-primary" target="_blank" href="{$basePath}/images/eCalculator_elisa_quickguide.pdf"><img src="{$basePath}/images/pdf_logo.png" width="14px"> Stručný průvodce / Quick guide</a>-->
                 </p>
             </div>
@@ -18,17 +19,71 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
-                <div class="info">
-                    <div class="info-image"></div>
-                    <div class="info-text">
-                        <p>Vážení klienti,<br>zde pro Vás připravujeme webovou verzi MONO-VIDITEST<sup>&copy</sup> Calculatoru pro pohodlné zpracování a výpočet koncentrace protilátek při využití testů ve formátu MONO-VIDITEST<sup>&copy</sup>.</p>
-                        <p>V současnosti je k dipozici MONO-VIDITEST<sup>&copy</sup> Calculator ve formátu EXCEL, který si můžete stáhnou pomocí odkazu níže.</p>
-                        <hr>
-                        <p>Dear customers,<br>there we are preparing a web version of the MONO-VIDITEST<sup>&copy</sup> Calculator for convenient processing and calculation of antibody concentration when using tests in the MONO-VIDITEST© format.</p>
-                        <p>MONO-VIDITEST© Calculator is currently available in EXCEL format, which you can download using the link below.</p>
-                        <a class="btn btn-primary" href="{$basePath}/images/MONO-VIDITEST Calculator_v1.0_en.xlsm">Download MONO-VIDITEST<sup>&copy</sup> Calculator</a>
+                {form monoForm}
+                    <ul n:if="$form->hasErrors()">
+                        <li n:foreach="$form->errors as $error" class="text-danger"><p class="fw-bold">{$error}</p></li>
+                    </ul>
+                    <table id="samplesTable" class="table-responsive monotest-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2">MONO-VIDITEST<sup>&copy</sup></th>
+                                <th>Ředění vzorku</th>
+                                <th rowspan="2">LOT</th>
+                                <th>Vzorek ID</th>
+                                <th>Validační kritéria</th>
+                                <th colspan="4">Parametry pro výpočet</th>
+                                <th colspan="3">Naměřené hodnoty OD</th>
+                            </tr>
+                            <tr class="italic">
+                                <td>Dilution</td>
+                                <td>Sample ID</td>
+                                <td>Validation criteria</td>
+                                <td colspan="4">Parameters for calculation</td>
+                                <td colspan="3">Measured OD's</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr n:multiplier="formValues">
+                                <tr>
+                                    <td rowspan="2" class="assay-deff">{input assay}</td>
+                                    <td rowspan="2" class="assay-deff">{input dilution}</td>
+                                    <td rowspan="2" class="assay-deff">{input batch}</td>
+                                    <td rowspan="2" class="assay-deff">{input sample_id}</td>
+                                    <td class="validation-criteria">{input blank_max}</td>
+                                    <td class="calc-parameters">{input std_bmax}</td>
+                                    <td class="calc-parameters">{input a1}</td>
+                                    <td class="calc-parameters">{input a2}</td>
+                                    <td rowspan="2" class="calc-parameters">{input kf}</td>
+                                    <td rowspan="2">{input blank_od}</td>
+                                    <td rowspan="2">{input sample_od}</td>
+                                    <td rowspan="2">{input cal_od}</td>
+                                </tr>
+                                <tr>
+                                    <td class="validation-criteria">{input cal_min}</td>
+                                    <td class="calc-parameters">{input c}</td>
+                                    <td class="calc-parameters">{input c_min}</td>
+                                    <td class="calc-parameters">{input c_max}</td>
+                                </tr>
+                                <tr><td colspan="12"><br></td></tr>
+                                <tr><td colspan="12">{btnRemove 'class' => 'btn btn-danger col-lg-12'}</td></tr>
+                                <tr><td colspan="12"><hr></td></tr>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                    {btnCreate formValues 'class' => 'btn btn-primary'} | 
+                    {btnCreate $form[formValues]:5 'class' => 'btn btn-primary'}
+                    <br>
+                    <small><i>max. 24 vzorků / samples</i></small><br><br>
+                    <div class="row text-center">
+                        <div class="col-lg-12">
+                            {input sendMonoPdf}
+                            {input sendMonoXls}
+                            {input sendMonoText}
+                        </div>
                     </div>
-                </div>
+                    </div>
+                {/form}
             </div>
         </div>
     </div>

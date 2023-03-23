@@ -22,6 +22,7 @@ services:
     - App\Model\UserManager
     - App\Model\DbHandler
     - App\Model\CalculatorElisaManager
+    - App\Model\CalculatorMonoManager
     - App\Model\CalculatorSyntesaManager
     - App\Model\PdfManager
     - App\Model\QualityControlManager
