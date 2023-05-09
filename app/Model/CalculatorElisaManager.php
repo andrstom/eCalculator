@@ -121,12 +121,6 @@ class CalculatorElisaManager {
                 'synovia_ip_max' => $this->getParam($values['synovia_ip_max']),
                 'synovia_au_min' => $this->getParam($values['synovia_au_min']),
                 'synovia_au_max' => $this->getParam($values['synovia_au_max']),
-                /*'synovia_mlu_min' => $this->getParam($values['synovia_mlu_min']),
-                'synovia_mlu_max' => $this->getParam($values['synovia_mlu_max']),
-                'synovia_vieu_min' => $this->getParam($values['synovia_vieu_min']),
-                'synovia_vieu_max' => $this->getParam($values['synovia_vieu_max']),
-                'synovia_iu_min' => $this->getParam($values['synovia_iu_min']),
-                'synovia_iu_max' => $this->getParam($values['synovia_iu_max']),*/
                 'editor' => $user->getIdentity()->getData()['login'],
                 'edited_at' => time(),
             ]);
@@ -252,7 +246,13 @@ class CalculatorElisaManager {
         //exit();
         $Blank = $param['Abs'][1];
         $BMax = (((($param['Abs'][13] - $Blank) / $param['std_bmax']) + (($param['Abs'][25] - $Blank) / $param['std_bmax'])) / 2);
-        $CmaxRounded = round(($param['c_max'] / 101) * $param['dilution'], -1); // round to nearest 10
+        $Cmax = (($param['c_max'] / 101) * $param['dilution']);
+        if ($Cmax < 10) {
+            $CmaxRounded = $Cmax; // without round to nearest 10
+        } else {
+            $CmaxRounded = round($Cmax, -1); // round to nearest 10
+        }
+        
         foreach ($param['Abs'] as $k => $v) {
             // substract BLANK value from sample
             $sample = $v - $Blank;
@@ -295,7 +295,12 @@ class CalculatorElisaManager {
         $param = $this->getParam($value);
         $Blank = $param['Abs'][1];
         $BMax = (((($param['Abs'][13] - $Blank) / $param['std_bmax']) + (($param['Abs'][25] - $Blank) / $param['std_bmax'])) / 2);
-        $CmaxRounded = round(($param['c_max'] / 101) * $param['dilution'], -1); // round to nearest 10
+        $Cmax = (($param['c_max'] / 101) * $param['dilution']);
+        if ($Cmax < 10) {
+            $CmaxRounded = $Cmax; // without round to nearest 10
+        } else {
+            $CmaxRounded = round($Cmax, -1); // round to nearest 10
+        }
         foreach ($param['Abs'] as $k => $v) {
             // substract BLANK value from sample
             $sample = $v - $Blank;
