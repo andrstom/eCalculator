@@ -1,4 +1,4 @@
-#header {
+.header {
     font-family: Sans Serif, Tahoma, Times New Roman;
     width: 100%;
     margin-top: 10px;
@@ -6,21 +6,21 @@
     font-weight: bold;
 }
 
-#footer {
+.footer {
     font-family: Sans Serif, Tahoma, Times New Roman;
     width: 100%;
     font-size: 10pt;
     font-weight: bold;
 }
 
-#content {
+.content {
     font-family: Sans Serif, Tahoma, Times New Roman;
     width: 100%;
     font-size: 10pt;
     font-weight: bold;
 }
 
-#title {
+.title {
     font-family: Sans Serif, Tahoma, Times New Roman;
     text-align: center;
     width: 100%;
@@ -28,13 +28,13 @@
     font-weight: bold;
 }
 
-#comments {
+.comments {
     width: 100%;
     height: 40px;
     margin-top: 5px;
 }
 
-#border-radius {
+.border-radius {
     width: 100%;
     padding: 5px 5px 5px 5px;
     background: #e2c1d5;
@@ -48,12 +48,12 @@
     box-shadow: 8px 8px 4px #b76598;
 }
 
-#valid {
+.valid {
     font-weight: bold;
     color: green;
 }
 
-#invalid {
+.invalid {
     font-weight: bold;
     color: red;
 }
@@ -85,67 +85,67 @@ table th {
     text-align: center;
 }
 
-#assay-result td {
+.assay-result td {
     width: 8%;
     height: 60px;
 }
 
-#sample-id {
+.sample-id {
     font-size: 8pt;
     font-weight: bold;
 }
 
-#absorbance-value {
+.absorbance-value {
     font-size: 7pt;
     font-style: italic;
 }
 
-#result-value {
+.result-value {
     font-size: 8pt;
     font-weight: bold;
 }
 
-#left {
+.align-left {
     float: left;
     text-align: left;
     width: 48%;
     height: 30px;
 }
 
-#right {
+.align-right {
     float: right;
     text-align: right;
     width: 48%;
     height: 30px;
 }
 
-#qc-true {
+.qc-true {
     font-weight: bold;
     background-color: #65cc65;
 }
 
-#qc-false {
+.qc-false {
     font-weight: bold;
     background-color: #ff4c4c;
 }
 
-#interpretation {
+.interpretation {
     
     font-size: 7pt;
     
 }
 
-#ipret-negative {
+.ipret-negative {
     font-weight: bold;
     color: green;
 }
 
-#ipret-greyzone {
+.ipret-greyzone {
     font-weight: bold;
     color: grey;
 }
 
-#ipret-positive {
+.ipret-positive {
     font-weight: bold;
     color: red;
 }
