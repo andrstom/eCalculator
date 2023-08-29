@@ -185,9 +185,7 @@ class UserPresenter extends BasePresenter {
                     $this->dbHandler->getUsersAssaysMono()->insert([
                         'users_id' => $this->editUser->id,
                         'assays_id' => $k,
-                        'units_id' => $unitMono[0],
-                        'creator' => $this->getUser()->getIdentity()->getData()['login'],
-                        'created_at' => time()
+                        'units_id' => $unitMono[0]
                     ]);
                 }
             } else {
@@ -246,9 +244,7 @@ class UserPresenter extends BasePresenter {
                         $this->dbHandler->getUsersAssaysMono()->insert([
                             'users_id' => $userLastId,
                             'assays_id' => $k,
-                            'units_id' => $unitMono[0],
-                            'creator' => $this->getUser()->getIdentity()->getData()['login'],
-                            'created_at' => time(),
+                            'units_id' => $unitMono[0]
                         ]);
                     }
                 } catch (\Nette\Database\UniqueConstraintViolationException $e) {
@@ -326,9 +322,7 @@ class UserPresenter extends BasePresenter {
                     'notice' => $values->notice,
                     'role_short' => 'Klient',
                     'print_detail' => $values->print_detail,
-                    'active' => 'ANO',
-                    'creator' => $values->email,
-                    'created_at' => time(),
+                    'active' => 'ANO'
                 ]);
                 // get last inserted id
                 $userLastId = $row->id;
@@ -344,9 +338,7 @@ class UserPresenter extends BasePresenter {
                     $this->dbHandler->getUsersAssays()->insert([
                         'users_id' => $userLastId,
                         'assays_id' => $k,
-                        'units_id' => $unit[0],
-                        'creator' => $values->email,
-                        'created_at' => time(),
+                        'units_id' => $unit[0]
                     ]);
                 }
                 $assaysMono = $form->getHttpData($form::DATA_TEXT | $form::DATA_KEYS, 'assayMono[]');
@@ -360,9 +352,7 @@ class UserPresenter extends BasePresenter {
                     $this->dbHandler->getUsersAssaysMono()->insert([
                         'users_id' => $userLastId,
                         'assays_id' => $k,
-                        'units_id' => $unitMono[0],
-                        'creator' => $values->email,
-                        'created_at' => time(),
+                        'units_id' => $unitMono[0]
                     ]);
                 }
                 $mail = new Message;
@@ -429,7 +419,7 @@ class UserPresenter extends BasePresenter {
         $form->addPassword('password', '* Heslo / Password:')
                 ->setRequired('Chybí heslo / Password missing.')
                 ->setHtmlAttribute('placeholder', 'heslo / password');
-        $form->addCheckbox('remember', 'Zapamatovat si mě (10 dní) / Remember me (10 days).');
+        $form->addCheckbox('remember', 'Zapamatovat si mě (1 den) / Remember me (1 day).');
         $form->addSubmit('send', 'Přihlásit / Sign in');
         $form->onSuccess[] = [$this, 'signInFormSucceeded'];
         return $form;
@@ -441,7 +431,7 @@ class UserPresenter extends BasePresenter {
      */
     public function signInFormSucceeded($form, $values) {
         try {
-            $this->getUser()->setExpiration($values->remember ? '10 days' : '20 minutes');
+            $this->getUser()->setExpiration($values->remember ? '1 day' : '20 minutes');
             $this->getUser()->login($values->login, $values->password);
             $this->redirect('Homepage:default');
         } catch (\Nette\Security\AuthenticationException $e) {
