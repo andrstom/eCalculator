@@ -3,7 +3,7 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
-                <h2 n:block="title">ELISA-VIDITEST<sup>&copy</sup> Calculator</h2>
+                <h2 n:block="title">ELISA-VIDITEST<sup>&trade;</sup> Calculator</h2>
                 <hr>
                 <p>
                    <a class="btn btn-danger" n:href="Homepage:default"> Home</a>
@@ -339,6 +339,8 @@
                                         </tr>
                                     </table>
                                     <hr>
+                                    <!-- reinicializace javascriptu nad formularem, aby fungoval napr. toggle-->
+                                    <script>window.Nette.initForm($('#frm-calculatorForm').get(0));</script>
                                 {/snippet}
                                 <h4>5. Spočítat / Calculate</h4>
                                 <p>Stisknutím tlačítka potvrzujete správnost zadaných údajů. <small>Pressing the button confirms the correctness of the entered data.</small></p>
