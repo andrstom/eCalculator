@@ -3438,6 +3438,64 @@ fieldset[disabled] .btn-link:focus {
   color: #777;
   text-decoration: none;
 }
+
+.btn-monotest {
+  color: #fff;
+  background-color: #40607d;
+  border-color: #40607d;
+}
+.btn-monotest:focus,
+.btn-monotest.focus {
+  color: #fff;
+  background-color: #74ace1;
+  border-color: #74ace1;
+}
+.btn-monotest:hover {
+  color: #fff;
+  background-color: #74ace1;
+  border-color: #74ace1;
+}
+.btn-monotest:active,
+.btn-monotest.active,
+.open > .dropdown-toggle.btn-monotest {
+  color: #fff;
+  background-color: #74ace1;
+  border-color: #74ace1;
+}
+.btn-monotest:active:hover,
+.btn-monotest.active:hover,
+.open > .dropdown-toggle.btn-monotest:hover,
+.btn-monotest:active:focus,
+.btn-monotest.active:focus,
+.open > .dropdown-toggle.btn-monotest:focus,
+.btn-monotest:active.focus,
+.btn-monotest.active.focus,
+.open > .dropdown-toggle.btn-monotest.focus {
+  color: #fff;
+  background-color: #74ace1;
+  border-color: #74ace1;
+}
+.btn-monotest:active,
+.btn-monotest.active,
+.open > .dropdown-toggle.btn-monotest {
+  background-image: none;
+}
+.btn-monotest.disabled:hover,
+.btn-monotest[disabled]:hover,
+fieldset[disabled] .btn-monotest:hover,
+.btn-monotest.disabled:focus,
+.btn-monotest[disabled]:focus,
+fieldset[disabled] .btn-monotest:focus,
+.btn-monotest.disabled.focus,
+.btn-monotest[disabled].focus,
+fieldset[disabled] .btn-monotest.focus {
+  background-color: #337ab7;
+  border-color: #2e6da4;
+}
+.btn-monotest .badge {
+  color: #337ab7;
+  background-color: #fff;
+}
 .btn-lg,
 .btn-group-lg > .btn {
   padding: 10px 16px;
