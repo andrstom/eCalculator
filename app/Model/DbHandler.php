@@ -45,9 +45,9 @@ class DbHandler
             return $this->database->table('calc_layouts');
     }
     
-    public function getDetectionTypes() {
+    /*public function getDetectionTypes() {
             return $this->database->table('calc_detection_type');
-    }
+    }*/
     
     public function getUsersAssays() {
             return $this->database->table('calc_users_assays');
@@ -63,5 +63,37 @@ class DbHandler
     
     public function getAssaysLayouts() {
             return $this->database->table('calc_assays_layouts');
+    }
+    
+    public function getMonotests() {
+            return $this->database->table('calc_monotests');
+    }
+    
+    public function getResultsBySession($protocol_id) {
+            return $this->database->table('calc_mono_results')->where('protocol_id', $protocol_id);
+    }
+    
+    public function getAllowedUnits() {
+            return $this->database->table('calc_allowed_units');
+    }
+    
+    public function getAllowedUnitsByAssayId($assay_id) {
+            return $this->database->table('calc_allowed_units')->where('assays_id', $assay_id);
+    }
+    
+    public function getDilutions() {
+            return $this->database->table('calc_dilutions');
+    }
+    
+    public function getAllowedDilutions() {
+            return $this->database->table('calc_allowed_dilutions');
+    }
+    
+    public function getAllowedDilutionsByAssayId($assay_id) {
+            return $this->database->table('calc_allowed_dilutions')->where('assays_id', $assay_id);
+    }
+    
+    public function getMonoProtocols() {
+            return $this->database->table('calc_mono_results');
     }
 }
