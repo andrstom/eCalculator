@@ -13,9 +13,7 @@ $(document).ready(function () {
 });
 
 function chooseParameter(event) {
-
     var metodaId = document.getElementById("MetodaId").value;
-
     if (metodaId) {
         $.ajax({
             type: 'POST',
@@ -46,9 +44,7 @@ function chooseParameter(event) {
 }
 
 function chooseSource(event) {
-
     var source = document.getElementById("source").value;
-
     if (readervystup) {
         $.ajax({
             type: 'POST',
