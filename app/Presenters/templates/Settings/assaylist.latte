@@ -71,7 +71,8 @@
                         <th>ID</th>
                         <th>Zkratka</th>
                         <th>Název</th>
-                        <th>Typ detekce</th>
+                        <th>Jednotky</th>
+                        <th>Typ vzorku</th>
                         <th>Poznámka</th>
                         <th>Aktivní</th>
                         <th>Vložil</th>
@@ -86,7 +87,12 @@
                             <td>{$assayMono->id}</td>
                             <td>{$assayMono->assay_short}</td>
                             <td>{$assayMono->assay_name}</td>
-                            <td>{$assayMono->ref('calc_detection_type','detection_type')->detection_type}</td>
+                            <td>{foreach $assayMono->related('calc_allowed_units') as $allowedUnit}
+                                    {$allowedUnit->units->unit_name}<br>
+                                {/foreach}</td>
+                            <td>{foreach $assayMono->related('calc_allowed_dilutions') as $allowedDilution}
+                                {$allowedDilution->dilutions->sample_type}<br>
+                            {/foreach}</td>
                             <td>{$assayMono->notice}</td>
                             <td>{$assayMono->active}</td>
                             <td>{$assayMono->creator}</td>
@@ -132,7 +138,7 @@
     </div>
 </div>
 
-<div class="section">
+ {*<div class="section">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
@@ -163,3 +169,4 @@
         </div>
     </div>
 </div>
+*}
