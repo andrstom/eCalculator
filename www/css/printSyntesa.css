@@ -1,4 +1,4 @@
-#header {
+.header {
     font-family: Sans Serif, Tahoma, Times New Roman;
     width: 100%;
     margin-top: 10px;
@@ -6,26 +6,26 @@
     font-weight: bold;
 }
 
-#footer {
+.footer {
     font-family: Sans Serif, Tahoma, Times New Roman;
     width: 100%;
     font-size: 10pt;
     font-weight: bold;
 }
 
-#content {
+.content {
     font-family: Sans Serif, Tahoma, Times New Roman;
     width: 100%;
     font-size: 10pt;
 }
 
-#title {
+.title {
     text-align: center;
     font-size: 15pt;
     font-weight: bold;
 }
 
-#border-radius {
+.border-radius {
     width: 100%;
     padding: 5px 5px 5px 5px;
     background: #e2c1d5;
@@ -81,20 +81,20 @@ p.warning {
     font-style: italic;
 }
 
-#comments {
+.comments {
     width: 100%;
     height: 40px;
     margin-top: 5px;
 }
 
-#left {
+.left {
     float: left;
     text-align: left;
     width: 48%;
     height: 30px;
 }
 
-#right {
+.right {
     float: right;
     text-align: right;
     width: 48%;
