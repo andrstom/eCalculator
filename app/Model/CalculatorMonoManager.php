@@ -23,7 +23,7 @@ class CalculatorMonoManager {
     /** @int */
     public $layout_id;
 
-    /** @array */
+    /** @string */
     public $interpretation;
     
     /** @var Nette\Database\Context */
@@ -55,7 +55,7 @@ class CalculatorMonoManager {
     
     /*
      * Update assay parametres
-     * @param form values
+     * @param type array
      */
     public function updateAssayMonoParameters($values, $user) {
         $assay_params = $this->database->table('calc_users_assays_mono')
@@ -123,8 +123,9 @@ class CalculatorMonoManager {
     }
     
     /**
-     * get all values from form and replace comma to dot
-     * @return array
+     * Replace comma to dot
+     * @param string|array
+     * @return string|array
      */
     public function getParam($value) {
         $this->param = $value;
@@ -140,7 +141,16 @@ class CalculatorMonoManager {
         return $this->param;
     }
     
-    public function specialOverResultAu($result, $assay_id, $dilution_factor, $c_max):float {
+    /**
+     * Set special result for specific combination of assay / dilution / unit
+     * @param string $result
+     * @param string $assay_id
+     * @param string $dilution_factor
+     * @param string $unit_id
+     * @param string $c_max
+     * @return float
+     */
+    public function specialOverResult(string $result, string $assay_id, string $dilution_factor, string $unit_id, string $c_max):float {
         $CmaxRounded = round(($c_max / 101) * $dilution_factor, -1);
         $specialResult = $result;
         if ($result == "nan") {
@@ -149,25 +159,33 @@ class CalculatorMonoManager {
         if ($result <= 0) {
             $specialResult = 0;
         }
-        // Borrelia IgM + CSF
-        if ($assay_id == 4 && $dilution_factor == 2 && ($result >= 16 || $result == "nan")) {
+        // Borrelia IgM + CSF + AU
+        if ($assay_id == 4 && $dilution_factor == 2 && $unit_id == 2 && ($result >= 16 || $result == "nan")) {
             $specialResult = 16;
         }
-        // Borrelia IgM + Sinovia
-        if ($assay_id == 4 && $dilution_factor == 81 && ($result >= 640 || $result == "nan")) {
+        // Borrelia IgM + Synovia + AU
+        if ($assay_id == 4 && $dilution_factor == 81 && $unit_id == 2  && ($result >= 640 || $result == "nan")) {
             $specialResult = 640;
         }
-        // Borrelia IgG + CSF
-        if ($assay_id == 5 && $dilution_factor == 2 && ($result >= 8 || $result == "nan")) {
+        // Borrelia IgG + CSF + AU
+        if ($assay_id == 5 && $dilution_factor == 2 && $unit_id == 2 && ($result >= 8 || $result == "nan")) {
             $specialResult = 8;
         }
-        // Borrelia IgG + Sinovia
-        if ($assay_id == 5 && $dilution_factor == 81 && ($result >= 320 || $result == "nan")) {
+        // Borrelia IgG + Synovia + AU
+        if ($assay_id == 5 && $dilution_factor == 81 && $unit_id == 2 && ($result >= 320 || $result == "nan")) {
             $specialResult = 320;
         }
-        // TBEV IgG + CSF
-        if ($assay_id == 40 && $dilution_factor == 2 && ($result >= 16 || $result == "nan")) {
+        // TBEV IgG + CSF + AU
+        if ($assay_id == 40 && $dilution_factor == 2 && $unit_id == 2  && ($result >= 16 || $result == "nan")) {
             $specialResult = 16;
+        }
+        // TBEV IgG + Serum + VIEU
+        if ($assay_id == 40 && $dilution_factor == 101 && $unit_id == 3  && ($result >= 2200 || $result == "nan")) {
+            $specialResult = 2200;
+        }
+        // TBEV IgG + CSF + VIEU
+        if ($assay_id == 40 && $dilution_factor == 2 && $unit_id == 3  && ($result >= 45 || $result == "nan")) {
+            $specialResult = 45;
         }
         // ASFU IgG
         if ($assay_id == 3 && ($result >= $c_max || $result == "nan")) {  
@@ -178,9 +196,11 @@ class CalculatorMonoManager {
     
     /**
      * calculate result for index (IP)
+     * @param array $value
      * @return float
      */
-    public function calcIP($value):float {
+    public function calcIP(array $value):float
+    {
         $param = $this->getParam($value);
         $sample = $param['sample_od'] - $param['blank_od'];
         $cutoff = ($param['cal_od'] - $param['blank_od']) * $param['kf'];
@@ -195,8 +215,11 @@ class CalculatorMonoManager {
     
     /**
      * calculate result for AU/ml (AU)
+     * @param array $value
+     * @return float
      */
-    public function calcAU($value):float {
+    public function calcAU(array $value):float
+    {
         $param = $this->getParam($value);
         $Blank = $param['blank_od'];
         $BMax = ($param['cal_od'] - $Blank) / $param['std_bmax'];
@@ -223,15 +246,17 @@ class CalculatorMonoManager {
             }
             $result = number_format($result , 2, '.', '');
         }
-        $result = $this->specialOverResultAu($result, $param['assays_id'], $param['dilution_factor'], $param['c_max']);
+        $result = $this->specialOverResult($result, $param['assays_id'], $param['dilution_factor'], $param['units_id'], $param['c_max']);
         return (float)$result;
     }
      
     /**
      * calculate result for mlU/ml (mlU)
-     * @return string
+     * @param array $value
+     * @return float
      */
-    public function calcMLU($value):string {
+    public function calcMLU(array $value):float
+    {
         $param = $this->getParam($value);
         $Blank = $param['blank_od'];
         $BMax = ($param['cal_od'] - $Blank) / $param['std_bmax'];
@@ -254,20 +279,19 @@ class CalculatorMonoManager {
             $result = number_format($CmaxRounded, 0, '.', '');
         } else {
             $result = ((log(($sample / $BMax - $param['a1']) / (-$param['a2'])) * (-$param['c'])) / 101) * $param['dilution_factor'];
-            //$result = ($result < $param['c_max']) ? $result : (float)$param['c_max'];
             $result = number_format($result , 2, '.', '');
         }
-        if ($result == "nan") {
-            $result = number_format($CmaxRounded, 0, '.', '');
-        }
-        return $result;
+        $result = $this->specialOverResult($result, $param['assays_id'], $param['dilution_factor'], $param['units_id'], $param['c_max']);
+        return (float)$result;
     }
     
     /**
      * calculate result for VIEU/ml (VIEU)
-     * @return string
+     * @param array $value
+     * @return float
      */
-    public function calcVIEU($value):float {
+    public function calcVIEU(array $value):float
+    {
         $param = $this->getParam($value);
         $Blank = $param['blank_od'];
         $BMax = ($param['cal_od'] - $Blank) / $param['std_bmax'];
@@ -290,17 +314,17 @@ class CalculatorMonoManager {
             //$result = ($result < $param['c_max']) ? $result : (float)$param['c_max'];
             $result = number_format($result , 2, '.', '');
         }
-        /*if ($result == "nan") {
-            $result = ($param['dilution_factor'] == "2" ? 45 : 2200);
-        }*/
+        $result = $this->specialOverResult($result, $param['assays_id'], $param['dilution_factor'], $param['units_id'], $param['c_max']);
         return (float)$result;
     }
     
     /**
      * calculate result for pg/ml (pg)
-     * @return string
+     * @param array $value
+     * @return float
      */
-    public function calcPG($value):float {
+    public function calcPG(array $value):float
+    {
         $param = $this->getParam($value);
         $BMax = $param['cal_od'] / $param['std_bmax']; // NO BLANK SUBSTRACTION !!!
         $sample = $param['sample_od'];
@@ -309,38 +333,40 @@ class CalculatorMonoManager {
         $condition2 = $sample / $BMax;
         if ($condition1 > $BMax) {
             $result = $param['c_max'];
-            $result = number_format((float)$result , 2, '.', '');
+            $result = number_format($result , 2, '.', '');
         } elseif ($condition2 < $param['c_min']) {
             $result = (($sample / $BMax) * (log(($param['c_min'] - $param['a1']) / (-$param['a2']))) * (-$param['c']) / $param['c_min']) * $param['dilution_factor'];
-            $result = number_format((float)$result , 2, '.', '');
+            $result = number_format($result , 2, '.', '');
         } else {
             $result = (log(($sample / $BMax - $param['a1']) / (-$param['a2']))) * (-$param['c']) * $param['dilution_factor'];
-            $result = number_format((float)$result , 2, '.', '');
+            $result = number_format($result , 2, '.', '');
         }
         // result replacement
-        if ($result >= (float)$param['c_max']) {
-            $result = number_format((float)$param['c_max'], 0, '.', '');
+        if ($result >= $param['c_max']) {
+            $result = number_format($param['c_max'], 0, '.', '');
         }
         if ($result == "nan") {
-            $result = number_format((float)$param['c_max'], 0, '.', '');
+            $result = number_format($param['c_max'], 0, '.', '');
         }
         if ($sample > 2) {
-            $result = number_format((float)$param['c_max'], 0, '.', '');
+            $result = number_format($param['c_max'], 0, '.', '');
         }
         if (isset($param['detection_limit'])) {
             if ($result < $param['detection_limit']) {
                 $result = $param['detection_limit'];
             }
         }
-        return $result;
+        $result = $this->specialOverResult($result, $param['assays_id'], $param['dilution_factor'], $param['units_id'], $param['c_max']);
+        return (float)$result;
     }
 
     /**
-     * get results according to the selected units
-     * default unit = AU/ml = IU/ml
-     * @return array
+     * get results according to the selected units, default unit = AU/ml = IU/ml
+     * @param array $value
+     * @return float
      */
-    public function getResult($value) {
+    public function getResult(array $value):float
+    {
         /** load unit details */
         $unit_short = $this->database->table('calc_units_mono')->get($value['units_id'])->unit_short;
         /** get the result per unit */
@@ -351,21 +377,19 @@ class CalculatorMonoManager {
         } elseif ($unit_short == "mlU") {
             $this->result = $this->calcMLU($value);
         } elseif ($unit_short == "pg") {
-            $this->result = $this->calcPG($value); // pg/ml
+            $this->result = $this->calcPG($value);
         } else {
             $this->result = $this->calcAU($value); // AU, IU
         }
         return $this->result;
     }
     
-    
     /**
      * Result interpretation (Negative/Greyzone/Positive)
-     * 
-     * @param mixed
-     * @return array
+     * @param array
+     * @return string
      */
-    public function getInterpretation($value)
+    public function getInterpretation(array $value): string
     {
         $param = $this->getParam($value);
         $result = $this->getResult($value);
@@ -421,26 +445,28 @@ class CalculatorMonoManager {
         }
         
         /** set the interpretation per unit */
-
-            if ($unit->unit_short == "IP") {
-                $this->interpretation = (!empty($ip_min) && !empty($ip_min) ? ($result < $ip_min ? "negative" : ($result > $ip_max ? "positive" : "<span id='ipret-greyzone'>Greyzone<span>")) : "");
-            } elseif ($unit->unit_short == "AU") {
-                $this->interpretation = (!empty($au_min) && !empty($au_min) ? ($result < $au_min ? "negative" : ($result > $au_max ? "positive" : "greyzone")) : "");
-            } elseif ($unit->unit_short == "mlU") {
-                $this->interpretation = (!empty($mlu_min) && !empty($mlu_min) ? ($result < $mlu_min ? "negative" : ($result > $mlu_max ? "positive" : "greyzone")) : "");
-            } elseif ($unit->unit_short == "IU") {
-                $this->interpretation = (!empty($iu_min) && !empty($iu_min) ? ($result < $iu_min ? "negative" : ($result > $iu_max ? "positive" : "greyzone")) : "");
-            } elseif ($unit->unit_short == "pg") {
-                $this->interpretation = (!empty($pg_min) && !empty($pg_min) ? ($result == "< " . $param['detection_limit'] || $result < $pg_min ? "negative" : ($result > $pg_max ? "positive" : "greyzone")) : "");
-            } else {
-                $this->interpretation = (!empty($vieu_min) && !empty($vieu_min) ? ($result < $vieu_min ? "negative" : ($result > $vieu_max ? "positive" : "greyzone")) : "");
-            }
-            
-        //dump($this->interpretation);exit;
+        if ($unit->unit_short == "IP") {
+            $this->interpretation = (!empty($ip_min) && !empty($ip_min) ? ($result < $ip_min ? "negative" : ($result > $ip_max ? "positive" : "<span id='ipret-greyzone'>Greyzone<span>")) : "");
+        } elseif ($unit->unit_short == "AU") {
+            $this->interpretation = (!empty($au_min) && !empty($au_min) ? ($result < $au_min ? "negative" : ($result > $au_max ? "positive" : "greyzone")) : "");
+        } elseif ($unit->unit_short == "mlU") {
+            $this->interpretation = (!empty($mlu_min) && !empty($mlu_min) ? ($result < $mlu_min ? "negative" : ($result > $mlu_max ? "positive" : "greyzone")) : "");
+        } elseif ($unit->unit_short == "IU") {
+            $this->interpretation = (!empty($iu_min) && !empty($iu_min) ? ($result < $iu_min ? "negative" : ($result > $iu_max ? "positive" : "greyzone")) : "");
+        } elseif ($unit->unit_short == "pg") {
+            $this->interpretation = (!empty($pg_min) && !empty($pg_min) ? ($result == "< " . $param['detection_limit'] || $result < $pg_min ? "negative" : ($result > $pg_max ? "positive" : "greyzone")) : "");
+        } else {
+            $this->interpretation = (!empty($vieu_min) && !empty($vieu_min) ? ($result < $vieu_min ? "negative" : ($result > $vieu_max ? "positive" : "greyzone")) : "");
+        }
         return $this->interpretation;
     }
     
-    public function isMoreThenCmax($result): string {
+    /**
+     * Verify if is result greather then Cmax
+     * @param Nette\Database\Table\ActiveRow $result
+     * @return string
+     */
+    public function isMoreThenCmax(Nette\Database\Table\ActiveRow $result): string {
         // default result
         $isMoreThen = "" . number_format($result->result, 2, ',', '');
         // value for assays (without BBG, BBM, TBEVG)
@@ -526,6 +552,24 @@ class CalculatorMonoManager {
                 if ($result->dilution_factor == "2") {
                     if ($result->result >= 45) {
                         $isMoreThen = "> 45";
+                    }
+                }
+            }
+        }
+        // result for VZV IgG
+        if ($result->assays_id == 45) {
+            // mlU/ml
+            if ($result->units_id == 4) {
+                // Serum
+                if ($result->dilution_factor == "101") {
+                    if ($result->result >= $result->c_max) {
+                        $isMoreThen = "> " . $result->c_max;
+                    }
+                }
+                // CSF
+                if ($result->dilution_factor == "2") {
+                    if ($result->result >= 80) {
+                        $isMoreThen = "> 80";
                     }
                 }
             }
