@@ -9,13 +9,11 @@ use App\Model\DbHandler;
 
 class SettingsPresenter extends BasePresenter
 {   
-    
     /**
      * @var \App\Model\DbHandler
      * @inject
      */
     public $dbHandler;
-    
     
     public function renderUserlist()
     {
@@ -27,7 +25,7 @@ class SettingsPresenter extends BasePresenter
         $this->template->assaylist = $this->dbHandler->getAssays();
         $this->template->assaylistMono = $this->dbHandler->getAssaysMono();
         $this->template->layouts = $this->dbHandler->getLayouts();
-        $this->template->detection_types = $this->dbHandler->getDetectionTypes();
+        //$this->template->detection_types = $this->dbHandler->getDetectionTypes();
     }
 
     public function renderUnitlist()
@@ -39,5 +37,4 @@ class SettingsPresenter extends BasePresenter
     {
         $this->template->readerlist = $this->dbHandler->getReaders();
     }
-    
 }
