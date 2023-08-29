@@ -1,0 +1,141 @@
+{block content}
+<div class="text-center">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2 n:block="title">MONO-VIDITEST<sup>&trade;</sup> Calculator</h2>
+                <hr>
+                <p>
+                    <a class="btn btn-primary" n:href="Homepage:default">Home</a>
+                    <input type="button" value="Zpět / Back" class="btn btn-primary" onclick="history.back()">
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h3>Results</h3>
+                <ul class="buttons-menu">
+                    <li><a n:href="Mono:printPdf $protocolId" target="_blank" class="btn btn-primary"><img src="{$basePath}/images/pdf_128_icon.png" height="20px" style="margin-right: 5px;">Save as PDF (print)</a></li>
+                    <li><a n:href="Mono:exportExcel $protocolId" target="_blank" class="btn btn-primary"><img src="{$basePath}/images/excel_128_icon.png" height="20px" style="margin-right: 5px;">Save as EXCEL</a></li>
+                    <li><a n:href="Mono:deleteProtocol $protocolId" onclick="return confirm('Wipe data from protocol?');" class="btn btn-danger"><i class="fa-solid fa-broom" style="margin: 3px 5px 0 0; color: #ffffff;"></i>Clean protocol</a></li>
+                </ul>
+                <hr>
+                {var $iterator = 0}
+                <div n:foreach="$protocol as $result" class="monotest-protocol-table">
+                    {var $unitShort = $result->ref('calc_units_mono','units_id')->unit_short}
+                    {var $dilution = $result->ref('calc_dilutions','dilutions_id')}
+                    {var $verified_result = $calculatorMonoManager->isMoreThenCmax($result)}
+                    <a data-toggle="collapse" data-target="#assay-detail-{$result->id}">
+                    <table id="samplesTable" class="table-responsive monotest-table">
+                        <thead>
+                            <tr class="protocol-header">
+                                <th style="width: 5%;" rowspan="2">{$iterator++}</th>
+                                <th style="width: 10%">Sample ID</th>
+                                <th style="width: 20%">MONO-VIDITEST<sup>&trade;</sup></th>
+                                <th style="width: 10%">LOT</th>
+                                <th style="width: 15%">Dilution</th>
+                                <th style="width: 10%">OD Blank</th>
+                                <th style="width: 10%">OD Sample</th>
+                                <th style="width: 10%">OD CAL</th>
+                                <th style="width: 10%">Result (unit)</th>
+                                <th colspan="3" class="{$result->is_valid}">{if ($result->blank_max > $result->blank_od) && ($result->cal_min < $result->cal_od)}Valid{else}Invalid (see details)!{/if}</th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="protocol-body">
+                                <td></td>
+                                <td>{$result->sample_id}</td>
+                                <td>{$result->ref('calc_assays_mono','assays_id')->assay_short}</td>
+                                <td>{$result->batch}</td>
+                                <td>{$dilution->sample_type} {if $dilution->id == 6}<br>({$result->dilution_factor}x){/if}</td>
+                                <td class="{if $result->blank_max < $result->blank_od}invalid{/if}">{number_format($result->blank_od, 3, ',', '')}</td>
+                                <td>{number_format($result->sample_od, 3, ',', '')}</td>
+                                <td class="{if $result->cal_min > $result->cal_od}invalid{/if}">{number_format($result->cal_od, 3, ',', '')}</td>
+                                <th>{$verified_result} ({$unitShort}) <div class="interpret-{$result['interpretation']}">{$result['interpretation']}</div></th>
+                                <td><button type="button" class="btn btn-info" data-toggle="collapse" data-target="#assay-detail-{$result->id}">Details</button></td>
+                                <td><a n:href="Mono:editTest $result->id, $result->assays_id" class="btn btn-warning">Edit</a></td>
+                                <td><a n:href="Mono:deleteTest $result->id" onclick="return confirm('Are you sure you want to delete the record?');" class="btn btn-danger">Delete</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    </a>
+                    <table id="assay-detail-{$result->id}" class="collapse protocol-detail">
+                        <thead>
+                            <tr>
+                                <th style="width: 10%">OD Blank < X</th>
+                                <th style="width: 10%">OD CAL > X</th>
+                                {if $unitShort == 'IP'} {* show detail for semikvantitative results *}
+                                    <th style="width: 10%">Corr. factor</th>
+                                {elseif $unitShort == 'pg'}
+                                    <th style="width: 10%">Detection limit</th>
+                                    <th style="width: 10%">CAL B/Bmax</th>
+                                    <th style="width: 10%">A1</th>
+                                    <th style="width: 10%">A2</th>
+                                    <th style="width: 10%">C</th>
+                                    <th style="width: 10%">Cmin</th>
+                                    <th style="width: 10%">Cmax</th>
+                                {else} {* show detail for kvantitative results *}
+                                    <th style="width: 10%">CAL B/Bmax</th>
+                                    <th style="width: 10%">A1</th>
+                                    <th style="width: 10%">A2</th>
+                                    <th style="width: 10%">C</th>
+                                    <th style="width: 10%">Cmin</th>
+                                    <th style="width: 10%">Cmax</th>
+                                {/if}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="{if $result->blank_max > $result->blank_od}valid{else}invalid{/if}">{number_format($result->blank_max, 3, ',', '')}</td>
+                                <td class="{if $result->cal_min < $result->cal_od}valid{else}invalid{/if}">{number_format($result->cal_min, 3, ',', '')}</td>
+                                {if $unitShort == 'IP'} {* show detail for semikvantitative results *}
+                                    <td>{number_format($result->kf, 2, ',', '')}</td>
+                                {elseif $unitShort == 'pg'}
+                                    <td>{$result->detection_limit}</td>
+                                    <td>{number_format($result->std_bmax, 4, ',', '')}</td>
+                                    <td>{number_format($result->a1, 4, ',', '')}</td>
+                                    <td>{number_format($result->a2, 4, ',', '')}</td>
+                                    <td>{number_format($result->c, 4, ',', '')}</td>
+                                    <td>{number_format($result->c_min, 2, ',', '')}</td>
+                                    <td>{number_format($result->c_max, 0, ',', '')}</td>
+                                {else} {* show detail for kvantitative results *}
+                                    <td>{number_format($result->std_bmax, 4, ',', '')}</td>
+                                    <td>{number_format($result->a1, 4, ',', '')}</td>
+                                    <td>{number_format($result->a2, 4, ',', '')}</td>
+                                    <td>{number_format($result->c, 4, ',', '')}</td>
+                                    <td>{number_format($result->c_min, 2, ',', '')}</td>
+                                    <td>{number_format($result->c_max, 0, ',', '')}</td>
+                                {/if}
+                            </tr>
+                        </tbody>
+                    </table>
+                    <hr>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{define jsCallback}
+    <script>
+    $('#' + {$control[monoForm]->components[$input]->htmlId}).off('change').on('change', function () {
+        $.nette.ajax({
+            type: 'GET',
+            url: {link {$link}!},
+            data: {
+                //'value': $(this).val(),
+                'assay_id': $('#frm-monoForm-assays_id').val(),
+                'unit_id': $('#frm-monoForm-units_id').val(),
+                'dilution_id': $('#frm-monoForm-dilutions_id').val(),
+                'sample_id': $('#frm-monoForm-sample_id').val()
+            }
+        });
+    });
+    </script>
+{/define}

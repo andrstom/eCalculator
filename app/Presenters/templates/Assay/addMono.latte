@@ -20,7 +20,28 @@
                             <p>* povinné údaje</p>
                         </div>
                         <div class="panel-body">
-                            {control assayMonoForm}
+                            <form n:name=assayMonoForm class=form>
+                                <ul n:if="$form->hasErrors()">
+                                    <li n:foreach="$form->errors as $error"  style="color: #993838;">{$error}</li>
+                                </ul>
+                                <p>{label assay_short}<input n:name=assay_short /></p>
+                                <p>{label assay_name}<input n:name=assay_name /></p>
+                                <p>{label active}<radio n:name=active /></p>
+                                <h4>Povolené jednotky:</h4>
+                                <p>
+                                {foreach $unitsMono as $unitMono}
+                                    <label for="unit-{$unitMono->id}"><input type="checkbox" name="allowed_units[]" id="unit-{$unitMono->id}" value="{$unitMono->id}" /> {$unitMono->unit_name}</label><br>
+                                {/foreach}
+                                </p>
+                                <h4>Povolené ředění vzorku:</h4>
+                                <p>
+                                {foreach $dilutions as $dilution}
+                                    <label for="dilution-{$dilution->id}"><input type="checkbox" name="allowed_dilutions[]" id="dilution-{$dilution->id}" value="{$dilution->id}" /> {$dilution->sample_type}</label><br>
+                                {/foreach}
+                                </p>
+                                <p>{label notice}<textarea n:name=notice></textarea></p>
+                                <p><input n:name=send class="btn btn-primary"></p>
+                            </form>
                         </div>
                     </div>
                 </div>

@@ -1,0 +1,168 @@
+{block content}
+<div class="text-center">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h3 n:block=title>Edit parameters for sample:</h3>
+                <div class="sample">{$editTest->sample_id} - ({$editTest->ref('calc_assays_mono','assays_id')->assay_short},  {$editTest->ref('calc_dilutions','dilutions_id')->sample_type}, {$editTest->ref('calc_units_mono','units_id')->unit_name})</div>
+                <hr>
+                <input type="button" value="Zpět / Back" class="btn btn-primary" onclick="history.back()">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                {snippetArea formWrapper}
+                    {form monoForm}
+                        <ul n:if="$form->hasErrors()">
+                            <li n:foreach="$form->errors as $error" class="text-danger"><p class="fw-bold">{$error}</p></li>
+                        </ul>
+                        {snippet monotestSnippet}
+                        <table id="samplesTable" class="table-responsive  monotest-table monotest-table-header">
+                            <thead>
+                                <tr>
+                                    <th colspan="4">MONO-VIDITEST<sup>&trade;</sup></th>
+                                </tr>
+                                <tr>
+                                    <td colspan="4">{input assays_id}</td>
+                                </tr>
+                            </thead>
+                            <tbody id="showFormHeader">
+                                <tr>
+                                    <th>Sample ID</th>
+                                    <th>LOT</th>
+                                    <th>Sample dilution</th>
+                                    <th>Unit</th>
+                                </tr>
+                                <tr>
+                                    <td>{input sample_id}</td>
+                                    <td>{input batch}</td>
+                                    <td>{input dilutions_id}{input other_dilution}</td>
+                                    <td>{input units_id}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table id="showFormDetail" class="table-responsive monotest-table  monotest-table-detail">
+                            <thead>
+                                <tr>
+                                        <th>Blank < <i>X</i></th>
+                                        <th>CAL > <i>X</i></th>
+                                        {if $assayMono->assay_short == "CXCL13"}
+                                            <th>Detection limit</th>
+                                            <th>CAL B/Bmax</th>
+                                            <th>A1</th>
+                                            <th>A2</th>
+                                            <th>C</th>
+                                            <th>Cmin</th>
+                                            <th>Cmax</th>
+                                        {elseif $unitName == 'Index'}
+                                            <th>Correction factor</th>
+                                        {else}
+                                            <th>CAL B/Bmax</th>
+                                            <th>A1</th>
+                                            <th>A2</th>
+                                            <th>C</th>
+                                            <th>Cmin</th>
+                                            <th>Cmax</th>
+                                        {/if}
+                                        <th>OD Blank</th>
+                                        <th>OD Sample</th>
+                                        <th>OD CAL</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{input blank_max}</td>
+                                    <td>{input cal_min}</td>
+                                    {if $assayMono->assay_short == "CXCL13"}
+                                        <td>{input detection_limit}</td>
+                                        <td>{input std_bmax}</td>
+                                        <td>{input a1}</td>
+                                        <td>{input a2}</td>
+                                        <td>{input c}</td>
+                                        <td>{input c_min}</td>
+                                        <td>{input c_max}</td>
+                                    {elseif $unitName == 'Index'}
+                                        <td>{input kf}</td>
+                                    {else}
+                                        <td>{input std_bmax}</td>
+                                        <td>{input a1}</td>
+                                        <td>{input a2}</td>
+                                        <td>{input c}</td>
+                                        <td>{input c_min}</td>
+                                        <td>{input c_max}</td>
+                                    {/if}
+                                    <td>{input blank_od}</td>
+                                    <td>{input sample_od}</td>
+                                    <td>{input cal_od}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p><button type="button" id="btnGreyZone" class="btn btn-info col-lg-12 col-md-12 col-sm-12 col-xs-12" data-toggle="collapse" data-target="#limits">Grey zones for qualitative interpretation:</button></p>
+                        <div id="limits" class="collapse">
+                            <table id="table-limits" align="center" class="monotest-table-detail">
+                                <tr><td></td><td></td><th colspan=6>Units</th></tr>
+                                <tr><th>Sample</th><th>Limit</th><th>IP</th><th>AU/ml</th><th>IU/ml</th><th>mlU/ml</th><th>VIEU/ml</th><th>pg/ml</th></tr>
+                                <tr>
+                                    <th>Serum</th>
+                                    <td>Min<br>Max</td>
+                                    <td>{input serum_ip_min}{input serum_ip_max}</td>
+                                    <td>{input serum_au_min}{input serum_au_max}</td>
+                                    <td>{input serum_iu_min}{input serum_iu_max}</td>
+                                    <td>{input serum_mlu_min}{input serum_mlu_max}</td>
+                                    <td>{input serum_vieu_min}{input serum_vieu_max}</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <th>CSF</th>
+                                    <td>Min<br>Max</td>
+                                    <td>{input csf_ip_min}{input csf_ip_max}</td>
+                                    <td>{input csf_au_min}{input csf_au_max}</td>
+                                    <td>{input csf_iu_min}{input csf_iu_max}</td>
+                                    <td>{input csf_mlu_min}{input csf_mlu_max}</td>
+                                    <td>{input csf_vieu_min}{input csf_vieu_max}</td>
+                                    <td>{input csf_pg_min}{input csf_pg_max}</td>
+                                </tr>
+                                <tr>
+                                    <th>Synovia</th>
+                                    <td>Min<br>Max</td>
+                                    <td>{input synovia_ip_min}{input synovia_ip_max}</td>
+                                    <td>{input synovia_au_min}{input synovia_au_max}</td>
+                                    <td></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <br><br>
+                        {input edit}
+                        {include jsCallback, input => assays_id, link => loadAssayDetails}
+                        {include jsCallback, input => units_id, link => loadAssayDetails}
+                        <!-- reinicializace javascriptu nad formularem, aby fungoval napr. toggle-->
+                        <script>window.Nette.initForm($('#frm-monoForm').get(0));</script>
+                        {/snippet}
+                    {/form}
+                {/snippetArea}
+            </div>
+        </div>
+    </div>
+</div>
+
+{define jsCallback}
+    <script>
+    $('#' + {$control[monoForm]->components[$input]->htmlId}).off('change').on('change', function () {
+        $.nette.ajax({
+            type: 'GET',
+            url: {link {$link}!},
+            data: {
+                'assay_id': $('#frm-monoForm-assays_id').val(),
+                'unit_id': $('#frm-monoForm-units_id').val(),
+                'dilution_id': $('#frm-monoForm-dilutions_id').val(),
+                'sample_id': $('#frm-monoForm-sample_id').val(),
+                'batch': $('#frm-monoForm-batch').val()
+            }
+        });
+    });
+    </script>
+{/define}

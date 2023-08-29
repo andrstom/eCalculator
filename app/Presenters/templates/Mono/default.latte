@@ -1,90 +1,292 @@
 {block content}
-<div class="section-colored text-center">
+<div class="text-center">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
-                <h2 n:block="title">MONO-VIDITEST<sup>&copy</sup> Calculator</h2>
+                <h2 n:block="title">MONO-VIDITEST<sup>&trade;</sup> Calculator</h2>
                 <hr>
                 <p>
-                    <a class="btn btn-danger" n:href="Homepage:default">Home</a>
-                    <a class="btn btn-danger" n:href="Mono:default">Refresh</a>
+                    <a class="btn btn-primary" n:href="Homepage:default">Domů / Home</a>
+                    <a class="btn btn-primary" n:href="Mono:default">Aktualizovat / Refresh</a>
                     <!--<a class="btn btn-primary" target="_blank" href="{$basePath}/images/eCalculator_elisa_quickguide.pdf"><img src="{$basePath}/images/pdf_logo.png" width="14px"> Stručný průvodce / Quick guide</a>-->
                 </p>
             </div>
         </div>
     </div>
 </div>
-
+{dump $protocolId}
 <div class="section">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
-                {form monoForm}
-                    <ul n:if="$form->hasErrors()">
-                        <li n:foreach="$form->errors as $error" class="text-danger"><p class="fw-bold">{$error}</p></li>
+                {snippetArea formWrapper}
+                    {form monoForm}
+                        <ul n:if="$form->hasErrors()">
+                            <li n:foreach="$form->errors as $error" class="text-danger"><p class="fw-bold">{$error}</p></li>
+                        </ul>
+                        {snippet monotestSnippet}
+                        <table id="samplesTable" class="table-responsive  monotest-table monotest-table-header">
+                            <thead>
+                                <tr>
+                                    <th colspan="4">MONO-VIDITEST<sup>&trade;</sup></th>
+                                </tr>
+                                <tr>
+                                    <td colspan="4">{input assays_id}</td>
+                                </tr>
+                            </thead>
+                            <tbody id="showFormHeader">
+                                <tr>
+                                    <th style="width: 25%">ID vzorku<br><small>Sample ID</small></th>
+                                    <th style="width: 25%">LOT</th>
+                                    <th style="width: 25%">Ředění vzorku<br><small>Sample dilution</small></th>
+                                    <th style="width: 25%">Jednotka<br><small>Unit</small></th>
+                                </tr>
+                                <tr>
+                                    <td>{input sample_id}</td>
+                                    <td>{input batch}</td>
+                                    <td>{input dilutions_id}{input other_dilution}</td>
+                                    <td>{input units_id}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table id="showFormDetail" class="table-responsive  monotest-table monotest-table-detail">
+                            <thead>
+                                <tr>
+                                    {ifset $assayMono}
+                                        <th>Blank < <i>X</i></th>
+                                        <th>CAL > <i>X</i></th>
+                                        {if $assayMono->assay_short == "CXCL13"}
+                                            <th>Mez stanovitelnosti<br><small>Detection limit</small></th>
+                                            <th>CAL B/Bmax</th>
+                                            <th>A1</th>
+                                            <th>A2</th>
+                                            <th>C</th>
+                                            <th>Cmin</th>
+                                            <th>Cmax</th>
+                                        {elseif $unitName == 'Index'}
+                                            <th>Korekční faktor<br><small>Correction factor</small></th>
+                                        {else}
+                                            <th>CAL B/Bmax</th>
+                                            <th>A1</th>
+                                            <th>A2</th>
+                                            <th>C</th>
+                                            <th>Cmin</th>
+                                            <th>Cmax</th>
+                                        {/if}
+                                        <th>OD Blank</th>
+                                        <th>OD Sample</th>
+                                        <th>OD CAL</th>
+                                    {/ifset}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    {ifset $assayMono}
+                                        <td>{input blank_max}</td>
+                                        <td>{input cal_min}</td>
+                                        {if $assayMono->assay_short == "CXCL13"}
+                                            <td>{input detection_limit}</td>
+                                            <td>{input std_bmax}</td>
+                                            <td>{input a1}</td>
+                                            <td>{input a2}</td>
+                                            <td>{input c}</td>
+                                            <td>{input c_min}</td>
+                                            <td>{input c_max}</td>
+                                        {elseif $unitName == 'Index'}
+                                            <td>{input kf}</td>
+                                        {else}
+                                            <td>{input std_bmax}</td>
+                                            <td>{input a1}</td>
+                                            <td>{input a2}</td>
+                                            <td>{input c}</td>
+                                            <td>{input c_min}</td>
+                                            <td>{input c_max}</td>
+                                        {/if}
+                                        <td>{input blank_od}</td>
+                                        <td>{input sample_od}</td>
+                                        <td>{input cal_od}</td>
+                                    {/ifset}
+                                </tr>
+                            </tbody>
+                        </table>
+                        {ifset $assayMono}
+                            <p><button type="button" id="btnGreyZone" class="btn btn-info col-lg-12 col-md-12 col-sm-12 col-xs-12" data-toggle="collapse" data-target="#limits">Šedé zony / Grey zones</button></p>
+                            <div id="limits" class="collapse">
+                                <table id="table-limits" align="center" class="monotest-table-detail">
+                                    <tr><td></td><td></td><th colspan=6>Units</th></tr>
+                                    <tr><th>Sample</th><th>Limit</th><th>IP</th><th>AU/ml</th><th>IU/ml</th><th>mlU/ml</th><th>VIEU/ml</th><th>pg/ml</th></tr>
+                                    <tr>
+                                        <th>Serum</th>
+                                        <td>Min<br>Max</td>
+                                        <td>{input serum_ip_min}{input serum_ip_max}</td>
+                                        <td>{input serum_au_min}{input serum_au_max}</td>
+                                        <td>{input serum_iu_min}{input serum_iu_max}</td>
+                                        <td>{input serum_mlu_min}{input serum_mlu_max}</td>
+                                        <td>{input serum_vieu_min}{input serum_vieu_max}</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <th>CSF</th>
+                                        <td>Min<br>Max</td>
+                                        <td>{input csf_ip_min}{input csf_ip_max}</td>
+                                        <td>{input csf_au_min}{input csf_au_max}</td>
+                                        <td>{input csf_iu_min}{input csf_iu_max}</td>
+                                        <td>{input csf_mlu_min}{input csf_mlu_max}</td>
+                                        <td>{input csf_vieu_min}{input csf_vieu_max}</td>
+                                        <td>{input csf_pg_min}{input csf_pg_max}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Synovia</th>
+                                        <td>Min<br>Max</td>
+                                        <td>{input synovia_ip_min}{input synovia_ip_max}</td>
+                                        <td>{input synovia_au_min}{input synovia_au_max}</td>
+                                        <td></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        {/ifset}
+                        <br><br>
+                        <p>{input addToList}</p>
+                        {include jsCallback, input => assays_id, link => loadAssayDetails}
+                        {include jsCallback, input => units_id, link => loadAssayDetails}
+                        <!-- reinicializace javascriptu nad formularem, aby fungoval napr. toggle-->
+                        <script>window.Nette.initForm($('#frm-monoForm').get(0));</script>
+                        {/snippet}
+                    {/form}
+                {/snippetArea}
+            </div>
+            <div class="col-lg-12">
+                <hr>
+                <h3>Výsledky / Results</h3>
+                {if $results->count() == 0}
+                    <p>Protokol je prázdný / No results on the protocol.</p>
+                {else}
+                    <p>Celkový počet výsldků / Total results: {$results->count()}</p>
+                    <ul class="buttons-menu">
+                        <li><a n:href="Mono:printPdf $protocolId" target="_blank" class="btn btn-primary"><img src="{$basePath}/images/pdf_128_icon.png" height="20px" style="margin-right: 5px;">Uložit do PDF / Save to PDF (print)</a></li>
+                        <li><a n:href="Mono:exportExcel $protocolId" target="_blank" class="btn btn-primary"><img src="{$basePath}/images/excel_128_icon.png" height="20px" style="margin-right: 5px;">Uložit do XLS / Save to XLS</a></li>
+                        <li><a n:href="Mono:deleteProtocol $protocolId" onclick="return confirm('Opravdu si přejete vymazat testy z protokolu? / Are you sure you want to delete the tests from the protocol?');" class="btn btn-danger"><i class="fa-solid fa-broom" style="margin: 3px 5px 0 0; color: #ffffff;"></i>Vymazat testy / Clean protocol</a></li>
                     </ul>
-                    <table id="samplesTable" class="table-responsive monotest-table">
-                        <thead>
-                            <tr>
-                                <th rowspan="2">MONO-VIDITEST<sup>&copy</sup></th>
-                                <th>Ředění vzorku</th>
-                                <th rowspan="2">LOT</th>
-                                <th>Vzorek ID</th>
-                                <th>Validační kritéria</th>
-                                <th colspan="4">Parametry pro výpočet</th>
-                                <th colspan="3">Naměřené hodnoty OD</th>
-                            </tr>
-                            <tr class="italic">
-                                <td>Dilution</td>
-                                <td>Sample ID</td>
-                                <td>Validation criteria</td>
-                                <td colspan="4">Parameters for calculation</td>
-                                <td colspan="3">Measured OD's</td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr n:multiplier="formValues">
-                                <tr>
-                                    <td rowspan="2" class="assay-deff">{input assay}</td>
-                                    <td rowspan="2" class="assay-deff">{input dilution}</td>
-                                    <td rowspan="2" class="assay-deff">{input batch}</td>
-                                    <td rowspan="2" class="assay-deff">{input sample_id}</td>
-                                    <td class="validation-criteria">{input blank_max}</td>
-                                    <td class="calc-parameters">{input std_bmax}</td>
-                                    <td class="calc-parameters">{input a1}</td>
-                                    <td class="calc-parameters">{input a2}</td>
-                                    <td rowspan="2" class="calc-parameters">{input kf}</td>
-                                    <td rowspan="2">{input blank_od}</td>
-                                    <td rowspan="2">{input sample_od}</td>
-                                    <td rowspan="2">{input cal_od}</td>
+                    <hr>
+                    {var $iterator = 0}
+                    <div n:foreach="$results as $result" class="monotest-protocol-table">
+                        {var $unitShort = $result->ref('calc_units_mono','units_id')->unit_short}
+                        {var $dilution = $result->ref('calc_dilutions','dilutions_id')}
+                        {var $verified_result = $calculatorMonoManager->isMoreThenCmax($result)}
+                        <a data-toggle="collapse" data-target="#assay-detail-{$result->id}">
+                        <table id="samplesTable" class="table-responsive monotest-table">
+                            <thead>
+                                <tr class="protocol-header">
+                                    <th style="width: 5%;" rowspan="2">{$iterator++}</th>
+                                    <th style="width: 10%">ID vzorku<br><small>Sample ID</small></th>
+                                    <th style="width: 20%">MONO-VIDITEST<sup>&trade;</sup></th>
+                                    <th style="width: 10%">LOT</th>
+                                    <th style="width: 15%">Ředění<br><small>Dilution</small></th>
+                                    <th style="width: 10%">OD Blank</th>
+                                    <th style="width: 10%">OD Sample</th>
+                                    <th style="width: 10%">OD CAL</th>
+                                    <th style="width: 10%">Výsledek (jednotka)<br><small>Result (unit)</small></th>
+                                    <th colspan="3" class="{$result->is_valid}">{if ($result->blank_max > $result->blank_od) && ($result->cal_min < $result->cal_od)}Valid{else}Invalid (see details)!{/if}</th>
+                                    <th></th>
+                                    <th></th>
                                 </tr>
-                                <tr>
-                                    <td class="validation-criteria">{input cal_min}</td>
-                                    <td class="calc-parameters">{input c}</td>
-                                    <td class="calc-parameters">{input c_min}</td>
-                                    <td class="calc-parameters">{input c_max}</td>
+                            </thead>
+                            <tbody>
+                                <tr class="protocol-body">
+                                    <td></td>
+                                    <td>{$result->sample_id}</td>
+                                    <td>{$result->ref('calc_assays_mono','assays_id')->assay_short}</td>
+                                    <td>{$result->batch}</td>
+                                    <td>{$dilution->sample_type} {if $dilution->id == 6}<br>({$result->dilution_factor}x){/if}</td>
+                                    <td class="{if $result->blank_max < $result->blank_od}invalid{/if}">{number_format($result->blank_od, 3, ',', '')}</td>
+                                    <td>{number_format($result->sample_od, 3, ',', '')}</td>
+                                    <td class="{if $result->cal_min > $result->cal_od}invalid{/if}">{number_format($result->cal_od, 3, ',', '')}</td>
+                                    <th>{$verified_result} ({$unitShort}) <div class="interpret-{$result['interpretation']}">{$result['interpretation']}</div></th>
+                                    <td><button type="button" class="btn btn-info" data-toggle="collapse" data-target="#assay-detail-{$result->id}">Detail</button></td>
+                                    <td><a n:href="Mono:editTest $result->id, $result->assays_id " class="btn btn-warning">Edit</a></td>
+                                    <td><a n:href="Mono:deleteTest $result->id" onclick="return confirm('Are you sure you want to delete the record?');" class="btn btn-danger">Delete</a></td>
                                 </tr>
-                                <tr><td colspan="12"><br></td></tr>
-                                <tr><td colspan="12">{btnRemove 'class' => 'btn btn-danger col-lg-12'}</td></tr>
-                                <tr><td colspan="12"><hr></td></tr>
-                            </tr>
-                            
-                        </tbody>
-                    </table>
-                    {btnCreate formValues 'class' => 'btn btn-primary'} | 
-                    {btnCreate $form[formValues]:5 'class' => 'btn btn-primary'}
-                    <br>
-                    <small><i>max. 24 vzorků / samples</i></small><br><br>
-                    <div class="row text-center">
-                        <div class="col-lg-12">
-                            {input sendMonoPdf}
-                            {input sendMonoXls}
-                            {input sendMonoText}
-                        </div>
+                            </tbody>
+                        </table>
+                        </a>
+                        <table id="assay-detail-{$result->id}" class="collapse protocol-detail">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%">OD Blank < X</th>
+                                    <th style="width: 10%">OD CAL > X</th>
+                                    {if $unitShort == 'IP'} {* show detail for semikvantitative results *}
+                                        <th style="width: 10%">Corr. factor</th>
+                                    {elseif $unitShort == 'pg'}
+                                        <th style="width: 10%">Detection limit</th>
+                                        <th style="width: 10%">CAL B/Bmax</th>
+                                        <th style="width: 10%">A1</th>
+                                        <th style="width: 10%">A2</th>
+                                        <th style="width: 10%">C</th>
+                                        <th style="width: 10%">Cmin</th>
+                                        <th style="width: 10%">Cmax</th>
+                                    {else} {* show detail for kvantitative results *}
+                                        <th style="width: 10%">CAL B/Bmax</th>
+                                        <th style="width: 10%">A1</th>
+                                        <th style="width: 10%">A2</th>
+                                        <th style="width: 10%">C</th>
+                                        <th style="width: 10%">Cmin</th>
+                                        <th style="width: 10%">Cmax</th>
+                                    {/if}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="{if $result->blank_max > $result->blank_od}valid{else}invalid{/if}">{number_format($result->blank_max, 3, ',', '')}</td>
+                                    <td class="{if $result->cal_min < $result->cal_od}valid{else}invalid{/if}">{number_format($result->cal_min, 3, ',', '')}</td>
+                                    {if $unitShort == 'IP'} {* show detail for semikvantitative results *}
+                                        <td>{number_format($result->kf, 2, ',', '')}</td>
+                                    {elseif $unitShort == 'pg'}
+                                        <td>{$result->detection_limit}</td>
+                                        <td>{number_format($result->std_bmax, 4, ',', '')}</td>
+                                        <td>{number_format($result->a1, 4, ',', '')}</td>
+                                        <td>{number_format($result->a2, 4, ',', '')}</td>
+                                        <td>{number_format($result->c, 4, ',', '')}</td>
+                                        <td>{number_format($result->c_min, 2, ',', '')}</td>
+                                        <td>{number_format($result->c_max, 0, ',', '')}</td>
+                                    {else} {* show detail for kvantitative results *}
+                                        <td>{number_format($result->std_bmax, 4, ',', '')}</td>
+                                        <td>{number_format($result->a1, 4, ',', '')}</td>
+                                        <td>{number_format($result->a2, 4, ',', '')}</td>
+                                        <td>{number_format($result->c, 4, ',', '')}</td>
+                                        <td>{number_format($result->c_min, 2, ',', '')}</td>
+                                        <td>{number_format($result->c_max, 0, ',', '')}</td>
+                                    {/if}
+                                </tr>
+                            </tbody>
+                        </table>
+                        <hr>
                     </div>
-                    </div>
-                {/form}
+                    <ul class="buttons-menu">
+                        <li><a n:href="Mono:printPdf $protocolId" target="_blank" class="btn btn-primary"><img src="{$basePath}/images/pdf_128_icon.png" height="20px" style="margin-right: 5px;">Uložit do PDF / Save to PDF (print)</a></li>
+                        <li><a n:href="Mono:exportExcel $protocolId" target="_blank" class="btn btn-primary"><img src="{$basePath}/images/excel_128_icon.png" height="20px" style="margin-right: 5px;">Uložit do XLS / Save to XLS</a></li>
+                        <li><a n:href="Mono:deleteProtocol $protocolId" onclick="return confirm('Opravdu si přejete vymazat testy z protokolu? / Are you sure you want to delete the tests from the protocol?');" class="btn btn-danger"><i class="fa-solid fa-broom" style="margin: 3px 5px 0 0; color: #ffffff;"></i>Vymazat testy / Clean protocol</a></li>
+                    </ul>
+                {/if}
             </div>
         </div>
     </div>
 </div>
+
+{define jsCallback}
+    <script>
+    $('#' + {$control[monoForm]->components[$input]->htmlId}).off('change').on('change', function () {
+        $.nette.ajax({
+            type: 'GET',
+            url: {link {$link}!},
+            data: {
+                //'value': $(this).val(),
+                'assay_id': $('#frm-monoForm-assays_id').val(),
+                'unit_id': $('#frm-monoForm-units_id').val(),
+                'dilution_id': $('#frm-monoForm-dilutions_id').val(),
+                'sample_id': $('#frm-monoForm-sample_id').val(),
+                'batch': $('#frm-monoForm-batch').val()
+            }
+        });
+    });
+    </script>
+{/define}

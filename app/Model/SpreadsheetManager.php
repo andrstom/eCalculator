@@ -9,13 +9,15 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Writer\Xls;
 use Nette\SmartObject;
+use App\Model\CalculatorMonoManager;
 
 /**
  * Description of SpreadsheetManager
  *
  * @author andrs
  */
-class SpreadsheetManager {
+class SpreadsheetManager
+{
     // @array
     private $readData;
     
@@ -25,8 +27,12 @@ class SpreadsheetManager {
     /** @var Nette\Database\Context */
     private $database;
     
-    public function __construct(Nette\Database\Context $database) {
+    /** @var App\Model\CalculatorMonoManager */
+    private $calculatorMonoManager;
+    
+    public function __construct(Nette\Database\Context $database, CalculatorMonoManager $calculatorMonoManager) {
         $this->database = $database;
+        $this->calculatorMonoManager = $calculatorMonoManager;
     }
     
     /**
@@ -466,6 +472,95 @@ class SpreadsheetManager {
         header('Content-Disposition: attachment;filename="' . $this->database->table('calc_assays')->get($param['assay'])->assay_short . '_' . date("Ymd_His",time()) . '.xls"');
         header('Cache-Control: max-age=0');
         
+        $writer = IOFactory::createWriter($this->spreadsheet, 'Xls');
+        $writer->save('php://output');
+    }
+    
+    /**
+     * MONOTEST export
+     * @param string
+     * @return xls datasheet
+     */
+    public function exportMonotestXls(string $protocolId)
+    {
+        $protocols = $this->database->table('calc_mono_results')->where('protocol_id', $protocolId)->fetchAll();
+        // Create new Spreadsheet object
+        $this->spreadsheet = new Spreadsheet();
+        $this->spreadsheet->setActiveSheetIndex(0);
+        $this->spreadsheet->getActiveSheet()->setTitle('MONO-VIDITEST');
+        /** assay info cells */
+        $this->spreadsheet->getActiveSheet()->setCellValue('A1', 'Sample ID');
+        $this->spreadsheet->getActiveSheet()->setCellValue('B1', 'MONO-VIDITEST');
+        $this->spreadsheet->getActiveSheet()->setCellValue('C1', 'LOT');
+        $this->spreadsheet->getActiveSheet()->setCellValue('D1', 'Dilution');
+        $this->spreadsheet->getActiveSheet()->setCellValue('E1', 'Unit');
+        $this->spreadsheet->getActiveSheet()->setCellValue('F1', 'Blank > X');
+        $this->spreadsheet->getActiveSheet()->setCellValue('G1', 'CAL < X');
+        $this->spreadsheet->getActiveSheet()->setCellValue('H1', 'Correction factor');
+        $this->spreadsheet->getActiveSheet()->setCellValue('I1', 'Detection limit');
+        $this->spreadsheet->getActiveSheet()->setCellValue('J1', 'CAL B/Bmax');
+        $this->spreadsheet->getActiveSheet()->setCellValue('K1', 'A1');
+        $this->spreadsheet->getActiveSheet()->setCellValue('L1', 'A2');
+        $this->spreadsheet->getActiveSheet()->setCellValue('M1', 'C');
+        $this->spreadsheet->getActiveSheet()->setCellValue('N1', 'Cmin');
+        $this->spreadsheet->getActiveSheet()->setCellValue('O1', 'Cmax');
+        $this->spreadsheet->getActiveSheet()->setCellValue('P1', 'OD Blank');
+        $this->spreadsheet->getActiveSheet()->setCellValue('Q1', 'OD Sample');
+        $this->spreadsheet->getActiveSheet()->setCellValue('R1', 'OD CAL');
+        $this->spreadsheet->getActiveSheet()->setCellValue('S1', 'Result');
+        $this->spreadsheet->getActiveSheet()->setCellValue('T1', 'Interpretation');
+        $this->spreadsheet->getActiveSheet()->setCellValue('U1', 'Validation');
+        
+        $i=2;
+        foreach ($protocols as $result) {
+            $verified_result = $this->calculatorMonoManager->isMoreThenCmax($result);
+            $kf = $result->units_id == "1" ? $result->kf : "";
+            $std_bmax = $result->units_id != "1" ? $result->std_bmax : "";
+            $a1 = $result->units_id != "1" ? $result->a1 : "";
+            $a2 = $result->units_id != "1" ? $result->a2 : "";
+            $c = $result->units_id != "1" ? $result->c : "";
+            $c_min = $result->units_id != "1" ? $result->c_min : "";
+            $c_max = $result->units_id != "1" ? $result->c_max : "";
+            $detection_limit = $result->units_id != "1" ? $result->detection_limit : "";
+            $this->spreadsheet->getActiveSheet()->setCellValue('A'.$i, $result->sample_id);
+            $this->spreadsheet->getActiveSheet()->setCellValue('B'.$i, $result->ref('calc_assays_mono', 'assays_id')->assay_name);
+            $this->spreadsheet->getActiveSheet()->setCellValue('C'.$i, $result->batch);
+            $this->spreadsheet->getActiveSheet()->setCellValue('D'.$i, $result->dilution_factor);
+            $this->spreadsheet->getActiveSheet()->setCellValue('E'.$i, $result->ref('calc_units_mono', 'units_id')->unit_name);
+            $this->spreadsheet->getActiveSheet()->setCellValue('F'.$i, $result->blank_max);
+            $this->spreadsheet->getActiveSheet()->setCellValue('G'.$i, $result->cal_min);
+            $this->spreadsheet->getActiveSheet()->setCellValue('H'.$i, $kf);
+            $this->spreadsheet->getActiveSheet()->setCellValue('I'.$i, $detection_limit);
+            $this->spreadsheet->getActiveSheet()->setCellValue('J'.$i, $std_bmax);
+            $this->spreadsheet->getActiveSheet()->setCellValue('K'.$i, $a1);
+            $this->spreadsheet->getActiveSheet()->setCellValue('L'.$i, $a2);
+            $this->spreadsheet->getActiveSheet()->setCellValue('M'.$i, $c);
+            $this->spreadsheet->getActiveSheet()->setCellValue('N'.$i, $c_min);
+            $this->spreadsheet->getActiveSheet()->setCellValue('O'.$i, $c_max);
+            $this->spreadsheet->getActiveSheet()->setCellValue('P'.$i, $result->blank_od);
+            $this->spreadsheet->getActiveSheet()->setCellValue('Q'.$i, $result->sample_od);
+            $this->spreadsheet->getActiveSheet()->setCellValue('R'.$i, $result->cal_od);
+            $this->spreadsheet->getActiveSheet()->setCellValue('S'.$i, $verified_result);
+            $this->spreadsheet->getActiveSheet()->setCellValue('T'.$i, $result->interpretation);
+            $this->spreadsheet->getActiveSheet()->setCellValue('U'.$i, $result->is_valid);
+            $i++;
+        }
+        /** set font size */
+        $this->spreadsheet->getActiveSheet()->getStyle('A1:U1')->getFont()->setSize(10);
+        /** set font size */
+        $this->spreadsheet->getActiveSheet()->getStyle('A2:U200')->getFont()->setSize(10);
+        // set header
+        $this->spreadsheet->getActiveSheet()->getHeaderFooter()->setOddHeader('&L&H Vidia spol. s r.o.');
+        // set footer
+        $this->spreadsheet->getActiveSheet()->getHeaderFooter()->setOddFooter('&R&H&P / &N');
+        $this->spreadsheet->getActiveSheet()->getHeaderFooter()->setOddFooter('&L&HCreated at ' . date("H:i:s d.m.Y",time()) . '&R&H &P of &N');
+        // Redirect output to a client’s web browser (Xls)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Type: application/force-download');
+        header('Content-Type: application/octet-stream');
+        header('Content-Type: application/download');
+        header('Content-Disposition: attachment;filename="MONO-VIDITEST_' . date("Ymd_His",time()) . '.xls"');
+        header('Cache-Control: max-age=0');
         $writer = IOFactory::createWriter($this->spreadsheet, 'Xls');
         $writer->save('php://output');
     }

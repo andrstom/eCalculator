@@ -33,69 +33,42 @@ class CalculatorMonoManager {
         $this->database = $database;
     }
     
-    /*public function getReader($value) {
-        // load reader (if exist) or set manual as default
-        $reader = $this->database->table('calc_reader')->get($value);
-        if ($reader)
-            $this->reader = $reader;
+    public function getCountTestsOnProtocol(int $protocol_id): float {
+        return $this->database->table('calc_mono_results')->where('protocol_id', $protocol_id)->count();
+    }
+    
+    public function isProtocolId(int $protocol_id): bool {
+        $protocolCount = $this->database->table('calc_mono_results')->where('protocol_id', $protocol_id)->count();
+        if ($protocolCount == 0)
+            return false;
         else 
-            $this->reader = "manual"; 
-        return $this->reader;
-    }*/
+            return true;
+    }
     
-    /*public function getLayoutId($value) {
-        // load layout
-        $this->layout_id = $this->database->table('calc_assays')->get($value)->layout;
-        return $this->layout_id;
-    }*/
+    public function isTestInProtocol(int $protocol_id, int $test_id): bool {
+        $testInProtocol = $this->database->table('calc_mono_results')->where('protocol_id', $protocol_id)->where('test_id', $test_id);
+        if ($testInProtocol == 0)
+            return false;
+        else 
+            return true;
+    }
     
-    /*public function getFileFormatVerification($reader, $file) {
-        $allowedFormats = array(
-            'XLS' => ['xls', 'XLS', 'xlsx', 'XLSX'],
-            'TXT' => ['txt', 'TXT', 'csv', 'CSV']
-        );
-        // get file extension
-        $fileFormat = pathinfo($file, PATHINFO_EXTENSION);
-        if ($reader != 'manual') {
-            if ($reader->reader_output == "XLS") {
-                if (!in_array($fileFormat, $allowedFormats['XLS'])) {
-                    return false;
-                } else {
-                    return true;
-                }
-            }
-            if($reader->reader_output == "TXT") {
-                if (!in_array($fileFormat, $allowedFormats['TXT'])) {
-                    return false;
-                } else {
-                    return true;
-                }
-            }
-        }
-    }*/
     /*
      * Update assay parametres
      * @param form values
      */
-    public function updateAssayParameters($values, $user) {
+    public function updateAssayMonoParameters($values, $user) {
         $assay_params = $this->database->table('calc_users_assays_mono')
                 ->where("users_id = ?", $user->id)
-                ->where("assays_id = ?", $values['assay'])
-                ->where("units_id = ?", $values['unit'])
+                ->where("assays_id = ?", $values['assays_id'])
                 ->fetch();
         
-        $assay = $this->database->table('calc_assays_mono')->get($values['assay']);
+        $assay = $this->database->table('calc_assays_mono')->get($values['assays_id']);
         if($assay_params) {
             $assay_params->update([
                 'batch' => $this->getParam($values['batch']),
-                'expiry' => $this->getParam($values['expiry']),
                 'blank_max' => $this->getParam($values['blank_max']),
-                'std_bmax' => $this->getParam($values['std_bmax']),
-                'a1' => $this->getParam($values['a1']),
-                'a2' => $this->getParam($values['a2']),
-                'c' => $this->getParam($values['c']),
-                'c_min' => $this->getParam($values['c_min']),
-                'c_max' => $this->getParam($values['c_max']),
+                'cal_min' => $this->getParam($values['cal_min']),
                 'serum_ip_min' => $this->getParam($values['serum_ip_min']),
                 'serum_ip_max' => $this->getParam($values['serum_ip_max']),
                 'serum_au_min' => $this->getParam($values['serum_au_min']),
@@ -119,18 +92,23 @@ class CalculatorMonoManager {
                 'synovia_ip_min' => $this->getParam($values['synovia_ip_min']),
                 'synovia_ip_max' => $this->getParam($values['synovia_ip_max']),
                 'synovia_au_min' => $this->getParam($values['synovia_au_min']),
-                'synovia_au_max' => $this->getParam($values['synovia_au_max']),
-                'editor' => $user->getIdentity()->getData()['login'],
-                'edited_at' => time(),
+                'synovia_au_max' => $this->getParam($values['synovia_au_max'])
             ]);
-            // update KF and RATIO OD for non-CXCL13 assays
-            if ($assay->assay_short != "CXCL13") {
+            // update semikvantitative parameters
+            if ($values['units_id'] == 1) {
                 $assay_params->update([
-                    'kf_serum' => $this->getParam($values['kf_serum']),
-                    'kf_csf' => $this->getParam($values['kf_csf']),
-                    'kf_synovia' => $this->getParam($values['kf_synovia']),
-                    'ratio_min' => $this->getParam($values['ratio_min']),
-                    'ratio_max' => $this->getParam($values['ratio_max']),
+                    'kf' => $this->getParam($values['kf'])
+                ]);
+            }            
+            // update kvantitative parameters
+            if ($values['units_id'] != 1) {
+                $assay_params->update([
+                    'std_bmax' => $this->getParam($values['std_bmax']),
+                    'a1' => $this->getParam($values['a1']),
+                    'a2' => $this->getParam($values['a2']),
+                    'c' => $this->getParam($values['c']),
+                    'c_min' => $this->getParam($values['c_min']),
+                    'c_max' => $this->getParam($values['c_max'])
                 ]);
             }
             // update detection limit for CXCL13 assay
@@ -154,261 +132,217 @@ class CalculatorMonoManager {
             /* replace comma for parametres outside of array */
             $this->param = str_replace(",", ".", $this->param);
         } else {
-            /* replace comma for parametres in array and associate CALs to sampleIds */
+            /* replace comma for parametres in array */
             foreach ($this->param as $k => $v) {
-                $this->param['sampleId'][1] = $this->param['cal_1'];
-                $this->param['sampleId'][13] = $this->param['cal_2'];
-                $this->param['sampleId'][25] = $this->param['cal_3'];
-                $this->param['sampleId'][37] = $this->param['cal_4'];
-                $this->param['sampleId'][49] = $this->param['cal_5'];
-                $this->param['sampleId'][61] = $this->param['cal_6'];
-                $this->param['sampleId'][73] = $this->param['cal_7'];
-                $this->param['sampleId'][85] = $this->param['cal_8'];
                 $this->param[$k] = str_replace(",", ".", $v);
             }
-            $reader = $this->getReader($this->param['reader']);
-            if ($reader != "manual") {
-                if ($reader->reader_output == "XLS") {
-                    /**
-                    *  Read Excel workbook
-                    * @param string file tmp_name
-                    * @param int sheetnumber (e.g. 1)
-                    * @param string dimension (e.g. A1:L8)
-                    */
-                    $spreadsheet = new SpreadsheetManager($this->database);
-                    $excelData = $spreadsheet->readExcel($this->param['file'], $reader->reader_xls_list, $reader->reader_data_range);
-                    $this->param['Abs'] = $excelData;
-                }
-                if ($reader->reader_output == "TXT") {
-                    /**
-                     * TextManager load data from text file
-                     * 
-                     * @param string (tmpFileName)
-                     * @param string (delimiter -> "\t", "|", " ", ...)
-                     * @param string (dataRange -> row:col:line skipper -> "118:2:6")
-                     * @return array
-                     */
-                    $text = new TextManager($this->database);
-                    $textReport = $text->readText($this->param['file'], $reader->reader_txt_separator, $reader->reader_data_range);
-                    $this->param['Abs'] = $textReport;
-                }
-            } else {
-                foreach ($this->param['Abs'] as $k1 => $v1) {
-                    $this->param['Abs'][$k1] = (float) $v1;
-                }
-            }
-        }
+        } 
         return $this->param;
+    }
+    
+    public function specialOverResultAu($result, $assay_id, $dilution_factor, $c_max):float {
+        $CmaxRounded = round(($c_max / 101) * $dilution_factor, -1);
+        $specialResult = $result;
+        if ($result == "nan") {
+            $specialResult = $CmaxRounded;
+        }
+        if ($result <= 0) {
+            $specialResult = 0;
+        }
+        // Borrelia IgM + CSF
+        if ($assay_id == 4 && $dilution_factor == 2 && ($result >= 16 || $result == "nan")) {
+            $specialResult = 16;
+        }
+        // Borrelia IgM + Sinovia
+        if ($assay_id == 4 && $dilution_factor == 81 && ($result >= 640 || $result == "nan")) {
+            $specialResult = 640;
+        }
+        // Borrelia IgG + CSF
+        if ($assay_id == 5 && $dilution_factor == 2 && ($result >= 8 || $result == "nan")) {
+            $specialResult = 8;
+        }
+        // Borrelia IgG + Sinovia
+        if ($assay_id == 5 && $dilution_factor == 81 && ($result >= 320 || $result == "nan")) {
+            $specialResult = 320;
+        }
+        // TBEV IgG + CSF
+        if ($assay_id == 40 && $dilution_factor == 2 && ($result >= 16 || $result == "nan")) {
+            $specialResult = 16;
+        }
+        // ASFU IgG
+        if ($assay_id == 3 && ($result >= $c_max || $result == "nan")) {  
+            $specialResult = number_format($CmaxRounded / 5, 0, '.', '');
+        }
+        return (float)$specialResult;
     }
     
     /**
      * calculate result for index (IP)
      * @return float
      */
-    public function calcIP($value) {
+    public function calcIP($value):float {
         $param = $this->getParam($value);
+        $sample = $param['sample_od'] - $param['blank_od'];
+        $cutoff = ($param['cal_od'] - $param['blank_od']) * $param['kf'];
         
-        $kf_csf_allowed = array(1, 2, 6); // platny KFcsf pro metody BBG, BBM, TBEVG
-        $kf_synovial_allowed = array(1, 2); // platny KFsynovial pro metody BBG, BBM
-        if ($param['dilution'] == "81" && in_array($param['assay'], $kf_synovial_allowed)) {
-            $kf = $param['kf_synovia'];
-        } elseif ($param['dilution'] == "2" && in_array($param['assay'], $kf_csf_allowed)) {
-            $kf = $param['kf_csf'];
+        if ($sample <= 0) {
+            $result = 0;
         } else {
-            $kf = $param['kf_serum'];
+            $result = number_format($sample / $cutoff, 2, ".", " ");
         }
-        $Blank = $param['Abs'][1];
-        $cutoff = ((($param['Abs'][13] - $Blank) + ($param['Abs'][25] - $Blank)) / 2) * $kf;
-        
-        foreach ($param['Abs'] as $k => $v) {
-            $sample = $v - $Blank;
-            if (!empty($v)) {
-                if ($sample <= 0) {
-                    $result[$k] = "< Blank";
-                } else {
-                    $result[$k] = number_format($sample / $cutoff, 2, ".", " ");
-                }
-            } else {
-                $result[$k] = "";
-            }
-        }
-        return $result;
+        return (float)$result;
     }
     
     /**
      * calculate result for AU/ml (AU)
-     * @return array
      */
-    public function calcAU($value) {
+    public function calcAU($value):float {
         $param = $this->getParam($value);
-        //dump($param);
-        //exit();
-        $Blank = $param['Abs'][1];
-        $BMax = (((($param['Abs'][13] - $Blank) / $param['std_bmax']) + (($param['Abs'][25] - $Blank) / $param['std_bmax'])) / 2);
-        $CmaxRounded = round(($param['c_max'] / 101) * $param['dilution'], -1); // round to nearest 10
-        foreach ($param['Abs'] as $k => $v) {
-            // substract BLANK value from sample
-            $sample = $v - $Blank;
-            // define condition
-            $condition1 = $sample / $BMax;
-            // the calculation is made according to the condition
-            if ($sample <= 0) { // division by zero
-                $result[$k] = "< Blank";
-            } elseif ($sample > $BMax) {
-                $rounded = round(($param['c_max'] / 101) * $param['dilution'], -1); // round to nearest 10
-                $result[$k] = "> " . number_format($CmaxRounded, 0, '.', '');
-            } elseif ($condition1 < $param['c_min']) {
-                $result[$k] = ((($sample / $BMax) * (log(($param['c_min'] - $param['a1']) / (-$param['a2']))) * (-$param['c']) / $param['c_min']) / 101) * $param['dilution'];
-                if ($param['assay'] == '20') { // result for ASFUG
-                    $result[$k] = $result[$k] / 5;
-                }
-                $result[$k] = number_format($result[$k] , 2, '.', '');
-            } else {
-                $result[$k] = ((log(($sample / $BMax - $param['a1']) / (-$param['a2'])) * (-$param['c'])) / 101) * $param['dilution'];
-                if ($param['assay'] == '20') { // result for ASFUG
-                    $result[$k] = $result[$k] / 5;
-                }
-                $result[$k] = number_format($result[$k] , 2, '.', '');
+        $Blank = $param['blank_od'];
+        $BMax = ($param['cal_od'] - $Blank) / $param['std_bmax'];
+        $CmaxRounded = round(($param['c_max'] / 101) * $param['dilution_factor'], -1); // round to nearest 10
+        $sample = $param['sample_od'] - $Blank;
+        // define condition
+        $condition1 = $sample + 0.05;
+        $condition2 = $sample / $BMax;
+        // the calculation is made according to the condition
+        if ($sample <= 0) { // division by zero
+            $result = 0;
+        } elseif ($condition1 > $BMax) {
+            $result = number_format($CmaxRounded, 0, '.', '');
+        } elseif ($condition2 < $param['c_min']) {
+            $result = ((($sample / $BMax) * (log(($param['c_min'] - $param['a1']) / (-$param['a2']))) * (-$param['c']) / $param['c_min']) / 101) * $param['dilution_factor'];
+            if ($param['assays_id'] == 3) { // result for MONO-ASFUG
+                $result = $result / 5;
             }
-            if ($result[$k] == "nan") {
-                if ($param['assay'] == '20') { // result for ASFUG 
-                    $result[$k] = "> " . number_format($CmaxRounded / 5, 0, '.', '');
-                }
-                $result[$k] = "> " . number_format($CmaxRounded, 0, '.', '');
+            $result = number_format($result , 2, '.', '');
+        } else {
+            $result = ((log(($sample / $BMax - $param['a1']) / (-$param['a2'])) * (-$param['c'])) / 101) * $param['dilution_factor'];
+            if ($param['assays_id'] == 3) { // result for MONO-ASFUG
+                $result = $result / 5;
             }
+            $result = number_format($result , 2, '.', '');
         }
-        return $result;
+        $result = $this->specialOverResultAu($result, $param['assays_id'], $param['dilution_factor'], $param['c_max']);
+        return (float)$result;
     }
      
     /**
      * calculate result for mlU/ml (mlU)
-     * @return array
+     * @return string
      */
-    public function calcMLU($value) {
+    public function calcMLU($value):string {
         $param = $this->getParam($value);
-        $Blank = $param['Abs'][1];
-        $BMax = (((($param['Abs'][13] - $Blank) / $param['std_bmax']) + (($param['Abs'][25] - $Blank) / $param['std_bmax'])) / 2);
-        $CmaxRounded = round(($param['c_max'] / 101) * $param['dilution'], -1); // round to nearest 10
-        foreach ($param['Abs'] as $k => $v) {
-            // substract BLANK value from sample
-            $sample = $v - $Blank;
-            // define conditions
-            $condition1 = $sample + 0.05;
-            $condition2 = $sample / $BMax;
-            $condition3 = log(($sample / $BMax - $param['a1']) / (-$param['a2'])) * (-$param['c']);
-            // the calculation is made according to the condition
-            if ($sample <= 0) { // check division by zero
-                $result[$k] = "< Blank";
-            } elseif ($condition1 > $BMax) {
-                $result[$k] = "> " . number_format($CmaxRounded, 0, '.', '');
-            } elseif ($condition2 < $param['c_min']) {
-                $result[$k] = ((($sample / $BMax) * (log(($param['c_min'] - $param['a1']) / (-$param['a2']))) * (-$param['c']) / $param['c_min']) / 101) * $param['dilution'];
-                $result[$k] = number_format($result[$k] , 2, '.', '');
-            } elseif ($condition3 > $param['c_max']) {
-                $result[$k] = "> " . number_format($CmaxRounded, 0, '.', '');
-            } else {
-                $result[$k] = ((log(($sample / $BMax - $param['a1'])/(-$param['a2'])) * (-$param['c'])) / 101) * $param['dilution'];
-                $result[$k] = number_format($result[$k] , 2, '.', '');
-            }
-            if ($result[$k] == "nan") {
-                $result[$k] = "> " . number_format($CmaxRounded, 0, '.', '');
-            }
+        $Blank = $param['blank_od'];
+        $BMax = ($param['cal_od'] - $Blank) / $param['std_bmax'];
+        $CmaxRounded = round(($param['c_max'] / 101) * $param['dilution_factor'], -1); // round to nearest 10
+        // substract BLANK value from sample
+        $sample = $param['sample_od'] - $Blank;
+        // define conditions
+        $condition1 = $sample + 0.05;
+        $condition2 = $sample / $BMax;
+        $condition3 = log(($sample / $BMax - $param['a1']) / (-$param['a2'])) * (-$param['c']);
+        // the calculation is made according to the condition
+        if ($sample <= 0) { // check division by zero
+            $result = 0;
+        } elseif ($condition1 > $BMax) {
+            $result = number_format($CmaxRounded, 0, '.', '');
+        } elseif ($condition2 < $param['c_min']) {
+            $result = ((($sample / $BMax) * (log(($param['c_min'] - $param['a1']) / (-$param['a2']))) * (-$param['c']) / $param['c_min']) / 101) * $param['dilution_factor'];
+            $result = number_format($result , 2, '.', '');
+        } elseif ($condition3 > $param['c_max']) {
+            $result = number_format($CmaxRounded, 0, '.', '');
+        } else {
+            $result = ((log(($sample / $BMax - $param['a1']) / (-$param['a2'])) * (-$param['c'])) / 101) * $param['dilution_factor'];
+            //$result = ($result < $param['c_max']) ? $result : (float)$param['c_max'];
+            $result = number_format($result , 2, '.', '');
+        }
+        if ($result == "nan") {
+            $result = number_format($CmaxRounded, 0, '.', '');
         }
         return $result;
     }
     
     /**
      * calculate result for VIEU/ml (VIEU)
-     * @return array
+     * @return string
      */
-    public function calcVIEU($value) {
+    public function calcVIEU($value):float {
         $param = $this->getParam($value);
-        $Blank = $param['Abs'][1];
-        $BMax = (((($param['Abs'][13] - $Blank) / $param['std_bmax']) + (($param['Abs'][25] - $Blank) / $param['std_bmax'])) / 2);
-        foreach ($param['Abs'] as $k => $v) {
-            // substract BLANK value from sample
-            $sample = $v - $Blank;
-            // define condition
-            $condition1 = $sample / $BMax;
-            if ($sample <= 0) { // check division by zero
-                $result[$k] = "< Blank";
-            } elseif ($sample > $BMax) {
-                $result[$k] = ($param['dilution'] == "2" ? "> 45" : "> 2200");
-            } elseif ($condition1 < $param['c_min']) {
-                $result[$k] = ($sample / $BMax) * (log(($param['c_min'] - $param['a1']) / (-$param['a2']))) * (-$param['c']) / $param['c_min'];
-                $result[$k] = ((2140.6 - (2085) / (1 + ($result[$k] * $result[$k]) / 5055.2)) / 101 ) * $param['dilution'];
-                $result[$k] = number_format($result[$k] , 2, '.', '');
-            } else {
-                $result[$k] = log(($sample / $BMax - $param['a1']) / (-$param['a2'])) * (-$param['c']);
-                $result[$k] = ((2140.6 - (2085) / (1 + ($result[$k] * $result[$k]) / 5055.2)) / 101) * $param['dilution'];
-                $result[$k] = number_format($result[$k] , 2, '.', '');
-            }
-            if ($result[$k] == "nan") {
-                $result[$k] = ($param['dilution'] == "2" ? "> 45" : "> 2200");
-            }
+        $Blank = $param['blank_od'];
+        $BMax = ($param['cal_od'] - $Blank) / $param['std_bmax'];
+        // substract BLANK value from sample
+        $sample = $param['sample_od'] - $Blank;
+        // define condition
+        $condition1 = $sample + 0.05;
+        $condition2 = $sample / $BMax;
+        if ($sample <= 0) { // check division by zero
+            $result = 0;
+        } elseif ($condition1 > $BMax) {
+            $result = ($param['dilution_factor'] == "2") ? 45 : 2200;
+        } elseif ($condition1 < $param['c_min']) {
+            $result = ($sample / $BMax) * (log(($param['c_min'] - $param['a1']) / (-$param['a2']))) * (-$param['c']) / $param['c_min'];
+            $result = ((2140.6 - (2085) / (1 + ($result * $result) / 5055.2)) / 101 ) * $param['dilution_factor'];
+            $result = number_format($result , 2, '.', '');
+        } else {
+            $result = log(($sample / $BMax - $param['a1']) / (-$param['a2'])) * (-$param['c']);
+            $result = ((2140.6 - (2085) / (1 + ($result * $result) / 5055.2)) / 101) * $param['dilution_factor'];
+            //$result = ($result < $param['c_max']) ? $result : (float)$param['c_max'];
+            $result = number_format($result , 2, '.', '');
         }
-        return $result;
+        /*if ($result == "nan") {
+            $result = ($param['dilution_factor'] == "2" ? 45 : 2200);
+        }*/
+        return (float)$result;
     }
     
     /**
      * calculate result for pg/ml (pg)
-     * @return array
+     * @return string
      */
-    public function calcPG($value) {
+    public function calcPG($value):float {
         $param = $this->getParam($value);
-        $BMax = (((($param['Abs'][13]) / $param['std_bmax']) + (($param['Abs'][25]) / $param['std_bmax'])) / 2);
-        
-        foreach ($param['Abs'] as $k => $v) {
-            $sample = $v;
-            if ($sample + 0.01 > $BMax) {
-                $result[$k] = $param['c_max'] * $param['dilution'];
-                $result[$k] = number_format($result[$k] , 2, '.', '');
-            } elseif ($sample/$BMax < $param['c_min']) {
-                $result[$k] = (($sample / $BMax) * (log(($param['c_min'] - $param['a1']) / (-$param['a2']))) * (-$param['c']) / $param['c_min']) * $param['dilution'];
-                $result[$k] = number_format((float)$result[$k] , 2, '.', '');
-            } else {
-                $result[$k] = (log(($sample / $BMax - $param['a1']) / (-$param['a2']))) * (-$param['c']) * $param['dilution'];
-                $result[$k] = number_format((float)$result[$k] , 2, '.', '');
-            }
-            // result replacement
-            if ($result[$k] == "nan") {
-                $result[$k] = "> " . number_format((float)$param['c_max'], 0, '.', '');
-                //$result[$k] = number_format((float)$result[$k] , 2, '.', '');
-            }
-            if ($sample > 2) {
-                $result[$k] = "OVER!";
-            }
-            if ($result[$k] < $param['detection_limit']) {
-                $result[$k] = "< " . $param['detection_limit'];
-            }
-            
-
-            /*if ($result[$k] >= (float)$param['c_max'] && $result[$k] <= (float)$param['c_max'] * $param['dilution']) {
-                $result[$k] = number_format((float)$result[$k], 2, '.', '');
-            } elseif ($result[$k] >= (float)$param['c_max']) {
-                $result[$k] = "> " . number_format($param['c_max'] * $param['dilution'], 0, '.', '');
-            } elseif ($result[$k] >= (float)$param['c_max'] * $param['dilution']) {
-                $result[$k] = "> " . number_format((float)$param['c_max'], 0, '.', '');
-            }*/
-            
-            if (($param['dilution'] == 2) && ($result[$k] >= (float)$param['c_max'])) {
-                $result[$k] = "> " . number_format((float)$param['c_max'], 0, '.', '');
-            }
-            if($result[$k] >= (float)$param['c_max'] * 50) {
-                $result[$k] = "> " . number_format((float)$param['c_max'] * 50, 0, '.', '');
+        $BMax = $param['cal_od'] / $param['std_bmax']; // NO BLANK SUBSTRACTION !!!
+        $sample = $param['sample_od'];
+        // define condition
+        $condition1 = $sample + 0.01;
+        $condition2 = $sample / $BMax;
+        if ($condition1 > $BMax) {
+            $result = $param['c_max'];
+            $result = number_format((float)$result , 2, '.', '');
+        } elseif ($condition2 < $param['c_min']) {
+            $result = (($sample / $BMax) * (log(($param['c_min'] - $param['a1']) / (-$param['a2']))) * (-$param['c']) / $param['c_min']) * $param['dilution_factor'];
+            $result = number_format((float)$result , 2, '.', '');
+        } else {
+            $result = (log(($sample / $BMax - $param['a1']) / (-$param['a2']))) * (-$param['c']) * $param['dilution_factor'];
+            $result = number_format((float)$result , 2, '.', '');
+        }
+        // result replacement
+        if ($result >= (float)$param['c_max']) {
+            $result = number_format((float)$param['c_max'], 0, '.', '');
+        }
+        if ($result == "nan") {
+            $result = number_format((float)$param['c_max'], 0, '.', '');
+        }
+        if ($sample > 2) {
+            $result = number_format((float)$param['c_max'], 0, '.', '');
+        }
+        if (isset($param['detection_limit'])) {
+            if ($result < $param['detection_limit']) {
+                $result = $param['detection_limit'];
             }
         }
         return $result;
     }
-    
+
     /**
      * get results according to the selected units
-     * default unit = AU/ml = IU/ml = pg/ml
+     * default unit = AU/ml = IU/ml
      * @return array
      */
     public function getResult($value) {
         /** load unit details */
-        $unit_short = $this->database->table('calc_units')->get($value['unit'])->unit_short;
+        $unit_short = $this->database->table('calc_units_mono')->get($value['units_id'])->unit_short;
         /** get the result per unit */
         if ($unit_short == "IP") {
             $this->result = $this->calcIP($value);
@@ -435,11 +369,9 @@ class CalculatorMonoManager {
     {
         $param = $this->getParam($value);
         $result = $this->getResult($value);
-        $unit = $this->database->table('calc_units')->get($param['unit']);
-        
+        $unit = $this->database->table('calc_units_mono')->get($param['units_id']);
         /** set range according to the selected dilution */
-        if ($param['dilution'] == "101") {
-            
+        if ($param['dilutions_id'] == "1") { // 1 = serum
             $ip_min = $param['serum_ip_min'];
             $ip_max = $param['serum_ip_max'];
             $au_min = $param['serum_au_min'];
@@ -450,7 +382,7 @@ class CalculatorMonoManager {
             $vieu_max = $param['serum_vieu_max'];
             $iu_min = $param['serum_iu_min'];
             $iu_max = $param['serum_iu_max'];
-        } elseif ($param['dilution'] == "2") {
+        } elseif ($param['dilutions_id'] == "2") { // 2 = csf
             $ip_min = $param['csf_ip_min'];
             $ip_max = $param['csf_ip_max'];
             $au_min = $param['csf_au_min'];
@@ -463,43 +395,142 @@ class CalculatorMonoManager {
             $iu_max = $param['csf_iu_max'];
             $pg_min = $param['csf_pg_min'];
             $pg_max = $param['csf_pg_max'];
-        } elseif ($param['dilution'] == "81") {
+        } elseif ($param['dilutions_id'] == "3") { // 3 = sinovia
             $ip_min = $param['synovia_ip_min'];
             $ip_max = $param['synovia_ip_max'];
             $au_min = $param['synovia_au_min'];
             $au_max = $param['synovia_au_max'];
-        } elseif ($param['dilution'] == "505") {
+        } elseif ($param['dilutions_id'] == "5") { // 5 = 505x A.fumigatus
             $ip_min = $param['serum_ip_min'];
             $ip_max = $param['serum_ip_max'];
             $au_min = $param['serum_au_min'];
             $au_max = $param['serum_au_max'];
         } else {
-            $pg_min = $param['csf_pg_min'];
-            $pg_max = $param['csf_pg_max'];
+            $ip_min = "";
+            $ip_max = "";
+            $au_min = "";
+            $au_max = "";
+            $mlu_min = "";
+            $mlu_max = "";
+            $vieu_min = "";
+            $vieu_max = "";
+            $iu_min = "";
+            $iu_max = "";
+            $pg_min = "";
+            $pg_max = "";
         }
         
         /** set the interpretation per unit */
-        foreach ($result as $k =>$v) {
-            
+
             if ($unit->unit_short == "IP") {
-                $this->interpretation[$k] = (!empty($ip_min) && !empty($ip_min) ? ($v < $ip_min ? "<span id='ipret-negative'>Negative</span>" : ($v > $ip_max ? "<span id='ipret-positive'>Positive</span>" : "<span id='ipret-greyzone'>Greyzone<span>")) : "");
+                $this->interpretation = (!empty($ip_min) && !empty($ip_min) ? ($result < $ip_min ? "negative" : ($result > $ip_max ? "positive" : "<span id='ipret-greyzone'>Greyzone<span>")) : "");
             } elseif ($unit->unit_short == "AU") {
-                $this->interpretation[$k] = (!empty($au_min) && !empty($au_min) ? ($v < $au_min ? "<span id='ipret-negative'>Negative</span>" : ($v > $au_max ? "<span id='ipret-positive'>Positive</span>" : "<span id='ipret-greyzone'>Greyzone</span>")) : "");
+                $this->interpretation = (!empty($au_min) && !empty($au_min) ? ($result < $au_min ? "negative" : ($result > $au_max ? "positive" : "greyzone")) : "");
             } elseif ($unit->unit_short == "mlU") {
-                $this->interpretation[$k] = (!empty($mlu_min) && !empty($mlu_min) ? ($v < $mlu_min ? "<span id='ipret-negative'>Negative</span>" : ($v > $mlu_max ? "<span id='ipret-positive'>Positive</span>" : "<span id='ipret-greyzone'>Greyzone</span>")) : "");
+                $this->interpretation = (!empty($mlu_min) && !empty($mlu_min) ? ($result < $mlu_min ? "negative" : ($result > $mlu_max ? "positive" : "greyzone")) : "");
             } elseif ($unit->unit_short == "IU") {
-                $this->interpretation[$k] = (!empty($iu_min) && !empty($iu_min) ? ($v < $iu_min ? "<span id='ipret-negative'>Negative</span>" : ($v > $iu_max ? "<span id='ipret-positive'>Positive</span>" : "<span id='ipret-greyzone'>Greyzone</span>")) : "");
+                $this->interpretation = (!empty($iu_min) && !empty($iu_min) ? ($result < $iu_min ? "negative" : ($result > $iu_max ? "positive" : "greyzone")) : "");
             } elseif ($unit->unit_short == "pg") {
-                $this->interpretation[$k] = (!empty($pg_min) && !empty($pg_min) ? ($v == "< " . $param['detection_limit'] || $v < $pg_min ? "<span id='ipret-negative'>Negative</span>" : ($v > $pg_max ? "<span id='ipret-positive'>Positive</span>" : "<span id='ipret-greyzone'>Greyzone</span>")) : "");
+                $this->interpretation = (!empty($pg_min) && !empty($pg_min) ? ($result == "< " . $param['detection_limit'] || $result < $pg_min ? "negative" : ($result > $pg_max ? "positive" : "greyzone")) : "");
             } else {
-                $this->interpretation[$k] = (!empty($vieu_min) && !empty($vieu_min) ? ($v < $vieu_min ? "<span id='ipret-negative'>Negative</span>" : ($v > $vieu_max ? "<span id='ipret-positive'>Positive</span>" : "<span id='ipret-greyzone'>Greyzone</span>")) : "");
+                $this->interpretation = (!empty($vieu_min) && !empty($vieu_min) ? ($result < $vieu_min ? "negative" : ($result > $vieu_max ? "positive" : "greyzone")) : "");
             }
             
-            if ($v == "< Blank" || $v == "OVER!") {
-                $this->interpretation[$k] = "<span id='ipret-positive'></span>";
+        //dump($this->interpretation);exit;
+        return $this->interpretation;
+    }
+    
+    public function isMoreThenCmax($result): string {
+        // default result
+        $isMoreThen = "" . number_format($result->result, 2, ',', '');
+        // value for assays (without BBG, BBM, TBEVG)
+        if (!in_array($result->assays_id, [4 , 5, 40])) {
+            if ($result->result >= $result->c_max) {
+                $isMoreThen = "> " . $result->result;
             }
         }
-        return $this->interpretation;
+        // result for Borrelia IgG
+        if ($result->assays_id == 5) {
+            // AU/ml
+            if ($result->units_id == 2) { 
+                // Serum
+                if ($result->dilution_factor == "101") {
+                    if ($result->result >= $result->c_max) {
+                        $isMoreThen = "> " . $result->c_max;
+                    }
+                }
+                // CSF
+                if ($result->dilution_factor == "2") {
+                    if ($result->result >= 8) {
+                        $isMoreThen = "> 8";
+                    }
+                }
+                // Synovial
+                if ($result->dilution_factor == "81") {
+                    if ($result->result >= 320) {
+                        $isMoreThen = "> 320";
+                    }
+                }
+            }
+        }
+        // result for Borrelia IgM
+        if ($result->assays_id == 4) {
+            // AU/ml
+            if ($result->units_id == 2) {
+                // Serum
+                if ($result->dilution_factor == "101") {
+                    if ($result->result >= $result->c_max) {
+                        $isMoreThen = "> " . $result->c_max;
+                    }
+                }
+                // CSF
+                if ($result->dilution_factor == "2") {
+                    if ($result->result >= 16) {
+                        $isMoreThen = "> 16";
+                    }
+                }
+                // Synovial
+                if ($result->dilution_factor == "81") {
+                    if ($result->result >= 640) {
+                        $isMoreThen = "> 640";
+                    }
+                }
+            }
+        }
+        // result for TBEV IgG
+        if ($result->assays_id == 40) {
+            // AU/ml
+            if ($result->units_id == 2) {
+                // Serum
+                if ($result->dilution_factor == "101") {
+                    if ($result->result >= $result->c_max) {
+                        $isMoreThen = "> " . $result->c_max;
+                    }
+                }
+                // CSF
+                if ($result->dilution_factor == "2") {
+                    if ($result->result >= 16) {
+                        $isMoreThen = "> 16";
+                    }
+                }
+            }
+            // VIEU/ml
+            if ($result->units_id == 3) { 
+                // Serum
+                if ($result->dilution_factor == "101") {
+                    if ($result->result >= 2200) {
+                        $isMoreThen = "> 2200";
+                    }
+                }
+                // CSF
+                if ($result->dilution_factor == "2") {
+                    if ($result->result >= 45) {
+                        $isMoreThen = "> 45";
+                    }
+                }
+            }
+        }
+        return $isMoreThen;
     }
     
 }
