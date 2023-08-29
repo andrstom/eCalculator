@@ -137,36 +137,3 @@
         </div>
     </div>
 </div>
-
- {*<div class="section">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <h2>Způsob vyhodnocení</h2>
-                <input type="button" value="Zpět" class="btn btn-primary" onclick="history.back()">
-                {if $user->isInRole('Admin')}
-                    <a n:href=Assay:addDetectionType class="btn btn-primary">Nový</a>
-                {/if}
-                <table id="table4-standard" class="display">
-                    <thead>
-                        <th>Upravit</th>
-                        <th>Smazat</th>
-                        <th>ID</th>
-                        <th>Název</th>
-                        <th>Poznámka</th>
-                    </thead>
-                    <tbody>
-                        <tr n:foreach="$detection_types as $type" class="assay">
-                            <td><a n:href="Assay:editDetectionTypes $type->id" class="btn btn-info">Upravit</a></td>
-                            <td><a n:href="Assay:deleteDetectionTypes $type->id" onclick="return confirm('Opravdu smazat???');" class="btn btn-danger">Smazat</a></td>
-                            <td>{$type->id}</td>
-                            <td>{$type->detection_type}</td>
-                            <td>{$type->notice}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-*}
