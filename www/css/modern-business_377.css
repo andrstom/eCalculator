@@ -114,6 +114,14 @@ footer {
     }
 }
 
+.btn-addToList {
+    background: #40607d;
+}
+
+.btn-addToList:hover {
+    background: #74ace1;
+}
+
 .help {
     width: 100%;
     margin-bottom: 10px;
@@ -127,16 +135,16 @@ footer {
 #table-limits {
     align: center;
     border-collapse: separate;
-    border-spacing: 10px;
+    border-spacing: 5px;
 }
 
 #table-limits th {
     text-align: center;
-    border-left: 1px solid #b76598;
-    border-bottom: 1px solid #b76598;
-    border-right: 2px solid #b76598;
-    border-top: 2px solid #b76598;
-    border-radius: 5px;
+    border-left: 2px solid #2478b7;
+    border-bottom: 2px solid #2478b7;
+    border-right: 0px solid #2478b7;
+    border-top: 0px solid #2478b7;
+    border-radius: 4px;
 }
 
 .fw-bold {
@@ -463,28 +471,24 @@ h4 {
     font-style: italic;
 }
 
+.monotest-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 1em;
+    overflow: hidden;
+}
+
 .monotest-table thead {
     font-size: .9em;
 }
 
 .monotest-table th, .monotest-table td  {
     text-align: center;
+    padding: 0.5em;
 }
 
 .monotest-table .form-control {
     font-size: .95em;
-}
-
-.monotest-table .assay-deff {
-    background-color: #F5C6EC;
-}
-
-.monotest-table .validation-criteria {
-    background-color: #E11299;
-}
-
-.monotest-table .calc-parameters {
-    background-color: #FFEAEA;
 }
 
 .monotest-table .well {
@@ -492,16 +496,120 @@ h4 {
     border-radius: 50%;
     -web-border-radius: 50%;
     -moz-border-radius: 50%;
-    width: 75px;
-    height: 75px;
+    width: 60px;
+    height: 60px;
     padding: 5px;
     margin: 5px 5px;
-    font-size: 1.1em;
-    -webkit-box-shadow: 8px 12px 10px 0px rgba(0,0,0,0.75);
-    -moz-box-shadow: 8px 12px 10px 0px rgba(0,0,0,0.75);
-    box-shadow: 8px 12px 10px 0px rgba(0,0,0,0.75);
+    font-size: 1em;
+    -webkit-box-shadow: 8px 8px 8px 2px rgba(0,0,0,0.75);
+    -moz-box-shadow: 8px 8px 8px 2px rgba(0,0,0,0.75);
+    box-shadow: 8px 8px 8px 2px rgba(0,0,0,0.75);
 }
 
 .monotest-table .btn-danger {
     background-color: #9A208C;
 }
+
+.monotest-table-header {
+    
+    background-color: rgba(40, 63, 235,0.75);
+    box-shadow: 0px 4px 4px 0px rgba(0,0,0,0.65);
+    -webkit-box-shadow: 0px 4px 4px 0px rgba(0,0,0,0.65);
+    -moz-box-shadow: 0px 4px 4px 0px rgba(0,0,0,0.65);
+}
+
+.monotest-table-detail {
+    background-color: rgba(40, 63, 235,0.15);
+    width: 98%;
+    margin: 0px auto;
+    padding-top: 20px;
+    border-radius: 0;
+    -web-border-radius: 0;
+    -moz-border-radius: 0;
+}
+
+.monotest-table-detail th {
+    padding-top: 15px;
+    border:0px solid red;
+}
+
+.monotest-protocol-table {
+    border-radius: 5px;
+    padding: 5px;
+    margin: 5px;
+}
+
+.monotest-protocol-table:hover {
+    background-color: #dae5f7;
+}
+
+.monotest-protocol-table a {
+    cursor: pointer;
+    text-decoration: none;
+    color: #333333
+}
+
+.hidden {
+    display: none;
+}
+
+.sample {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.protocol-detail {
+    font-size: 0.8em;
+}
+
+.protocol-detail th, .protocol-detail td {
+    border: 1px solid grey;
+    text-align: center;
+}
+
+.valid {
+    color: #33ce00;
+}
+
+.invalid {
+    color: #f44336;
+    font-weight: bold;
+}
+
+.interpret- {
+    display: none;
+}
+
+.interpret-negative {
+    font-size: 6pt;
+    color: green;
+}
+
+.interpret-greyzone {
+    font-size: 6pt;
+    color: grey;
+}
+
+.interpret-positive {
+    font-size: 6pt;
+    color: red;
+}
+
+.buttons-menu {
+    list-style-type: none;
+    overflow: hidden;
+    margin: 5px auto;
+}
+
+.buttons-menu li {
+    float: right;
+    margin-right: 10px;
+}
+
+.buttons-menu li a {
+    display: inline-flex;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+}
+
