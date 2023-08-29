@@ -93,9 +93,13 @@ class MonoPresenter extends BasePresenter {
     
     /**
      * Handle for loading assay data
-     * @param int $value
+     * @param string $assay_id
+     * @param string $unit_id
+     * @param string $dilution_id
+     * @param string $sample_id
+     * @param string $batch
      */
-    public function handleLoadAssayDetails($assay_id = null, $unit_id = null, $dilution_id = null, $sample_id = null, $batch = null)
+    public function handleLoadAssayDetails(string $assay_id = null, string $unit_id = null, string $dilution_id = null, string $sample_id = null, string $batch = null)
     {
         if($assay_id) {
             $assayMono = $this->dbHandler->getAssaysMono()->get($assay_id);
@@ -170,6 +174,10 @@ class MonoPresenter extends BasePresenter {
         }
     }
     
+    /**
+     * Monotest form
+     * @return Form
+     */
     public function createComponentMonoForm() {
         // load user info
         $user = $this->getUser();
@@ -267,6 +275,10 @@ class MonoPresenter extends BasePresenter {
                 ->setHtmlAttribute('placeholder', 'Corr. factor')
                 ->addConditionOn($form['units_id'], Form::EQUAL, '1') // is required for unit IP
                     ->setRequired('Vyplnit Korekční factor / Fill in the Correction factor')
+                    ->endCondition()
+                ->addCondition($form::EQUAL, '0')
+                    ->addRule($form::RANGE, 'Hodnota musí být větší než 0 / The value must be greater then 0', [0])
+                    ->setRequired()
                     ->endCondition();
         $form->addText('std_bmax', 'CAL B/Bmax:')
                 ->setHtmlAttribute('placeholder', 'CAL B/Bmax')
@@ -474,7 +486,11 @@ class MonoPresenter extends BasePresenter {
         //$this->visitorManager->addVisitor($values);
     }
     
-    // Edit test on result protocol
+    /**
+     * Edit test on result protocol
+     * @param int $testId
+     * @param int $assaysId
+     */
     public function actionEditTest(int $testId, int $assaysId) {
         $editTest = $this->dbHandler->getMonoProtocols()->get($testId);
         if (!$editTest) {
@@ -508,7 +524,10 @@ class MonoPresenter extends BasePresenter {
         }
     }
     
-    // Delete test from result protocol
+    /**
+     * Delete test from result protocol
+     * @param int $testId
+     */
     public function actionDeleteTest(int $testId) {
         $delete = $this->dbHandler->getResultsBySession($this->getSession()->getId())->get($testId);
         if (!$delete) {
@@ -527,7 +546,10 @@ class MonoPresenter extends BasePresenter {
         }
     }
     
-    // Delete protocol
+    /**
+     * Delete protocol
+     * @param string $protocolId
+     */
     public function actionDeleteProtocol(string $protocolId) {
         $delete = $this->dbHandler->getResultsBySession($protocolId);
         if (!$delete) {
@@ -546,7 +568,10 @@ class MonoPresenter extends BasePresenter {
         }
     }
     
-    // Print PDF protocol
+    /**
+     * PDF protocol
+     * @param string $protocolId
+     */
     public function actionPrintPdf(string $protocolId) {
         $protocol = $this->dbHandler->getResultsBySession($protocolId)->fetchAll();
         if (!$protocol) {
@@ -563,7 +588,10 @@ class MonoPresenter extends BasePresenter {
         }
     }
     
-    // Eeport to excel
+    /**
+     * Export to excel
+     * $param string $protocolId
+     */
     public function actionExportExcel(string $protocolId) {
         $protocol = $this->dbHandler->getResultsBySession($protocolId)->fetchAll();
         if (!$protocol) {
