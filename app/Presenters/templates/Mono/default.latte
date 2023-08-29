@@ -161,7 +161,7 @@
                 {if $results->count() == 0}
                     <p>Protokol je prázdný / No results on the protocol.</p>
                 {else}
-                    <p>Celkový počet výsldků / Total results: {$results->count()}</p>
+                    <p>Celkový počet výsledků / Total results: {$results->count()}</p>
                     <ul class="buttons-menu">
                         <li><a n:href="Mono:printPdf $protocolId" target="_blank" class="btn btn-primary"><img src="{$basePath}/images/pdf_128_icon.png" height="20px" style="margin-right: 5px;">Uložit do PDF / Save to PDF (print)</a></li>
                         <li><a n:href="Mono:exportExcel $protocolId" target="_blank" class="btn btn-primary"><img src="{$basePath}/images/excel_128_icon.png" height="20px" style="margin-right: 5px;">Uložit do XLS / Save to XLS</a></li>
