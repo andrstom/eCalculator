@@ -1,7 +1,5 @@
 $(function () {
-    
     $.nette.init();
-    
 });
 
 // toggle
