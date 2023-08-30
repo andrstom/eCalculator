@@ -45,10 +45,6 @@ class DbHandler
             return $this->database->table('calc_layouts');
     }
     
-    /*public function getDetectionTypes() {
-            return $this->database->table('calc_detection_type');
-    }*/
-    
     public function getUsersAssays() {
             return $this->database->table('calc_users_assays');
     }
@@ -63,10 +59,6 @@ class DbHandler
     
     public function getAssaysLayouts() {
             return $this->database->table('calc_assays_layouts');
-    }
-    
-    public function getMonotests() {
-            return $this->database->table('calc_monotests');
     }
     
     public function getResultsBySession($protocol_id) {
