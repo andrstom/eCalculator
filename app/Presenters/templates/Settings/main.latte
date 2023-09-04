@@ -16,12 +16,12 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="btn-list">
-                    <div class="col-md-3"><a n:href="Settings:userlist" class="btn btn-primary"><i class="fa fa-users fa-5x" aria-hidden="false"></i><br>Uživatelé</a></div>
+                    <div class="col-md-2"><a n:href="Settings:userlist" class="btn btn-primary"><i class="fa fa-users fa-5x" aria-hidden="false"></i><br>Uživatelé</a></div>
                     {if $user->isInRole('Admin')}
-                        <div class="col-md-3"><a n:href="Settings:assaylist" class="btn btn-primary"><img src="{$basePath}/images/assays.png" width="70px"><br>Metody</a></div>
-                        <div class="col-md-3"><a n:href="Settings:unitlist" class="btn btn-primary"><img src="{$basePath}/images/units.png" width="70px"><br>Jednotky</a></div>
-                        <div class="col-md-3"><a n:href="Settings:readerlist" class="btn btn-primary"><img src="{$basePath}/images/photometer-icon.png" width="70px"><br>Fotometry</a></div>
-                        <div class="col-md-3"><a n:href="Mono:monoProtocols" class="btn btn-primary"><img src="{$basePath}/images/photometer-icon.png" width="70px"><br>MONO-VIDITEST protokoly</a></div>
+                        <div class="col-md-2"><a n:href="Settings:assaylist" class="btn btn-primary"><img src="{$basePath}/images/assays.png" width="70px"><br>Metody</a></div>
+                        <div class="col-md-2"><a n:href="Settings:unitlist" class="btn btn-primary"><img src="{$basePath}/images/units.png" width="70px"><br>Jednotky</a></div>
+                        <div class="col-md-2"><a n:href="Settings:readerlist" class="btn btn-primary"><img src="{$basePath}/images/photometer-icon.png" width="70px"><br>Fotometry</a></div>
+                        <div class="col-md-2"><a n:href="Mono:monoProtocols" class="btn btn-primary"><i class="fa fa-list-ul fa-4x" aria-hidden="true" width="70px"></i><br>MONO-VIDITEST<br>protokoly</a></div>
                     {/if}
                 </div>
             </div>
