@@ -4,3 +4,4 @@ app/config/local.neon
 /log
 /temp
 /db_backup
+/www/index_oprava.html
