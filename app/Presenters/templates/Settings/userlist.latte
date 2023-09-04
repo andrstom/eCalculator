@@ -52,7 +52,7 @@
                                 </td>
                                 <td>
                                     {foreach $client->related('calc_users_assays_mono') as $userAssayMono}
-                                        {$userAssayMono->assays->assay_short} ({$userAssayMono->units->unit_short})<br>
+                                        {$userAssayMono->assays->assay_short} ({$userAssayMono->unit->unit_short})<br>
                                     {/foreach}
                                 </td>
                                 <td>{$client->active}</td>
@@ -77,7 +77,7 @@
                                 </td>
                                 <td>
                                     {foreach $userlist->get($user->id)->related('calc_users_assays_mono') as $userAssayMono}
-                                        {$userAssayMono->assays->assay_short} ({$userAssayMono->units->unit_short})<br>
+                                        {$userAssayMono->assays->assay_short} ({$userAssayMono->unit->unit_short})<br>
                                     {/foreach}
                                 </td>
                                 <td>{$userlist->get($user->id)->active}</td>
