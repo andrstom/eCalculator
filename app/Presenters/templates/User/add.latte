@@ -45,7 +45,7 @@
                                     <hr>
                                     <p>{label notice}<textarea n:name=notice></textarea></p>
                                 <hr>
-                                <h3>Metody a jednotky:</h3>
+                                <h2>ELISA-VIDITEST&trade;</h2>
                                 {foreach $assays as $assay}
                                     <hr>
                                     <p><label for="elisa-assay-{$assay->id}"><input type="checkbox" name="assay[{$assay->id}]" id="elisa-assay-{$assay->id}" value="{$assay->id}"> {$assay->assay_name}</label></p>
@@ -56,7 +56,7 @@
                                     </p>
                                 {/foreach}
                                 <hr>
-                                <h2>MONO-VIDITEST</h2>
+                                <h2>MONO-VIDITEST&trade;</h2>
                                 {foreach $assaysMono as $assayMono}
                                     <!-- Empty inputs for user without assigned assays -->
                                     <p><label for="mono-assay-{$assayMono->id}"><input type="checkbox" name="assayMono[{$assayMono->id}]" id="mono-assay-{$assayMono->id}" value="{$assayMono->id}"> {$assayMono->assay_name}</label></p>
