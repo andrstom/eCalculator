@@ -38,15 +38,36 @@
                                 <p><small>Pro kvalitativní hodnocení vyplňte tabulku / Fill in the table for qualitative interpretation: <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#limits">Šedá zóna / Grey zone</button></small></p>
                                 {snippet paramSnippet}
                                     <div id="limits" class="collapse">
-                                        <table id="table-limits" align="center">
-                                            <tr><td></td><td></td><th colspan=3>Material / Sample</th></tr>
-                                            <tr><th>Jednotka<br>Unit</th><th>Limit</th><th>Serum</th><th>CSF</th><th>Synovia</th></tr>
-                                            <tr><th>IP</th><td>Min<br>Max</td><td>{input serum_ip_min}{input serum_ip_max}</td><td>{input csf_ip_min}{input csf_ip_max}</td><td>{input synovia_ip_min}{input synovia_ip_max}</td></tr>
-                                            <tr><th>AU/ml</th><td>Min<br>Max</td><td>{input serum_au_min}{input serum_au_max}</td><td>{input csf_au_min}{input csf_au_max}</td><td>{input synovia_au_min}{input synovia_au_max}</td></tr>
-                                            <tr><th>IU/ml</th><td>Min<br>Max</td><td>{input serum_iu_min}{input serum_iu_max}</td><td>{input csf_iu_min}{input csf_iu_max}</td><td></td></tr>
-                                            <tr><th>mlU/ml</th><td>Min<br>Max</td><td>{input serum_mlu_min}{input serum_mlu_max}</td><td>{input csf_mlu_min}{input csf_mlu_max}</td><td></td></tr>
-                                            <tr><th>VIEU/ml</th><td>Min<br>Max</td><td>{input serum_vieu_min}{input serum_vieu_max}</td><td>{input csf_vieu_min}{input csf_vieu_max}</td><td></td></tr>
-                                            <tr><th>pg/ml</th><td>Min<br>Max</td><td></td><td>{input csf_pg_min}{input csf_pg_max}</td><td></td></tr>
+                                        <table id="table-limits" align="center" class="monotest-table-detail">
+                                            <tr><td></td><td></td><th colspan=6>Units</th></tr>
+                                            <tr><th>Sample</th><th>Limit</th><th>IP</th><th>AU/ml</th><th>IU/ml</th><th>mlU/ml</th><th>VIEU/ml</th><th>pg/ml</th></tr>
+                                            <tr>
+                                                <th>Serum</th>
+                                                <td>Min<br>Max</td>
+                                                <td>{input serum_ip_min}{input serum_ip_max}</td>
+                                                <td>{input serum_au_min}{input serum_au_max}</td>
+                                                <td>{input serum_iu_min}{input serum_iu_max}</td>
+                                                <td>{input serum_mlu_min}{input serum_mlu_max}</td>
+                                                <td>{input serum_vieu_min}{input serum_vieu_max}</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <th>CSF</th>
+                                                <td>Min<br>Max</td>
+                                                <td>{input csf_ip_min}{input csf_ip_max}</td>
+                                                <td>{input csf_au_min}{input csf_au_max}</td>
+                                                <td>{input csf_iu_min}{input csf_iu_max}</td>
+                                                <td>{input csf_mlu_min}{input csf_mlu_max}</td>
+                                                <td>{input csf_vieu_min}{input csf_vieu_max}</td>
+                                                <td>{input csf_pg_min}{input csf_pg_max}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Synovia</th>
+                                                <td>Min<br>Max</td>
+                                                <td>{input synovia_ip_min}{input synovia_ip_max}</td>
+                                                <td>{input synovia_au_min}{input synovia_au_max}</td>
+                                                <td></td>
+                                            </tr>
                                         </table>
                                         <hr>
                                     </div>
