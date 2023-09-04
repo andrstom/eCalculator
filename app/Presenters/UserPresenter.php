@@ -185,7 +185,7 @@ class UserPresenter extends BasePresenter {
                     $this->dbHandler->getUsersAssaysMono()->insert([
                         'users_id' => $this->editUser->id,
                         'assays_id' => $k,
-                        'units_id' => $unitMono[0]
+                        'unit_id' => $unitMono[0]
                     ]);
                 }
             } else {
@@ -244,7 +244,7 @@ class UserPresenter extends BasePresenter {
                         $this->dbHandler->getUsersAssaysMono()->insert([
                             'users_id' => $userLastId,
                             'assays_id' => $k,
-                            'units_id' => $unitMono[0]
+                            'unit_id' => $unitMono[0]
                         ]);
                     }
                 } catch (\Nette\Database\UniqueConstraintViolationException $e) {
@@ -352,7 +352,7 @@ class UserPresenter extends BasePresenter {
                     $this->dbHandler->getUsersAssaysMono()->insert([
                         'users_id' => $userLastId,
                         'assays_id' => $k,
-                        'units_id' => $unitMono[0]
+                        'unit_id' => $unitMono[0]
                     ]);
                 }
                 $mail = new Message;
