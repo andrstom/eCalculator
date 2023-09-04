@@ -47,14 +47,13 @@
                                 {/if}
                                 <p>{label notice}<textarea n:name=notice></textarea></p>
                                 <hr>
-                                <h3>ELISA-VIDITEST</h3>
+                                <h2>ELISA-VIDITEST&trade;</h2>
                                 {foreach $assays as $assay}
                                     <!-- Empty inputs for user without assigned assays -->
                                     <p><label for="elisa-assay-{$assay->id}"><input type="checkbox" name="assay[{$assay->id}]" id="elisa-assay-{$assay->id}" value="{$assay->id}" 
                                     {foreach $getUser->related('calc_users_assays') as $userassay}
                                         {if $userassay->assays->id == $assay->id}  checked="checked" {/if}
                                     {/foreach} /> {$assay->assay_name}</label></p>
-
                                     {foreach $units as $unit}
                                         <label for="elisa-unit-{$assay->id}{$unit->id}"><input type="radio" name="unit[{$assay->id}][]" id="elisa-unit-{$assay->id}{$unit->id}" value="{$unit->id}"
                                         {foreach $getUser->related('calc_users_assays') as $userassay}
@@ -64,18 +63,17 @@
                                     <hr>
                                 {/foreach}
                                 <hr>
-                                <h2>MONO-VIDITEST</h2>
+                                <h2>MONO-VIDITEST&trade;</h2>
                                 {foreach $assaysMono as $assayMono}
                                     <!-- Empty inputs for user without assigned assays -->
                                     <p><label for="mono-assay-{$assayMono->id}"><input type="checkbox" name="assayMono[{$assayMono->id}]" id="mono-assay-{$assayMono->id}" value="{$assayMono->id}" 
                                     {foreach $getUser->related('calc_users_assays_mono') as $userassayMono}
                                         {if $userassayMono->assays->id == $assayMono->id}  checked="checked" {/if}
                                     {/foreach} /> {$assayMono->assay_name}</label></p>
-
                                     {foreach $unitsMono as $unitMono}
                                         <label for="mono-unit-{$assayMono->id}{$unitMono->id}"><input type="radio" name="unitMono[{$assayMono->id}][]" id="mono-unit-{$assayMono->id}{$unitMono->id}" value="{$unitMono->id}"
                                         {foreach $getUser->related('calc_users_assays_mono') as $userassayMono}
-                                            {if $userassayMono->assays->id == $assayMono->id && $userassayMono->units->id == $unitMono->id}  checked="checked" {/if}
+                                            {if $userassayMono->assays->id == $assayMono->id && $userassayMono->unit_id == $unitMono->id}  checked="checked" {/if}
                                         {/foreach} />{$unitMono->unit_name}</label>
                                     {/foreach}
                                     <hr>
