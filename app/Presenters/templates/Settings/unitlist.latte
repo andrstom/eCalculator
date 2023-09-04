@@ -14,11 +14,11 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
+                <h2>Jednotky pro soupravy ELISA-VIDITEST</h2>
                 <input type="button" value="Zpět" class="btn btn-primary" onclick="history.back()">
                 {if $user->isInRole('Admin')}
                     <a n:href=Unit:add class="btn btn-primary">Nový</a>
                 {/if}
-
                 <table id="table-standard" class="display">
                     <thead>
                         <th>Upravit</th>
@@ -44,6 +44,43 @@
                             <td>{$unit->created_at|date:'j.n.Y H:i'}</td>
                             <td>{$unit->editor}</td>
                             <td>{$unit->edited_at|date:'j.n.Y H:i'}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <h2>Jednotky pro soupravy MONO-VIDITEST</h2>
+                <input type="button" value="Zpět" class="btn btn-primary" onclick="history.back()">
+                {if $user->isInRole('Admin')}
+                    <a n:href=Unit:addMono class="btn btn-primary">Nový</a>
+                {/if}
+                <table id="table2-standard" class="display">
+                    <thead>
+                        <th>Upravit</th>
+                        <th>Smazat</th>
+                        <th>Zkratka</th>
+                        <th>Název</th>
+                        <th>Poznámka</th>
+                        <th>Aktivní</th>
+                        <th>Vložil</th>
+                        <th>Datum vložení</th>
+                        <th>Upravil</th>
+                        <th>Datum úpravy</th>
+                    </thead>
+                    <tbody>
+                        <tr n:foreach="$unitlistMono as $unitMono" class="unit">
+                            <td><a n:href="Unit:editMono $unitMono->id" class="btn btn-info">Upravit</a></td>
+                            <td><a n:href="Unit:deleteMono $unitMono->id" onclick="return confirm('Opravdu smazat???');" class="btn btn-danger">Smazat</a></td>
+                            <td>{$unitMono->unit_short}</td>
+                            <td>{$unitMono->unit_name}</td>
+                            <td>{$unitMono->notice}</td>
+                            <td>{$unitMono->active}</td>
+                            <td>{$unitMono->creator}</td>
+                            <td>{$unitMono->created_at|date:'j.n.Y H:i'}</td>
+                            <td>{$unitMono->editor}</td>
+                            <td>{$unitMono->edited_at|date:'j.n.Y H:i'}</td>
                         </tr>
                     </tbody>
                 </table>
