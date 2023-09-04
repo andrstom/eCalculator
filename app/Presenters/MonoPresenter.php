@@ -56,7 +56,6 @@ class MonoPresenter extends BasePresenter {
 
     public function renderDefault() {
         $this->template->assayIterator = 0;
-        $this->template->monotests = $this->dbHandler->getMonotests();
         $this->template->dilutions = $this->dbHandler->getDilutions();
         $this->template->results = $this->dbHandler->getResultsBySession($this->getSession()->getId());
         $this->template->calculatorMonoManager = $this->calculatorMonoManager;
