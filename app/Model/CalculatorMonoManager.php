@@ -471,7 +471,7 @@ class CalculatorMonoManager {
         $isMoreThen = "" . number_format($result->result, 2, ',', '');
         // value for assays (without BBG, BBM, TBEVG)
         if (!in_array($result->assays_id, [4 , 5, 40])) {
-            if ($result->result >= $result->c_max) {
+            if ($result->units_id != 1 && $result->result >= $result->c_max) {
                 $isMoreThen = "> " . $result->result;
             }
         }
