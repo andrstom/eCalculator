@@ -165,7 +165,7 @@
                     <ul class="buttons-menu">
                         <li><a n:href="Mono:printPdf $protocolId" target="_blank" class="btn btn-primary"><img src="{$basePath}/images/pdf_128_icon.png" height="20px" style="margin-right: 5px;">Uložit do PDF / Save to PDF (print)</a></li>
                         <li><a n:href="Mono:exportExcel $protocolId" target="_blank" class="btn btn-primary"><img src="{$basePath}/images/excel_128_icon.png" height="20px" style="margin-right: 5px;">Uložit do XLS / Save to XLS</a></li>
-                        <li><a n:href="Mono:deleteProtocol $protocolId" onclick="return confirm('Opravdu si přejete vymazat testy z protokolu? / Are you sure you want to delete the tests from the protocol?');" class="btn btn-danger"><i class="fa-solid fa-broom" style="margin: 3px 5px 0 0; color: #ffffff;"></i>Vymazat testy / Clean protocol</a></li>
+                        <li><a n:href="Mono:deleteProtocol $protocolId, $actualRequest" onclick="return confirm('Opravdu si přejete vymazat testy z protokolu? / Are you sure you want to delete the tests from the protocol?');" class="btn btn-danger"><i class="fa-solid fa-broom" style="margin: 3px 5px 0 0; color: #ffffff;"></i>Vymazat testy / Clean protocol</a></li>
                     </ul>
                     <hr>
                     {var $iterator = 0}
@@ -205,7 +205,7 @@
                                     <th>{$verified_result} ({$unitShort}) <div class="interpret-{$result['interpretation']}">{$result['interpretation']}</div></th>
                                     <td><button type="button" class="btn btn-info" data-toggle="collapse" data-target="#assay-detail-{$result->id}">Detail</button></td>
                                     <td><a n:href="Mono:editTest $result->id, $result->assays_id" class="btn btn-warning">Edit</a></td>
-                                    <td><a n:href="Mono:deleteTest $result->id" onclick="return confirm('Are you sure you want to delete the record?');" class="btn btn-danger">Delete</a></td>
+                                    <td><a n:href="Mono:deleteTest $result->id, $actualRequest" onclick="return confirm('Are you sure you want to delete the record?');" class="btn btn-danger">Delete</a></td>
                                     <td>{* actualRequest = backlink *}
                                         {if $result->test_order > 1}<a n:href="Mono:changePosition $result->id, -1, $protocolId, $actualRequest" class="btn btn-default"><i class="fa-solid fa-chevron-up" style="color: #000000;"></i></a>{/if}
                                         {if $result->test_order < $results->count()}<a n:href="Mono:changePosition $result->id, 1, $protocolId, $actualRequest" class="btn btn-default"><i class="fa-solid fa-chevron-down" style="color: #000000;"></i></a>{/if}
@@ -269,7 +269,7 @@
                     <ul class="buttons-menu">
                         <li><a n:href="Mono:printPdf $protocolId" target="_blank" class="btn btn-primary"><img src="{$basePath}/images/pdf_128_icon.png" height="20px" style="margin-right: 5px;">Uložit do PDF / Save to PDF (print)</a></li>
                         <li><a n:href="Mono:exportExcel $protocolId" target="_blank" class="btn btn-primary"><img src="{$basePath}/images/excel_128_icon.png" height="20px" style="margin-right: 5px;">Uložit do XLS / Save to XLS</a></li>
-                        <li><a n:href="Mono:deleteProtocol $protocolId" onclick="return confirm('Opravdu si přejete vymazat testy z protokolu? / Are you sure you want to delete the tests from the protocol?');" class="btn btn-danger"><i class="fa-solid fa-broom" style="margin: 3px 5px 0 0; color: #ffffff;"></i>Vymazat testy / Clean protocol</a></li>
+                        <li><a n:href="Mono:deleteProtocol $protocolId, $actualRequest" onclick="return confirm('Opravdu si přejete vymazat testy z protokolu? / Are you sure you want to delete the tests from the protocol?');" class="btn btn-danger"><i class="fa-solid fa-broom" style="margin: 3px 5px 0 0; color: #ffffff;"></i>Vymazat testy / Clean protocol</a></li>
                     </ul>
                 {/if}
             </div>

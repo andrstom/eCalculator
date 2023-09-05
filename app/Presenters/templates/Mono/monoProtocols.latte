@@ -32,7 +32,7 @@
                                     <td>{$monoProtocol->protocol_id}</td>
                                     <td>{$monoProtocol->created_at|date:'j.n.Y H:i'}</td>
                                     <td><a n:href="Mono:viewProtocol $monoProtocol->protocol_id" class="btn btn-info pull-right">Zobrazit</a></td>
-                                    <td><a n:href="Mono:deleteProtocol $monoProtocol->protocol_id" onclick="return confirm('Smazat protokol?');" class="btn btn-danger pull-right">Smazat</a></td>
+                                    <td><a n:href="Mono:deleteProtocol $monoProtocol->protocol_id, $actualRequest" onclick="return confirm('Smazat protokol?');" class="btn btn-danger pull-right">Smazat</a></td>
                                 </tr>
                             {/foreach}
                         </tbody>

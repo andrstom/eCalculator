@@ -56,7 +56,8 @@ class MonoPresenter extends BasePresenter
     public $userassay;
     public $editTest;
 
-    public function renderDefault() {
+    public function renderDefault()
+    {
         $this->template->assayIterator = 0;
         $this->template->dilutions = $this->dbHandler->getDilutions();
         $this->template->results = $this->dbHandler->getResultsBySession($this->getSession()->getId());
@@ -67,7 +68,8 @@ class MonoPresenter extends BasePresenter
     /**
      * @param int $testId
      */
-    public function renderEdit(int $testId) {
+    public function renderEdit(int $testId)
+    {
         $editTest = $this->dbHandler->getResultsBySession($this->getSession()->getId())->get($testId);
         $this->template->editTest = $editTest;
         if (!$editTest) {
@@ -75,14 +77,16 @@ class MonoPresenter extends BasePresenter
         }
     }
 
-    public function renderMonoProtocols() {
+    public function renderMonoProtocols()
+    {
         $this->template->monoProtocols = $this->dbHandler->getMonoProtocols()->group('protocol_id');
     }
 
     /**
      * @param string $protocolId
      */
-    public function renderViewProtocol(string $protocolId) {
+    public function renderViewProtocol(string $protocolId)
+    {
         $protocol = $this->dbHandler->getResultsBySession($protocolId);
         $this->template->protocol = $protocol;
         $this->template->protocolId = $protocolId;
@@ -179,7 +183,8 @@ class MonoPresenter extends BasePresenter
      * Monotest form
      * @return Form
      */
-    public function createComponentMonoForm() {
+    public function createComponentMonoForm()
+    {
         // load user info
         $user = $this->getUser();
         // load active units
@@ -346,7 +351,8 @@ class MonoPresenter extends BasePresenter
      * Execute form
      * @param form
      */
-    public function monoCalcFormSuccesed($form) {
+    public function monoCalcFormSuccesed($form)
+    {
         // get values from form
         $values = $form->getHttpData();
         
@@ -498,7 +504,8 @@ class MonoPresenter extends BasePresenter
      * @param int $testId
      * @param int $assaysId
      */
-    public function actionEditTest(int $testId, int $assaysId) {
+    public function actionEditTest(int $testId, int $assaysId)
+    {
         $editTest = $this->dbHandler->getMonoProtocols()->get($testId);
         if (!$editTest) {
             $this->error('Test neexistuje. / Test is not exist.');
@@ -534,9 +541,11 @@ class MonoPresenter extends BasePresenter
     /**
      * Delete test from result protocol
      * @param int $testId
+     * &param string $actualRequest
      */
-    public function actionDeleteTest(int $testId) {
-        $delete = $this->dbHandler->getResultsBySession($this->getSession()->getId())->get($testId);
+    public function actionDeleteTest(int $testId, string $actualRequest)
+    {
+        $delete = $this->dbHandler->getMonoProtocols()->get($testId);
         if (!$delete) {
             $this->error('Nelze smazat, záznam neexistuje nebo byl již smazán!!! / Unable to delete, result does not exist or has already been deleted!');
         } else {
@@ -544,6 +553,7 @@ class MonoPresenter extends BasePresenter
                 $delete->delete();
                 // redirect and message
                 $this->flashMessage('Removed.');
+                $this->restoreRequest($actualRequest);
                 $this->redirect('Mono:default');
             } catch (Exception $e) {
                 // redirect and message
@@ -556,8 +566,10 @@ class MonoPresenter extends BasePresenter
     /**
      * Delete protocol
      * @param string $protocolId
+     * &param string $actualRequest
      */
-    public function actionDeleteProtocol(string $protocolId) {
+    public function actionDeleteProtocol(string $protocolId, string $actualRequest)
+    {
         $delete = $this->dbHandler->getResultsBySession($protocolId);
         if (!$delete) {
             $this->error('Unable to delete, protocol does not exist or has already been deleted!');
@@ -566,6 +578,7 @@ class MonoPresenter extends BasePresenter
                 $delete->delete();
                 // redirect and message
                 $this->flashMessage('Cleaned up.');
+                $this->restoreRequest($actualRequest);
                 $this->redirect('Mono:default');
             } catch (Exception $e) {
                 // redirect and message
