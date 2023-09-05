@@ -11,6 +11,11 @@ use Nette\Application\UI\Form;
  */
 abstract class BasePresenter extends Nette\Application\UI\Presenter {
     
+    public function startup() {
+        parent::startup();
+        $this->template->actualRequest = $this->storeRequest();
+    }
+    
     function makeStyleBootstrap3(Form $form) {
         $renderer = $form->getRenderer();
         $renderer->wrappers['controls']['container'] = NULL;

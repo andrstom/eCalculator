@@ -4,6 +4,7 @@ namespace App\Presenters;
 
 use Nette;
 use Nette\Application\UI\Form;
+use Nette\Application\Attributes\Persistent;
 use Nette\Forms\Container;
 use Nette\Application\UI\Multiplier;
 use Nette\Security\Identity;
@@ -13,7 +14,8 @@ use App\Model\CalculatorMonoManager;
 use App\Model\VisitorManager;
 
 
-class MonoPresenter extends BasePresenter {
+class MonoPresenter extends BasePresenter
+{
     
     /**
      * @var \App\Model\DbHandler
@@ -447,11 +449,16 @@ class MonoPresenter extends BasePresenter {
                         'created_at' => $time,
                     ]);
                     $test = $this->dbHandler->getResultsBySession($values['protocol_id'])->where('created_at', $time);
+                    $test_count = $this->dbHandler->getResultsBySession($values['protocol_id'])->count();
                     // update result for selected unit
                     if ($unit_short == "IP") {
-                        $test->update(['kf' => $this->calculatorMonoManager->getParam($values['kf'])]);
+                        $test->update([
+                            'kf' => $this->calculatorMonoManager->getParam($values['kf']),
+                            'test_order' => $test_count
+                        ]);
                     } elseif ($unit_short == "pg") {
                         $test->update([
+                            'test_order' => $test_count,
                             'detection_limit' => $this->calculatorMonoManager->getParam($values['detection_limit']),
                             'std_bmax' => $this->calculatorMonoManager->getParam($values['std_bmax']),
                             'a1' => $this->calculatorMonoManager->getParam($values['a1']),
@@ -462,6 +469,7 @@ class MonoPresenter extends BasePresenter {
                         ]);
                     } else {
                         $test->update([
+                            'test_order' => $test_count,
                             'std_bmax' => $this->calculatorMonoManager->getParam($values['std_bmax']),
                             'a1' => $this->calculatorMonoManager->getParam($values['a1']),
                             'a2' => $this->calculatorMonoManager->getParam($values['a2']),
@@ -604,6 +612,33 @@ class MonoPresenter extends BasePresenter {
                 $this->flashMessage('Error during export to EXCEL. (CHYBA: ' . $e . ')');
                 $this->redirect('Mono:default');
             }
+        }
+    }
+    
+    public function actionChangePosition(int $resultId, int $index, string $protocolId, string $actualRequest)
+    {
+        $allTests = $this->dbHandler->getResultsBySession($protocolId);
+        $testsCount = $allTests->count();
+        $testActualOrder = $this->dbHandler->getResultsBySession($protocolId)->get($resultId);
+        $test_order = $testActualOrder->test_order;
+        $testNewOrder = $this->dbHandler->getResultsBySession($protocolId)->where('test_order', $testActualOrder->test_order + $index)->fetch();
+        
+        if ($testNewOrder && ($testNewOrder['test_order'] != 0 || $testNewOrder['test_order'] > $testsCount)) {
+            try {
+                $testActualOrder->update([
+                    'test_order' => $test_order + $index,
+                ]);
+                $testNewOrder->update([
+                    'test_order' => $test_order,
+                ]);
+                $this->restoreRequest($actualRequest);
+                $this->redirect('Mono:default');
+            } catch (Exception $e) {
+                // redirect and message
+                $this->flashMessage('Error during changing position. (CHYBA: ' . $e . ')');
+                $this->redirect('Mono:default');
+            }
+            
         }
     }
 }

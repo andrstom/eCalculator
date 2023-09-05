@@ -62,7 +62,7 @@ class DbHandler
     }
     
     public function getResultsBySession($protocol_id) {
-            return $this->database->table('calc_mono_results')->where('protocol_id', $protocol_id);
+            return $this->database->table('calc_mono_results')->where('protocol_id', $protocol_id)->order('test_order');
     }
     
     public function getAllowedUnits() {
