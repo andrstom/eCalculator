@@ -273,49 +273,81 @@ class MonoPresenter extends BasePresenter
             ->setHtmlAttribute('placeholder', 'LOT');
         $form->addText('blank_max', '* Blank < X:')
             ->setRequired('Vyplnit Blank < X / Fill in the Blank < X')
-            ->setHtmlAttribute('placeholder', 'OD Blank maximum');
+            ->setHtmlAttribute('placeholder', 'OD Blank maximum')
+            ->addCondition($form::EQUAL, '0')
+                ->addRule($form::RANGE, 'Korekční faktor musí být větší než 0 / Correction factor must be greater then 0', [0])
+                ->setRequired()
+                ->endCondition();
         $form->addText('cal_min', '* CAL > X:')
             ->setRequired('Vyplnit CAL > X / Fill in the CAL > X')
-            ->setHtmlAttribute('placeholder', 'OD CAL minimum');
+            ->setHtmlAttribute('placeholder', 'OD CAL minimum')
+            ->addCondition($form::EQUAL, '0')
+                ->addRule($form::RANGE, 'Korekční faktor musí být větší než 0 / Correction factor must be greater then 0', [0])
+                ->setRequired()
+                ->endCondition();
         $form->addText('kf', 'Korekční faktor / Correction factor:')
-                ->setHtmlAttribute('placeholder', 'Corr. factor')
-                ->addConditionOn($form['units_id'], Form::EQUAL, '1') // is required for unit IP
-                    ->setRequired('Vyplnit Korekční factor / Fill in the Correction factor')
-                    ->endCondition()
-                ->addCondition($form::EQUAL, '0')
-                    ->addRule($form::RANGE, 'Hodnota musí být větší než 0 / The value must be greater then 0', [0])
-                    ->setRequired()
-                    ->endCondition();
+            ->setHtmlAttribute('placeholder', 'Corr. factor')
+            ->addConditionOn($form['units_id'], Form::EQUAL, '1') // is required for unit IP
+                ->setRequired('Vyplnit Korekční factor / Fill in the Correction factor')
+                ->endCondition()
+            ->addCondition($form::EQUAL, '0')
+                ->addRule($form::RANGE, 'Korekční faktor musí být větší než 0 / Correction factor must be greater then 0', [0])
+                ->setRequired()
+                ->endCondition();
         $form->addText('std_bmax', 'CAL B/Bmax:')
-                ->setHtmlAttribute('placeholder', 'CAL B/Bmax')
-                ->addConditionOn($form['units_id'], Form::NOT_EQUAL, '1') // is required for unit non-IP
-                    ->setRequired('Vyplnit CAL B/Bmax / Fill in the CAL B/Bmax')
-                    ->endCondition();
+            ->setHtmlAttribute('placeholder', 'CAL B/Bmax')
+            ->addConditionOn($form['units_id'], Form::NOT_EQUAL, '1') // is required for unit non-IP
+                ->setRequired('Vyplnit CAL B/Bmax / Fill in the CAL B/Bmax')
+                ->endCondition()
+            ->addCondition($form::EQUAL, '0')
+                ->addRule($form::RANGE, 'CAL B/Bmax musí být větší než 0 / CAL B/Bmax must be greater then 0', [0])
+                ->setRequired()
+                ->endCondition();
         $form->addText('a1', 'A1:')
-                ->setHtmlAttribute('placeholder', 'A1')
-                ->addConditionOn($form['units_id'], Form::NOT_EQUAL, '1') // is required for unit non-IP
-                    ->setRequired('Vyplnit parametr A1 / Fill in the parameter A1')
-                    ->endCondition();
+            ->setHtmlAttribute('placeholder', 'A1')
+            ->addConditionOn($form['units_id'], Form::NOT_EQUAL, '1') // is required for unit non-IP
+                ->setRequired('Vyplnit parametr A1 / Fill in the parameter A1')
+                ->endCondition()
+            ->addCondition($form::EQUAL, '0')
+                ->addRule($form::RANGE, 'A1 musí být větší než 0 / A1 must be greater then 0', [0])
+                ->setRequired()
+                ->endCondition();
         $form->addText('a2', 'A2:')
-                ->setHtmlAttribute('placeholder', 'A2')
-                ->addConditionOn($form['units_id'], Form::NOT_EQUAL, '1') // is required for unit non-IP
-                    ->setRequired('Vyplnit parametr A2 / Fill in the parameter A2')
-                    ->endCondition();
+            ->setHtmlAttribute('placeholder', 'A2')
+            ->addConditionOn($form['units_id'], Form::NOT_EQUAL, '1') // is required for unit non-IP
+                ->setRequired('Vyplnit parametr A2 / Fill in the parameter A2')
+                ->endCondition()
+            ->addCondition($form::EQUAL, '0')
+                ->addRule($form::RANGE, 'A2 musí být větší než 0 / A2 must be greater then 0', [0])
+                ->setRequired()
+                ->endCondition();
         $form->addText('c', 'C:')
-                ->setHtmlAttribute('placeholder', 'C')
-                ->addConditionOn($form['units_id'], Form::NOT_EQUAL, '1') // is required for unit non-IP
-                    ->setRequired('Vyplnit parametr C / Fill in the parameter C')
-                    ->endCondition();
+            ->setHtmlAttribute('placeholder', 'C')
+            ->addConditionOn($form['units_id'], Form::NOT_EQUAL, '1') // is required for unit non-IP
+                ->setRequired('Vyplnit parametr C / Fill in the parameter C')
+                ->endCondition()
+            ->addCondition($form::EQUAL, '0')
+                ->addRule($form::RANGE, 'C musí být větší než 0 / C must be greater then 0', [0])
+                ->setRequired()
+                ->endCondition();
         $form->addText('c_min', 'Cmin:')
-                ->setHtmlAttribute('placeholder', 'Cmin')
-                ->addConditionOn($form['units_id'], Form::NOT_EQUAL, '1') // is required for unit non-IP
-                    ->setRequired('Vyplnit parametr Cmin / Fill in the parameter Cmin')
-                    ->endCondition();
+            ->setHtmlAttribute('placeholder', 'Cmin')
+            ->addConditionOn($form['units_id'], Form::NOT_EQUAL, '1') // is required for unit non-IP
+                ->setRequired('Vyplnit parametr Cmin / Fill in the parameter Cmin')
+                ->endCondition()
+            ->addCondition($form::EQUAL, '0')
+                ->addRule($form::RANGE, 'Cmin musí být větší než 0 / Cmin must be greater then 0', [0])
+                ->setRequired()
+                ->endCondition();
         $form->addText('c_max', 'Cmax:')
-                ->setHtmlAttribute('placeholder', 'Cmax')
-                ->addConditionOn($form['units_id'], Form::NOT_EQUAL, '1') // is required for unit non-IP
-                    ->setRequired('Vyplnit parametr Cmax / Fill in the parameter Cmax')
-                    ->endCondition();
+            ->setHtmlAttribute('placeholder', 'Cmax')
+            ->addConditionOn($form['units_id'], Form::NOT_EQUAL, '1') // is required for unit non-IP
+                ->setRequired('Vyplnit parametr Cmax / Fill in the parameter Cmax')
+                ->endCondition()
+            ->addCondition($form::EQUAL, '0')
+                ->addRule($form::RANGE, 'Cmax musí být větší než 0 / Cmax must be greater then 0', [0])
+                ->setRequired()
+                ->endCondition();
         $form->addText('detection_limit', 'Detection limit')
             ->setHtmlAttribute('placeholder', 'Detection limit')
             ->addConditionOn($form['assays_id'], Form::EQUAL, '47') // detection_limit is required for MONO-CXCL13 assay
