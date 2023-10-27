@@ -108,8 +108,9 @@ class MonoPresenter extends BasePresenter
     {
         if($assay_id) {
             $assayMono = $this->dbHandler->getAssaysMono()->get($assay_id);
+            $allowedDilutions = $assayMono->related('calc_allowed_dilutions');
             $this->template->assayMono = $assayMono;
-            foreach ($assayMono->related('calc_allowed_dilutions') as $allowedDilution) {
+            foreach ($allowedDilutions as $allowedDilution) {
                 $dilutions[$allowedDilution->dilutions->id] = $allowedDilution->dilutions->sample_type;
             }
             $this->template->dilutions = $dilutions;
@@ -124,6 +125,9 @@ class MonoPresenter extends BasePresenter
                     $this['monoForm']['units_id']->setDefaultValue($unit_id);
                     $this->template->unitName = $unit->unit_name;
                 }
+//                if (in_array($dilution_id, $dilutions)) {
+//                    $this['monoForm']['dilutions_id']->setDefaultValue($dilution_id);
+//                }
                 $this['monoForm']['dilutions_id']->setDefaultValue($dilution_id);
                 $this['monoForm']['sample_id']->setDefaultValue($sample_id);
             }
