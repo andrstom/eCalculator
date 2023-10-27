@@ -187,6 +187,10 @@ class CalculatorMonoManager {
         if ($assay_id == 40 && $dilution_factor == 2 && $unit_id == 3  && ($result >= 45 || $result == "nan")) {
             $specialResult = 45;
         }
+        // VCA IgG + CSF + AU
+        if ($assay_id == 15 && $dilution_factor == 2 && $unit_id == 2  && ($result >= 16 || $result == "nan")) {
+            $specialResult = 16;
+        }
         // ASFU IgG
         if ($assay_id == 3 && ($result >= $c_max || $result == "nan")) {  
             $specialResult = number_format($CmaxRounded / 5, 0, '.', '');
@@ -227,13 +231,16 @@ class CalculatorMonoManager {
         $sample = $param['sample_od'] - $Blank;
         // define condition
         $condition1 = $sample + 0.05;
-        $condition2 = $sample / $BMax;
+        $condition2 = ($sample / $BMax) - $param['a1'];
+        $condition3 = $sample / $BMax;
         // the calculation is made according to the condition
         if ($sample <= 0) { // division by zero
             $result = 0;
         } elseif ($condition1 > $BMax) {
             $result = number_format($CmaxRounded, 0, '.', '');
-        } elseif ($condition2 < $param['c_min']) {
+        } elseif ($condition2 > 0) {
+            $result = number_format($CmaxRounded, 0, '.', '');
+        } elseif ($condition3 < $param['c_min']) {
             $result = ((($sample / $BMax) * (log(($param['c_min'] - $param['a1']) / (-$param['a2']))) * (-$param['c']) / $param['c_min']) / 101) * $param['dilution_factor'];
             if ($param['assays_id'] == 3) { // result for MONO-ASFUG
                 $result = $result / 5;
@@ -265,17 +272,20 @@ class CalculatorMonoManager {
         $sample = $param['sample_od'] - $Blank;
         // define conditions
         $condition1 = $sample + 0.05;
-        $condition2 = $sample / $BMax;
-        $condition3 = log(($sample / $BMax - $param['a1']) / (-$param['a2'])) * (-$param['c']);
+        $condition2 = ($sample / $BMax) - $param['a1'];
+        $condition3 = $sample / $BMax;
+        $condition4 = log(($sample / $BMax - $param['a1']) / (-$param['a2'])) * (-$param['c']);
         // the calculation is made according to the condition
         if ($sample <= 0) { // check division by zero
             $result = 0;
         } elseif ($condition1 > $BMax) {
             $result = number_format($CmaxRounded, 0, '.', '');
-        } elseif ($condition2 < $param['c_min']) {
+        } elseif ($condition2 > 0) {
+            $result = number_format($CmaxRounded, 0, '.', '');
+        } elseif ($condition3 < $param['c_min']) {
             $result = ((($sample / $BMax) * (log(($param['c_min'] - $param['a1']) / (-$param['a2']))) * (-$param['c']) / $param['c_min']) / 101) * $param['dilution_factor'];
             $result = number_format($result , 2, '.', '');
-        } elseif ($condition3 > $param['c_max']) {
+        } elseif ($condition4 > $param['c_max']) {
             $result = number_format($CmaxRounded, 0, '.', '');
         } else {
             $result = ((log(($sample / $BMax - $param['a1']) / (-$param['a2'])) * (-$param['c'])) / 101) * $param['dilution_factor'];
@@ -299,12 +309,15 @@ class CalculatorMonoManager {
         $sample = $param['sample_od'] - $Blank;
         // define condition
         $condition1 = $sample + 0.05;
-        $condition2 = $sample / $BMax;
+        $condition2 = ($sample / $BMax) - $param['a1'];
+        $condition3 = $sample / $BMax;
         if ($sample <= 0) { // check division by zero
             $result = 0;
         } elseif ($condition1 > $BMax) {
             $result = ($param['dilution_factor'] == "2") ? 45 : 2200;
-        } elseif ($condition1 < $param['c_min']) {
+        } elseif ($condition2 > 0) {
+            $result = ($param['dilution_factor'] == "2") ? 45 : 2200;
+        } elseif ($condition3 < $param['c_min']) {
             $result = ($sample / $BMax) * (log(($param['c_min'] - $param['a1']) / (-$param['a2']))) * (-$param['c']) / $param['c_min'];
             $result = ((2140.6 - (2085) / (1 + ($result * $result) / 5055.2)) / 101 ) * $param['dilution_factor'];
             $result = number_format($result , 2, '.', '');
@@ -330,11 +343,15 @@ class CalculatorMonoManager {
         $sample = $param['sample_od'];
         // define condition
         $condition1 = $sample + 0.01;
-        $condition2 = $sample / $BMax;
+        $condition2 = ($sample / $BMax) - $param['a1'];
+        $condition3 = $sample / $BMax;
         if ($condition1 > $BMax) {
             $result = $param['c_max'];
-            $result = number_format($result , 2, '.', '');
-        } elseif ($condition2 < $param['c_min']) {
+            $result = number_format($result , 0, '.', '');
+        } elseif ($condition2 > 0) {
+            $result = $param['c_max'];
+            $result = number_format($result , 0, '.', '');
+        } elseif ($condition3 < $param['c_min']) {
             $result = (($sample / $BMax) * (log(($param['c_min'] - $param['a1']) / (-$param['a2']))) * (-$param['c']) / $param['c_min']) * $param['dilution_factor'];
             $result = number_format($result , 2, '.', '');
         } else {
